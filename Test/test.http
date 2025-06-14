@@ -1,0 +1,4 @@
+### STATUS 200
+GET localhost:8080/operator
+Content-Type: application/json
+Authorization: Basic admin test

@@ -1,0 +1,22 @@
+http:
+ port: 8080
+
+postgres:
+ host: "postgreSQL"
+ port: 5432
+ user: "postgres"
+ password: "4650"
+ dbname: "default"
+ sslmode: "disable"
+
+redis:
+ host: "redis"
+ password: "some_password"
+ port: 6379
+
+clickhouse:
+ host: "clickhouse"
+ port: 9000
+ user: "default"
+ password: "some_password"
+ dbname: "default"
