@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"github.com/sirupsen/logrus"
 	"myapp/config"
 	"myapp/internal/app"
 )
@@ -20,7 +20,7 @@ func main() {
 	// Configuration
 	cfg, err := config.NewConfig()
 	if err != nil {
-		log.Fatalf("Config error: %s", err)
+		logrus.Fatalf("Config error: %s", err)
 	}
 	// Run
 	app.Run(cfg)

@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"log"
+	"github.com/sirupsen/logrus"
 	"myapp/internal/models"
 	"myapp/internal/usecase"
 	"net/http"
@@ -82,7 +82,7 @@ func (h *OperatorHandler) GetOneOperator(c *gin.Context) {
 	id := c.Param("id")
 	projects, err := h.us.GetOneOperator(c.Request.Context(), id)
 	if err != nil {
-		log.Println(err)
+		logrus.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -103,7 +103,7 @@ func (h *OperatorHandler) GetOneOperator(c *gin.Context) {
 func (h *OperatorHandler) GetAllOperators(c *gin.Context) {
 	operators, err := h.us.GetAllOperators(c.Request.Context())
 	if err != nil {
-		log.Println(err)
+		logrus.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

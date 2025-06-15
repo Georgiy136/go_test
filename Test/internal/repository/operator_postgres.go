@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
+	"github.com/sirupsen/logrus"
 	"myapp/internal/models"
 	"myapp/pkg/postgres"
 
@@ -26,7 +26,7 @@ type Operator struct {
 func (db *Operator) CreateOperator(ctx context.Context, o models.Operator) error {
 	_, err := db.Bun.NewInsert().Model(&o).Exec(ctx)
 	if err != nil {
-		log.Println(err)
+		logrus.Error(err)
 		return fmt.Errorf("Operator - CreateOperator - db.Bun.NewInsert: %w", err)
 	}
 	return nil
@@ -39,7 +39,7 @@ func (db *Operator) GetAllOperators(ctx context.Context) ([]models.Operator, err
 
 	err := db.Bun.NewSelect().Model(operator).Scan(ctx, &operators)
 	if err != nil {
-		log.Println(err)
+		logrus.Error(err)
 		return nil, fmt.Errorf("Operator - GetAllOperators - db.Bun.NewSelect: %w", err)
 	}
 
@@ -58,7 +58,7 @@ func (db *Operator) DeleteOperator(ctx context.Context, id uuid.UUID) error {
 		if err == sql.ErrNoRows {
 			return fmt.Errorf("Operator - DeleteOperator - db.Bun.NewDelete: %s", fmt.Sprintf("оператора с id = %s не существует", id.String()))
 		}
-		log.Println(err)
+		logrus.Error(err)
 		return fmt.Errorf("Operator - DeleteOperator - db.Bun.NewDelete: %w", err)
 	}
 	return nil
@@ -77,7 +77,7 @@ func (db *Operator) UpdateOperator(ctx context.Context, id uuid.UUID, p models.O
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("Operator - UpdateOperator - db.Bun.NewUpdate: %s", fmt.Sprintf("оператора с id = %s не существует", id.String()))
 		}
-		log.Println(err)
+		logrus.Error(err)
 		return nil, fmt.Errorf("Operator - UpdateOperator - db.Bun.NewUpdate: %w", err)
 	}
 
@@ -92,7 +92,7 @@ func (db *Operator) GetOneOperator(ctx context.Context, id uuid.UUID) (*models.O
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("Operator - GetOneOperator - db.Bun.NewSelect: %s", fmt.Sprintf("оператора с id = %s не существует", id.String()))
 		}
-		log.Println(err)
+		logrus.Error(err)
 		return nil, fmt.Errorf("Operator - GetOneOperator - db.Bun.NewSelect: %w", err)
 	}
 
@@ -108,7 +108,7 @@ func (db *Operator) GetOperatorsById(ctx context.Context, id []string) ([]*model
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		log.Println(err)
+		logrus.Error(err)
 		return nil, fmt.Errorf("Operator - GetOperatorsById - db.Bun.NewSelect: %w", err)
 	}
 	return operators, nil

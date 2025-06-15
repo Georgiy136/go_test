@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"log"
+	"github.com/sirupsen/logrus"
 	"math/rand"
 	"myapp/internal/models"
 	"net/mail"
@@ -118,7 +118,7 @@ func validPhone(phone string) error {
 	}
 	for _, num := range phone {
 		if ok := strings.Contains(pattern, string(num)); !ok {
-			log.Println(string(num))
+			logrus.Debugf(string(num))
 			return fmt.Errorf("телефон %s не соответсвует требуемому шаблону", phone)
 		}
 	}

@@ -17,7 +17,7 @@ func Run(cfg *config.Config) {
 	// Repository
 	pg, err := postgres.New(cfg.Postgres)
 	if err != nil {
-		log.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
+		logrus.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
 	}
 	defer pg.CloseConn()
 
