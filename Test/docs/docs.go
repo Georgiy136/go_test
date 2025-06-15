@@ -505,7 +505,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.Client"
+                            "$ref": "#/definitions/http.Client"
                         }
                     }
                 ],
@@ -556,7 +556,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.Client": {
+        "http.Client": {
             "type": "object",
             "required": [
                 "login",

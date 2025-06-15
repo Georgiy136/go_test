@@ -6,7 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"log"
 	"myapp/config"
-	"myapp/internal/handler"
+	"myapp/internal/http"
 	"myapp/internal/repository"
 	"myapp/internal/usecase"
 	"myapp/pkg/postgres"
@@ -17,7 +17,7 @@ func Run(cfg *config.Config) {
 	// Repository
 	pg, err := postgres.New(cfg.Postgres)
 	if err != nil {
-		logrus.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
+		logrus.Fatalf("app - Run - postgres.New: %v", err)
 	}
 	defer pg.CloseConn()
 
@@ -26,12 +26,12 @@ func Run(cfg *config.Config) {
 
 	rdb, err := redis.New(cfg.Redis)
 	if err != nil {
-		log.Fatal(fmt.Errorf("app - Run - redis.New: %w", err))
+		log.Fatalf("app - Run - redis.New: %v", err)
 	}
 	defer rdb.Close()
 
 	redis := repository.NewRedis(rdb)
-	logrus.Debugf("app - Run - redis - %v", redis)
+	logrus.Infof("app - Run - redis - %v", redis)
 
 	operatorRepository := repository.NewOperator(pg)
 
@@ -41,7 +41,7 @@ func Run(cfg *config.Config) {
 	// HTTP Server
 	router := gin.Default()
 
-	handler.NewRouter(router, *operatorUseCases)
+	http.NewRouter(router, *operatorUseCases)
 
 	router.Run(fmt.Sprintf(":%d", cfg.Http.Port))
 }
