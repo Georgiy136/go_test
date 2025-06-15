@@ -12,15 +12,15 @@ func SendError(c *gin.Context, httpCode int, commonErr common.CommonError, detai
 }
 
 func SendFailBadRequest(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusBadRequest, common.CommonError{}, details)
+	SendError(c, http.StatusBadRequest, common.BadRequest, details)
 }
 
 func SendFailUnauthorized(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusUnauthorized, common.CommonError{}, details)
+	SendError(c, http.StatusUnauthorized, common.Unauthorized, details)
 }
 
 func SendFailForbidden(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusForbidden, common.CommonError{}, details)
+	SendError(c, http.StatusForbidden, common.Forbidden, details)
 }
 
 func SendFailNotFound(c *gin.Context, details map[string]interface{}) {
@@ -28,9 +28,9 @@ func SendFailNotFound(c *gin.Context, details map[string]interface{}) {
 }
 
 func SendErrorInternalServerError(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusInternalServerError, common.CommonError{}, details)
+	SendError(c, http.StatusInternalServerError, common.InternalServerError, details)
 }
 
 func SendErrorServiceUnavailable(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusServiceUnavailable, common.CommonError{}, details)
+	SendError(c, http.StatusServiceUnavailable, common.ServiceUnavailable, details)
 }
