@@ -2,11 +2,11 @@ http:
  port: 8080
 
 postgres:
- host: "postgreSQL"
+ host: "localhost"
  port: 5432
  user: "postgres"
  password: "4650"
- dbname: "default"
+ dbname: "postgres"
  sslmode: "disable"
 
 redis:

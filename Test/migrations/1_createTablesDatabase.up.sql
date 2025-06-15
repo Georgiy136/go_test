@@ -5,14 +5,14 @@ CREATE TABLE IF NOT EXISTS projects (
 );
 
 CREATE TABLE IF NOT EXISTS goods (
-    ID SERIAL PRIMARY KEY,
+    ID SERIAL NOT NULL,
     project_id INTEGER NOT NULL,
     name character varying NOT NULL,
     description character varying,
     priority INTEGER,
     removed BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
-    CONSTRAINT pk_goods PRIMARY KEY (ID, project_id)
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+    CONSTRAINT pk_goods PRIMARY KEY (ID, project_id),
     FOREIGN KEY (project_id) REFERENCES projects (ID)
 );
 

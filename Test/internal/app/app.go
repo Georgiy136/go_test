@@ -2,16 +2,13 @@ package app
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
+	"github.com/gin-gonic/gin"
 	"log"
 	"myapp/config"
 	"myapp/internal/handler"
 	"myapp/internal/repository"
 	"myapp/internal/usecase"
 	"myapp/pkg/postgres"
-	"myapp/pkg/redis"
-
-	"github.com/gin-gonic/gin"
 )
 
 func Run(cfg *config.Config) {
@@ -22,14 +19,16 @@ func Run(cfg *config.Config) {
 	}
 	defer pg.Close()
 
-	rdb, err := redis.New(cfg.Redis)
-	if err != nil {
-		log.Fatal(fmt.Errorf("app - Run - redis.New: %w", err))
-	}
-	defer rdb.Close()
+	//rdb, err := redis.New(cfg.Redis)
+	//if err != nil {
+	//	log.Fatal(fmt.Errorf("app - Run - redis.New: %w", err))
+	//}
+	//defer rdb.Close()
 
-	redis := repository.NewAuthRedis(rdb)
-	logrus.Debugf("app - Run - redis - %v", redis)
+	postgres.MigrateUpPostgres(pg, cfg.Postgres)
+
+	//redis := repository.NewAuthRedis(rdb)
+	//logrus.Debugf("app - Run - redis - %v", redis)
 
 	operatorRepository := repository.NewOperator(pg)
 

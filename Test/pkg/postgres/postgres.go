@@ -3,9 +3,12 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
+	"log"
+
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -42,41 +45,27 @@ func New(cfg config.Postgres) (*bun.DB, error) {
 	return db, nil
 }
 
-func migrateUpPostgres(pg *bun.DB) {
-	// Накатываем миграции
-	driver, err := oci_driver.OracleWithInstance(ctx, ora, &oci_driver.OracleDriverConfig{
-		MigrationTable:     "migrations",
-		MigrationMutexName: "migrations_mutex",
-		NoLock:             true,
-		StatementTimeout:   0,
-	})
+func MigrateUpPostgres(pg *bun.DB, cfg config.Postgres) {
+	pg.Conn(context.Background())
 
-	if err != nil {
-		logrus.Fatalf("не удалось создать драйвер для миграций Oracle")
-	}
+	log.Printf("pg.String(): %v", pg.String())
 
-	m, err := migrate.NewWithDatabaseInstance(
+	// Создание мигратора
+	m, err := migrate.New(
 		"file://migrations",
-		"oracle",
-		driver,
+		fmt.Sprintf(pg.String()),
 	)
-
 	if err != nil {
-		logrus.Fatal("не удалось инициализировать систему миграций Oracle")
+		log.Fatalf("failed to create migrate instance: %v", err)
 	}
 
-	err = m.Up()
-	defer func() {
-		_, _ = m.Close()
-	}()
-
-	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		logrus.Fatal("ошибка при применении миграций Oracle")
-	}
-
-	if errors.Is(err, migrate.ErrNoChange) {
-		logrus.Debugf("нет новых миграций для применения")
-		return
+	// Выполняем миграции
+	if err = m.Up(); err != nil {
+		if err == migrate.ErrNoChange {
+			log.Println("no migration to apply")
+		} else {
+			log.Fatalf("failed to apply migrations: %v", err)
+		}
 	}
 
 	logrus.Debugf("миграции успешно применены")
