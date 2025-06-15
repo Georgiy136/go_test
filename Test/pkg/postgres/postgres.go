@@ -52,7 +52,7 @@ func New(cfg config.Postgres) (*Postgres, error) {
 	}, nil
 }
 
-func (db *Postgres) MigrateUpPostgres() {
+func (db *Postgres) MigrateUpPostgres() error {
 	instance, err := postgres.WithInstance(db.Conn.DB, &postgres.Config{})
 	if err != nil {
 		logrus.Fatal(err)
@@ -65,19 +65,20 @@ func (db *Postgres) MigrateUpPostgres() {
 		instance,
 	)
 	if err != nil {
-		logrus.Fatalf("failed to create migrations_postgres instance: %v", err)
+		return fmt.Errorf("failed to create migrations to postgres instance: %v", err)
 	}
 
 	// Выполняем миграции
 	if err = m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
-			logrus.Infof("no migration to apply")
-		} else {
-			logrus.Fatalf("failed to apply migrations_postgres: %v", err)
+			logrus.Infof("no migrations to postgres to apply")
+			return nil
 		}
+		return fmt.Errorf("failed to apply migrations to postgres: %v", err)
 	}
 
-	logrus.Infof("migration applied")
+	logrus.Infof("migrations to postgres applied")
+	return nil
 }
 
 func (db *Postgres) CloseConn() {

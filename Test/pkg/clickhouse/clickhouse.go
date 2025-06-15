@@ -52,7 +52,7 @@ func New(cfg config.Clickhouse) (*Clickhouse, error) {
 	}, nil
 }
 
-func (db *Clickhouse) MigrateUpClickhouse() {
+func (db *Clickhouse) MigrateUpClickhouse() error {
 	instance, err := clickhouse.WithInstance(db.Conn.DB, &clickhouse.Config{})
 	if err != nil {
 		logrus.Fatal(err)
@@ -65,19 +65,20 @@ func (db *Clickhouse) MigrateUpClickhouse() {
 		instance,
 	)
 	if err != nil {
-		logrus.Fatalf("failed to create migrate instance: %v", err)
+		return fmt.Errorf("failed to create migrations_clickhouse instance: %v", err)
 	}
 
 	// Выполняем миграции
 	if err = m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
-			logrus.Infof("no migrations_clickhouse to apply")
-		} else {
-			logrus.Fatalf("failed to apply migrations_postgres: %v", err)
+			logrus.Infof("no migrations to clickhouse to apply")
+			return nil
 		}
+		return fmt.Errorf("failed to apply migrations to clickhouse: %v", err)
 	}
 
-	logrus.Infof("migration applied")
+	logrus.Infof("migrations to clickhouse applied")
+	return nil
 }
 
 func (db *Clickhouse) CloseConn() {

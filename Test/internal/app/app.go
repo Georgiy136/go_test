@@ -22,7 +22,9 @@ func Run(cfg *config.Config) {
 	defer pg.CloseConn()
 
 	// Накатываем миграции
-	pg.MigrateUpPostgres()
+	if err = pg.MigrateUpPostgres(); err != nil {
+		logrus.Fatalf("app - Run - MigrateUpPostgres: %v", err)
+	}
 
 	rdb, err := redis.New(cfg.Redis)
 	if err != nil {
@@ -33,6 +35,7 @@ func Run(cfg *config.Config) {
 	redis := repository.NewRedis(rdb)
 	logrus.Infof("app - Run - redis - %v", redis)
 
+	// repo
 	goodsRepository := repository.NewGoods(pg)
 
 	// Use case
