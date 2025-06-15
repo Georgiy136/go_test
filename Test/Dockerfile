@@ -13,6 +13,7 @@ COPY . .
 
 # Копируем файл конфигурации в папку config
 COPY ./config/config.yaml ./config/config.yaml
+COPY ./migrations ./migrations
 
 # Компилируем приложение
 RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/app/main.go
@@ -28,6 +29,7 @@ COPY --from=builder /app/main .
 
 # Копируем файл конфигурации в образ
 COPY --from=builder /app/config/config.yaml ./config/config.yaml
+COPY --from=builder /app/migrations ./migrations
 
 # Указываем команду для запуска приложения
 CMD ["./main"]

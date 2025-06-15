@@ -76,6 +76,8 @@ func (db *Postgres) MigrateUpPostgres() {
 			logrus.Fatalf("failed to apply migrations: %v", err)
 		}
 	}
+
+	logrus.Infof("migration applied")
 }
 
 func (db *Postgres) CloseConn() {

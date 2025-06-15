@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  postgreSQL:
+  postgres:
     image: postgres:latest
     ports:
       - 5432:5432
@@ -52,7 +52,7 @@ services:
   web:
     build: ./
     depends_on:
-      - postgreSQL
+      - postgres
       - clickhouse
       - redis
       - nats
