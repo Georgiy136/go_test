@@ -19,7 +19,7 @@ func NewRouter(router *gin.Engine, os usecase.OperatorUseCases) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Routers
-	operator := router.Group("/operator")
+	operator := router.Group("/api")
 	{
 		operator.POST("/", operatorHandlers.PostOperator)
 		operator.GET("/", operatorHandlers.GetAllOperators)
