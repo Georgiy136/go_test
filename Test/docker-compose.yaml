@@ -27,8 +27,8 @@ services:
     image: yandex/clickhouse-server:latest
     container_name: clickhouse
     ports:
-      - "8123:8123"  # HTTP интерфейс
-      - "9000:9000"  # TCP интерфейс
+      - 8123:8123  # HTTP интерфейс
+      - 9000:9000  # TCP интерфейс
     volumes:
       - clickhouse_data:/var/lib/clickhouse
     environment:
@@ -36,12 +36,26 @@ services:
       CLICKHOUSE_PASSWORD: some_password
       CLICKHOUSE_DB: default
 
+  nats:
+    image: nats:latest
+    ports:
+      - 4222:4222  # Порт для клиента
+      - 6222:6222  # Порт для кластеризации
+      - 8222:8222  # Порт для мониторинга
+    volumes:
+      - nats_data:/data
+    command: [
+      --jetstream,
+      --store_dir=/data
+    ]
+
   web:
     build: ./
     depends_on:
-      - "postgreSQL"
-      - "clickhouse"
-      - "redis"
+      - postgreSQL
+      - clickhouse
+      - redis
+      - nats
     ports:
       - 8080:8080
 volumes:
@@ -49,3 +63,4 @@ volumes:
   redis_data:
   redis_conf:
   clickhouse_data:
+  nats_data:
