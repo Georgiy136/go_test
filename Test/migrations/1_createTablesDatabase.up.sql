@@ -16,6 +16,6 @@ CREATE TABLE IF NOT EXISTS goods (
     FOREIGN KEY (project_id) REFERENCES projects (ID)
 );
 
-CREATE INDEX idx_goods_project_id on goods (project_id);
+CREATE INDEX IF NOT EXISTS idx_goods_project_id on goods (project_id);
 
-CREATE INDEX idx_goods_id_project_id on goods (ID, project_id);
+CREATE INDEX IF NOT EXISTS idx_goods_id_project_id on goods (ID, project_id);
