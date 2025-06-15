@@ -4,7 +4,7 @@ import "myapp/internal/errors/common"
 
 type (
 	Success struct {
-		Data any `json:"data,omitempty"`
+		Data any `json:"data"`
 	}
 
 	Err struct {
