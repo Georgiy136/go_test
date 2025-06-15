@@ -6,8 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
-	"log"
-
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
@@ -20,7 +18,12 @@ import (
 	"github.com/uptrace/bun"
 )
 
-func New(cfg config.Postgres) (*bun.DB, error) {
+type Postgres struct {
+	Conn *bun.DB
+	cfg  config.Postgres
+}
+
+func New(cfg config.Postgres) (*Postgres, error) {
 	pgconn := pgdriver.NewConnector(
 		pgdriver.WithNetwork("tcp"),
 		pgdriver.WithAddr(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)),
@@ -43,33 +46,40 @@ func New(cfg config.Postgres) (*bun.DB, error) {
 
 	logrus.Debugf("соединение с базой данных postgres успешно установлено")
 
-	return db, nil
+	return &Postgres{
+		Conn: db,
+		cfg:  cfg,
+	}, nil
 }
 
-func MigrateUpPostgres(pg *bun.DB, cfg config.Postgres) {
-	instance, err := postgres.WithInstance(pg.DB, &postgres.Config{})
+func (db *Postgres) MigrateUpPostgres() {
+	instance, err := postgres.WithInstance(db.Conn.DB, &postgres.Config{})
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	// Создание мигратора
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://migrations",
-		"postgres",
+		db.cfg.Dbname,
 		instance,
 	)
 	if err != nil {
-		log.Fatalf("failed to create migrate instance: %v", err)
+		logrus.Fatalf("failed to create migrate instance: %v", err)
 	}
 
 	// Выполняем миграции
 	if err = m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
-			log.Println("no migration to apply")
+			logrus.Debugf("no migration to apply")
 		} else {
-			log.Fatalf("failed to apply migrations: %v", err)
+			logrus.Fatalf("failed to apply migrations: %v", err)
 		}
 	}
 
 	logrus.Debugf("миграции успешно применены")
+}
+
+func (db *Postgres) CloseConn() {
+	db.Conn.Close()
 }

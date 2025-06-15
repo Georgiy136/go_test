@@ -6,15 +6,16 @@ import (
 	"fmt"
 	"log"
 	"myapp/internal/models"
+	"myapp/pkg/postgres"
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/uptrace/bun"
 )
 
-func NewOperator(Bun *bun.DB) *Operator {
+func NewOperator(pg *postgres.Postgres) *Operator {
 	return &Operator{
-		Bun: Bun,
+		Bun: pg.Conn,
 	}
 }
 

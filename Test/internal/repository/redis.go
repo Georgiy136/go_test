@@ -8,7 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func NewAuthRedis(rdb *redis.Client) *AuthRedis {
+func NewRedis(rdb *redis.Client) *AuthRedis {
 	return &AuthRedis{
 		Rdb: rdb,
 	}
