@@ -13,7 +13,8 @@ COPY . .
 
 # Копируем файл конфигурации в папку config
 COPY ./config/config.yaml ./config/config.yaml
-COPY ./migrations ./migrations
+COPY ./migrations_postgres ./migrations_postgres
+COPY ./migrations_clickhouse ./migrations_clickhouse
 
 # Компилируем приложение
 RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/app/main.go
@@ -29,7 +30,8 @@ COPY --from=builder /app/main .
 
 # Копируем файл конфигурации в образ
 COPY --from=builder /app/config/config.yaml ./config/config.yaml
-COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /app/migrations_postgres ./migrations_postgres
+COPY --from=builder /app/migrations_clickhouse ./migrations_clickhouse
 
 # Указываем команду для запуска приложения
 CMD ["./main"]

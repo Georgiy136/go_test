@@ -1,4 +1,4 @@
-package postgres
+package clickhouse
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/database/clickhouse"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
 	"github.com/uptrace/bun/dialect/pgdialect"
@@ -18,12 +18,12 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type Postgres struct {
+type Clickhouse struct {
 	Conn *bun.DB
-	cfg  config.Postgres
+	cfg  config.Clickhouse
 }
 
-func New(cfg config.Postgres) (*Postgres, error) {
+func New(cfg config.Clickhouse) (*Clickhouse, error) {
 	pgconn := pgdriver.NewConnector(
 		pgdriver.WithNetwork("tcp"),
 		pgdriver.WithAddr(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)),
@@ -44,34 +44,34 @@ func New(cfg config.Postgres) (*Postgres, error) {
 		return nil, err
 	}
 
-	logrus.Infof("соединение с базой данных postgres успешно установлено")
+	logrus.Infof("соединение с базой данных clickhouse успешно установлено")
 
-	return &Postgres{
+	return &Clickhouse{
 		Conn: db,
 		cfg:  cfg,
 	}, nil
 }
 
-func (db *Postgres) MigrateUpPostgres() {
-	instance, err := postgres.WithInstance(db.Conn.DB, &postgres.Config{})
+func (db *Clickhouse) MigrateUpClickhouse() {
+	instance, err := clickhouse.WithInstance(db.Conn.DB, &clickhouse.Config{})
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
 	// Создание мигратора
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://migrations_postgres",
+		"file://migrations_clickhouse",
 		db.cfg.Dbname,
 		instance,
 	)
 	if err != nil {
-		logrus.Fatalf("failed to create migrations_postgres instance: %v", err)
+		logrus.Fatalf("failed to create migrate instance: %v", err)
 	}
 
 	// Выполняем миграции
 	if err = m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
-			logrus.Infof("no migration to apply")
+			logrus.Infof("no migrations_clickhouse to apply")
 		} else {
 			logrus.Fatalf("failed to apply migrations_postgres: %v", err)
 		}
@@ -80,6 +80,6 @@ func (db *Postgres) MigrateUpPostgres() {
 	logrus.Infof("migration applied")
 }
 
-func (db *Postgres) CloseConn() {
+func (db *Clickhouse) CloseConn() {
 	db.Conn.Close()
 }
