@@ -2,43 +2,38 @@ package clickhouse
 
 import (
 	"context"
-	"database/sql"
-	"errors"
+	"crypto/tls"
 	"fmt"
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/clickhouse"
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
-	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
+	"github.com/uptrace/go-clickhouse/ch"
 	"myapp/config"
 	"time"
-
-	_ "github.com/lib/pq"
-	"github.com/uptrace/bun"
 )
 
 type Clickhouse struct {
-	Conn *bun.DB
+	Conn *ch.DB
 	cfg  config.Clickhouse
 }
 
 func New(cfg config.Clickhouse) (*Clickhouse, error) {
-	pgconn := pgdriver.NewConnector(
-		pgdriver.WithNetwork("tcp"),
-		pgdriver.WithAddr(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)),
-		pgdriver.WithUser(cfg.User),
-		pgdriver.WithPassword(cfg.Password),
-		pgdriver.WithDatabase(cfg.Dbname),
-		pgdriver.WithTimeout(5*time.Second),
-		pgdriver.WithDialTimeout(5*time.Second),
-		pgdriver.WithReadTimeout(5*time.Second),
-		pgdriver.WithWriteTimeout(5*time.Second),
-		pgdriver.WithInsecure(true),
+	db := ch.Connect(
+		ch.WithAddr(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)),
+		ch.WithTLSConfig(&tls.Config{InsecureSkipVerify: true}),
+		ch.WithUser(cfg.User),
+		ch.WithPassword(cfg.Password),
+		ch.WithDatabase(cfg.Dbname),
+		ch.WithTimeout(5*time.Second),
+		ch.WithDialTimeout(5*time.Second),
+		ch.WithReadTimeout(5*time.Second),
+		ch.WithWriteTimeout(5*time.Second),
+		ch.WithQuerySettings(map[string]interface{}{
+			"prefer_column_name_to_alias": 1,
+		}),
 	)
 
-	sqlDB := sql.OpenDB(pgconn)
-	db := bun.NewDB(sqlDB, pgdialect.New())
+	//sqlDB := sql.OpenDB(db)
 
 	if _, err := db.ExecContext(context.Background(), "select 1"); err != nil {
 		return nil, err
@@ -52,8 +47,9 @@ func New(cfg config.Clickhouse) (*Clickhouse, error) {
 	}, nil
 }
 
+/*
 func (db *Clickhouse) MigrateUpClickhouse() error {
-	instance, err := clickhouse.WithInstance(db.Conn.DB, &clickhouse.Config{})
+	instance, err := clickhouse.WithInstance(db.Conn, &clickhouse.Config{})
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -79,7 +75,7 @@ func (db *Clickhouse) MigrateUpClickhouse() error {
 
 	logrus.Infof("migrations to clickhouse applied")
 	return nil
-}
+}*/
 
 func (db *Clickhouse) CloseConn() {
 	db.Conn.Close()

@@ -21,10 +21,19 @@ func Run(cfg *config.Config) {
 	}
 	defer pg.CloseConn()
 
+	//click, err := clickhouse.New(cfg.Clickhouse)
+	//if err != nil {
+	//	logrus.Fatalf("app - Run - clickhouse.New: %v", err)
+	//}
+	//defer click.CloseConn()
+
 	// Накатываем миграции
 	if err = pg.MigrateUpPostgres(); err != nil {
 		logrus.Fatalf("app - Run - MigrateUpPostgres: %v", err)
 	}
+	//if err = click.MigrateUpClickhouse(); err != nil {
+	//	logrus.Fatalf("app - Run - MigrateUpClickhouse: %v", err)
+	//}
 
 	rdb, err := redis.New(cfg.Redis)
 	if err != nil {
