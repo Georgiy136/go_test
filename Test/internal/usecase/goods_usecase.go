@@ -18,7 +18,7 @@ func NewGoodsUsecases(st GoodsStrore) *GoodsUseCases {
 	}
 }
 
-func (us *GoodsUseCases) AddGood(ctx context.Context, p models.Goods) (*models.Goods, error) {
+func (us *GoodsUseCases) AddGoods(ctx context.Context, p models.Goods) (*models.Goods, error) {
 	err := us.store.CreateGoods(ctx, p)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - AddGood - us.store.CreateGood: %w", err)

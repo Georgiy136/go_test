@@ -35,9 +35,8 @@ func (db *Good) CreateGoods(ctx context.Context, o models.Goods) error {
 func (db *Good) GetAllGoods(ctx context.Context) ([]models.Goods, error) {
 
 	Goods := []models.Goods{}
-	Goods := &models.Goods{}
 
-	err := db.Bun.NewSelect().Model(Goods).Scan(ctx, &Goods)
+	err := db.Bun.NewSelect().Model(&models.Goods{}).Scan(ctx, &Goods)
 	if err != nil {
 		logrus.Error(err)
 		return nil, fmt.Errorf("Goods - GetAllGoods - db.Bun.NewSelect: %w", err)
@@ -100,10 +99,9 @@ func (db *Good) GetOneGoods(ctx context.Context, id uuid.UUID) (*models.Goods, e
 }
 
 func (db *Good) GetGoodsById(ctx context.Context, id []string) ([]*models.Goods, error) {
-	Goods := models.Goods{}
 	Goods := []*models.Goods{}
 
-	err := db.Bun.NewSelect().Model(&Goods).Where("uuid IN (?)", bun.In(id)).Scan(ctx, &Goods)
+	err := db.Bun.NewSelect().Model(&models.Goods{}).Where("uuid IN (?)", bun.In(id)).Scan(ctx, &Goods)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil

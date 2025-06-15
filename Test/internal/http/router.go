@@ -10,8 +10,8 @@ import (
 	"myapp/internal/usecase"
 )
 
-func NewRouter(router *gin.Engine, os usecase.OperatorUseCases) {
-	goodsHandlers := &OperatorHandler{
+func NewRouter(router *gin.Engine, os usecase.GoodsUseCases) {
+	goodsHandlers := &GoodsHandler{
 		us: os,
 	}
 
@@ -23,8 +23,8 @@ func NewRouter(router *gin.Engine, os usecase.OperatorUseCases) {
 	{
 		good := api.Group("/good")
 		{
-			good.POST("/", goodsHandlers.PostGood)
-			good.GET("/", goodsHandlers.GetAllGoods)
+			good.POST("/", goodsHandlers.PostGoods)
+			good.GET("/", goodsHandlers.ListGoods)
 			good.GET("/:id", goodsHandlers.GetOneGood)
 			good.PUT("/:id", goodsHandlers.UpdateGood)
 			good.DELETE("/:id", goodsHandlers.DeleteGood)

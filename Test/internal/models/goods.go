@@ -6,7 +6,7 @@ import (
 )
 
 type Goods struct {
-	bun.BaseModel `bun:"table:operators"`
+	bun.BaseModel `bun:"table:goods"`
 
 	Id         uuid.UUID `bun:"uuid"`
 	FirstName  string    `bun:"first_name"`

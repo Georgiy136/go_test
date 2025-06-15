@@ -11,24 +11,24 @@ import (
 	"github.com/google/uuid"
 )
 
-type OperatorHandler struct {
+type GoodsHandler struct {
 	us usecase.GoodsUseCases
 }
 
-// PostOperator godoc
+// PostGoods godoc
 //
 //	@Security		ApiKeyAuth
-//	@Summary		Add Operator to database
-//	@Tags			Operators
-//	@Description	create Operator
-//	@ID				create-operator
+//	@Summary		Add Goods to database
+//	@Tags			Goodss
+//	@Description	create Goods
+//	@ID				create-Goods
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		PostOperatorRequest	true	"Operator info"
-//	@Success		201		{object}	models.Operator
-//	@Router			/operator [post]
-func (h *OperatorHandler) PostOperator(c *gin.Context) {
-	type PostOperatorRequest struct {
+//	@Param			input	body		PostGoodsRequest	true	"Goods info"
+//	@Success		201		{object}	models.Goods
+//	@Router			/Goods [post]
+func (h *GoodsHandler) PostGoods(c *gin.Context) {
+	type PostGoodsRequest struct {
 		Id         uuid.UUID `json:"id"`
 		FirstName  string    `json:"firstName" binding:"required"`
 		LastName   string    `json:"lastName" binding:"required"`
@@ -39,47 +39,46 @@ func (h *OperatorHandler) PostOperator(c *gin.Context) {
 		Password   string    `json:"password"`
 	}
 
-	postOperatorRequest := &PostOperatorRequest{}
+	postGoodsRequest := &PostGoodsRequest{}
 
-	if err := c.Bind(postOperatorRequest); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := c.Bind(postGoodsRequest); err != nil {
+		httpresponse.SendFailBadRequest(c, nil)
 		return
 	}
 
-	operator := &models.Operator{
-		Id:         postOperatorRequest.Id,
-		FirstName:  postOperatorRequest.FirstName,
-		LastName:   postOperatorRequest.LastName,
-		Patronymic: postOperatorRequest.Patronymic,
-		City:       postOperatorRequest.City,
-		Phone:      postOperatorRequest.Phone,
-		Email:      postOperatorRequest.Email,
-		Password:   postOperatorRequest.Password,
+	Goods := &models.Goods{
+		Id:         postGoodsRequest.Id,
+		FirstName:  postGoodsRequest.FirstName,
+		LastName:   postGoodsRequest.LastName,
+		Patronymic: postGoodsRequest.Patronymic,
+		City:       postGoodsRequest.City,
+		Phone:      postGoodsRequest.Phone,
+		Email:      postGoodsRequest.Email,
+		Password:   postGoodsRequest.Password,
 	}
 
-	operator, err := h.us.AddOperator(c.Request.Context(), *operator)
+	Goods, err := h.us.AddGoods(c.Request.Context(), *Goods)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, operator)
+	httpresponse.SendSuccess(c, http.StatusCreated, Goods)
 }
 
-// GetOneOperator godoc
+// GetOneGoods godoc
 //
 //	@Security		ApiKeyAuth
-//	@Summary		Retrieves Operator based on given ID
-//	@Tags			Operators
-//	@Description	get operator by id
-//	@ID				get-operator-by-id
+//	@Summary		Retrieves Goods based on given ID
+//	@Tags			Goodss
+//	@Description	get Goods by id
+//	@ID				get-Goods-by-id
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string	true	"Operator ID"
-//	@Success		202	{object}	models.Operator
-//	@Router			/operator/{id} [get]
-func (h *OperatorHandler) GetOneOperator(c *gin.Context) {
-	id := c.Param("id")
-	projects, err := h.us.GetOneOperator(c.Request.Context(), id)
+//	@Param			id	path		string	true	"Goods ID"
+//	@Success		202	{object}	models.Goods
+//	@Router			/Goods/{id} [get]
+func (h *GoodsHandler) GetOneGood(c *gin.Context) {
+	projects, err := h.us.GetOneGood(c.Request.Context(), "1")
 	if err != nil {
 		logrus.Error(err)
 		httpresponse.SendFailBadRequest(c, nil)
@@ -88,42 +87,42 @@ func (h *OperatorHandler) GetOneOperator(c *gin.Context) {
 	httpresponse.SendSuccessOK(c, projects)
 }
 
-// GetAllOperators godoc
+// GetAllGoodss godoc
 //
 //	@Security		ApiKeyAuth
-//	@Summary		Retrieves All Operators
-//	@Tags			Operators
-//	@Description	get all operators
-//	@ID				get-all-operators
+//	@Summary		Retrieves All Goodss
+//	@Tags			Goodss
+//	@Description	get all Goodss
+//	@ID				get-all-Goodss
 //	@Accept			json
 //	@Produce		json
-//	@Success		202	{array}	[]models.Operator
-//	@Router			/operator [get]
-func (h *OperatorHandler) GetAllOperators(c *gin.Context) {
-	operators, err := h.us.GetAllOperators(c.Request.Context())
+//	@Success		202	{array}	[]models.Goods
+//	@Router			/Goods [get]
+func (h *GoodsHandler) ListGoods(c *gin.Context) {
+	Goodss, err := h.us.GetAllGoods(c.Request.Context())
 	if err != nil {
 		logrus.Error(err)
 		httpresponse.SendFailBadRequest(c, nil)
 		return
 	}
-	httpresponse.SendSuccessOK(c, operators)
+	httpresponse.SendSuccessOK(c, Goodss)
 }
 
-// DeleteOperator godoc
+// DeleteGoods godoc
 //
 //	@Security		ApiKeyAuth
-//	@Summary		Delete Operator based on given ID
-//	@Tags			Operators
-//	@Description	delete operator by id
-//	@ID				delete-operator-by-id
+//	@Summary		Delete Goods based on given ID
+//	@Tags			Goodss
+//	@Description	delete Goods by id
+//	@ID				delete-Goods-by-id
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path	string	true	"Operator ID"
+//	@Param			id	path	string	true	"Goods ID"
 //	@Success		200
-//	@Router			/operator/{id} [delete]
-func (h *OperatorHandler) DeleteOperator(c *gin.Context) {
+//	@Router			/Goods/{id} [delete]
+func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 	id := c.Param("id")
-	err := h.us.DeleteOperator(c.Request.Context(), id)
+	err := h.us.DeleteGood(c.Request.Context(), id)
 	if err != nil {
 		logrus.Error(err)
 		httpresponse.SendFailBadRequest(c, nil)
@@ -132,22 +131,22 @@ func (h *OperatorHandler) DeleteOperator(c *gin.Context) {
 	httpresponse.SendNoContent(c)
 }
 
-// UpdateOperator godoc
+// UpdateGoods godoc
 //
 //	@Security		ApiKeyAuth
-//	@Summary		Update Operator based on given ID
-//	@Tags			Operators
-//	@Description	update operator by id
-//	@ID				update-operator-by-id
+//	@Summary		Update Goods based on given ID
+//	@Tags			Goodss
+//	@Description	update Goods by id
+//	@ID				update-Goods-by-id
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string				true	"Operator ID"
-//	@Param			input	body		PutOperatorRequest	true	"Operator info"
-//	@Success		201		{object}	models.Operator
-//	@Router			/operator/{id} [put]
-func (h *OperatorHandler) UpdateOperator(c *gin.Context) {
+//	@Param			id		path		string				true	"Goods ID"
+//	@Param			input	body		PutGoodsRequest	true	"Goods info"
+//	@Success		201		{object}	models.Goods
+//	@Router			/Goods/{id} [put]
+func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 
-	type PutOperatorRequest struct {
+	type PutGoodsRequest struct {
 		Id         uuid.UUID `json:"id"`
 		FirstName  string    `json:"firstName" binding:"required"`
 		LastName   string    `json:"lastName" binding:"required"`
@@ -160,25 +159,25 @@ func (h *OperatorHandler) UpdateOperator(c *gin.Context) {
 
 	id := c.Param("id")
 
-	postOperatorRequest := &PutOperatorRequest{}
+	postGoodsRequest := &PutGoodsRequest{}
 
-	if err := c.Bind(postOperatorRequest); err != nil {
+	if err := c.Bind(postGoodsRequest); err != nil {
 		httpresponse.SendFailBadRequest(c, nil)
 		return
 	}
 
-	operator := &models.Operator{
-		Id:         postOperatorRequest.Id,
-		FirstName:  postOperatorRequest.FirstName,
-		LastName:   postOperatorRequest.LastName,
-		Patronymic: postOperatorRequest.Patronymic,
-		City:       postOperatorRequest.City,
-		Phone:      postOperatorRequest.Phone,
-		Email:      postOperatorRequest.Email,
-		Password:   postOperatorRequest.Password,
+	Goods := &models.Goods{
+		Id:         postGoodsRequest.Id,
+		FirstName:  postGoodsRequest.FirstName,
+		LastName:   postGoodsRequest.LastName,
+		Patronymic: postGoodsRequest.Patronymic,
+		City:       postGoodsRequest.City,
+		Phone:      postGoodsRequest.Phone,
+		Email:      postGoodsRequest.Email,
+		Password:   postGoodsRequest.Password,
 	}
 
-	operator, err := h.us.UpdateOperator(c.Request.Context(), id, *operator)
+	Goods, err := h.us.UpdateGood(c.Request.Context(), id, *Goods)
 	if err != nil {
 		logrus.Error(err)
 		httpresponse.SendFailBadRequest(c, nil)

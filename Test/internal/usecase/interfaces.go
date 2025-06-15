@@ -9,11 +9,11 @@ import (
 )
 
 type GoodsStrore interface {
-	CreateGoods(ctx context.Context, p models.Operator) error
-	GetAllGoods(ctx context.Context) ([]models.Operator, error)
+	CreateGoods(ctx context.Context, p models.Goods) error
+	GetAllGoods(ctx context.Context) ([]models.Goods, error)
 	DeleteGoods(ctx context.Context, id uuid.UUID) error
-	UpdateGoods(ctx context.Context, id uuid.UUID, p models.Operator) (*models.Operator, error)
-	GetOneGoods(ctx context.Context, id uuid.UUID) (*models.Operator, error)
+	UpdateGoods(ctx context.Context, id uuid.UUID, p models.Goods) (*models.Goods, error)
+	GetOneGoods(ctx context.Context, id uuid.UUID) (*models.Goods, error)
 }
 
 type RoleStore interface {
