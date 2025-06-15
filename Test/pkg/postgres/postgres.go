@@ -44,7 +44,7 @@ func New(cfg config.Postgres) (*Postgres, error) {
 		return nil, err
 	}
 
-	logrus.Debugf("соединение с базой данных postgres успешно установлено")
+	logrus.Infof("соединение с базой данных postgres успешно установлено")
 
 	return &Postgres{
 		Conn: db,
@@ -71,13 +71,11 @@ func (db *Postgres) MigrateUpPostgres() {
 	// Выполняем миграции
 	if err = m.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
-			logrus.Debugf("no migration to apply")
+			logrus.Infof("no migration to apply")
 		} else {
 			logrus.Fatalf("failed to apply migrations: %v", err)
 		}
 	}
-
-	logrus.Debugf("миграции успешно применены")
 }
 
 func (db *Postgres) CloseConn() {
