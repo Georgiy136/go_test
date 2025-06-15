@@ -8,12 +8,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type OperatorStrore interface {
-	CreateOperator(ctx context.Context, p models.Operator) error
-	GetAllOperators(ctx context.Context) ([]models.Operator, error)
-	DeleteOperator(ctx context.Context, id uuid.UUID) error
-	UpdateOperator(ctx context.Context, id uuid.UUID, p models.Operator) (*models.Operator, error)
-	GetOneOperator(ctx context.Context, id uuid.UUID) (*models.Operator, error)
+type GoodsStrore interface {
+	CreateGoods(ctx context.Context, p models.Operator) error
+	GetAllGoods(ctx context.Context) ([]models.Operator, error)
+	DeleteGoods(ctx context.Context, id uuid.UUID) error
+	UpdateGoods(ctx context.Context, id uuid.UUID, p models.Operator) (*models.Operator, error)
+	GetOneGoods(ctx context.Context, id uuid.UUID) (*models.Operator, error)
 }
 
 type RoleStore interface {

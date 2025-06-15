@@ -12,7 +12,7 @@ import (
 )
 
 type OperatorHandler struct {
-	us usecase.OperatorUseCases
+	us usecase.GoodsUseCases
 }
 
 // PostOperator godoc
@@ -28,7 +28,6 @@ type OperatorHandler struct {
 //	@Success		201		{object}	models.Operator
 //	@Router			/operator [post]
 func (h *OperatorHandler) PostOperator(c *gin.Context) {
-
 	type PostOperatorRequest struct {
 		Id         uuid.UUID `json:"id"`
 		FirstName  string    `json:"firstName" binding:"required"`

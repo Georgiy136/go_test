@@ -11,7 +11,7 @@ import (
 )
 
 func NewRouter(router *gin.Engine, os usecase.OperatorUseCases) {
-	operatorHandlers := &OperatorHandler{
+	goodsHandlers := &OperatorHandler{
 		us: os,
 	}
 
@@ -23,11 +23,11 @@ func NewRouter(router *gin.Engine, os usecase.OperatorUseCases) {
 	{
 		good := api.Group("/good")
 		{
-			good.POST("/", operatorHandlers.PostOperator)
-			good.GET("/", operatorHandlers.GetAllOperators)
-			good.GET("/:id", operatorHandlers.GetOneOperator)
-			good.PUT("/:id", operatorHandlers.UpdateOperator)
-			good.DELETE("/:id", operatorHandlers.DeleteOperator)
+			good.POST("/", goodsHandlers.PostGood)
+			good.GET("/", goodsHandlers.GetAllGoods)
+			good.GET("/:id", goodsHandlers.GetOneGood)
+			good.PUT("/:id", goodsHandlers.UpdateGood)
+			good.DELETE("/:id", goodsHandlers.DeleteGood)
 		}
 	}
 }

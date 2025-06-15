@@ -33,15 +33,15 @@ func Run(cfg *config.Config) {
 	redis := repository.NewRedis(rdb)
 	logrus.Infof("app - Run - redis - %v", redis)
 
-	operatorRepository := repository.NewOperator(pg)
+	goodsRepository := repository.NewGoods(pg)
 
 	// Use case
-	operatorUseCases := usecase.NewOperatorUsecases(operatorRepository)
+	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository)
 
 	// HTTP Server
 	router := gin.Default()
 
-	http.NewRouter(router, *operatorUseCases)
+	http.NewRouter(router, *goodsUseCases)
 
 	router.Run(fmt.Sprintf(":%d", cfg.Http.Port))
 }

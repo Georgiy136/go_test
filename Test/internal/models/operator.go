@@ -5,7 +5,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type Operator struct {
+type Goods struct {
 	bun.BaseModel `bun:"table:operators"`
 
 	Id         uuid.UUID `bun:"uuid"`
