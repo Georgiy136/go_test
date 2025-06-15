@@ -3,11 +3,12 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
 	"log"
 
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
 	"github.com/uptrace/bun/dialect/pgdialect"
@@ -46,14 +47,16 @@ func New(cfg config.Postgres) (*bun.DB, error) {
 }
 
 func MigrateUpPostgres(pg *bun.DB, cfg config.Postgres) {
-	pg.Conn(context.Background())
-
-	log.Printf("pg.String(): %v", pg.String())
+	instance, err := postgres.WithInstance(pg.DB, &postgres.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Создание мигратора
-	m, err := migrate.New(
+	m, err := migrate.NewWithDatabaseInstance(
 		"file://migrations",
-		fmt.Sprintf(pg.String()),
+		"postgres",
+		instance,
 	)
 	if err != nil {
 		log.Fatalf("failed to create migrate instance: %v", err)
@@ -61,7 +64,7 @@ func MigrateUpPostgres(pg *bun.DB, cfg config.Postgres) {
 
 	// Выполняем миграции
 	if err = m.Up(); err != nil {
-		if err == migrate.ErrNoChange {
+		if errors.Is(err, migrate.ErrNoChange) {
 			log.Println("no migration to apply")
 		} else {
 			log.Fatalf("failed to apply migrations: %v", err)
