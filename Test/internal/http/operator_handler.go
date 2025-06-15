@@ -1,8 +1,8 @@
 package http
 
 import (
-	"fmt"
 	"github.com/sirupsen/logrus"
+	"myapp/internal/http/httpresponse"
 	"myapp/internal/models"
 	"myapp/internal/usecase"
 	"net/http"
@@ -83,10 +83,10 @@ func (h *OperatorHandler) GetOneOperator(c *gin.Context) {
 	projects, err := h.us.GetOneOperator(c.Request.Context(), id)
 	if err != nil {
 		logrus.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		httpresponse.SendFailBadRequest(c, nil)
 		return
 	}
-	c.JSON(http.StatusAccepted, projects)
+	httpresponse.SendSuccessOK(c, projects)
 }
 
 // GetAllOperators godoc
@@ -104,10 +104,10 @@ func (h *OperatorHandler) GetAllOperators(c *gin.Context) {
 	operators, err := h.us.GetAllOperators(c.Request.Context())
 	if err != nil {
 		logrus.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		httpresponse.SendFailBadRequest(c, nil)
 		return
 	}
-	c.JSON(http.StatusAccepted, operators)
+	httpresponse.SendSuccessOK(c, operators)
 }
 
 // DeleteOperator godoc
@@ -126,10 +126,11 @@ func (h *OperatorHandler) DeleteOperator(c *gin.Context) {
 	id := c.Param("id")
 	err := h.us.DeleteOperator(c.Request.Context(), id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logrus.Error(err)
+		httpresponse.SendFailBadRequest(c, nil)
 		return
 	}
-	c.JSON(http.StatusOK, fmt.Sprintf("Запись оператора с id = %s успешно удалена", id))
+	httpresponse.SendNoContent(c)
 }
 
 // UpdateOperator godoc
@@ -163,7 +164,7 @@ func (h *OperatorHandler) UpdateOperator(c *gin.Context) {
 	postOperatorRequest := &PutOperatorRequest{}
 
 	if err := c.Bind(postOperatorRequest); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		httpresponse.SendFailBadRequest(c, nil)
 		return
 	}
 
@@ -180,8 +181,9 @@ func (h *OperatorHandler) UpdateOperator(c *gin.Context) {
 
 	operator, err := h.us.UpdateOperator(c.Request.Context(), id, *operator)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logrus.Error(err)
+		httpresponse.SendFailBadRequest(c, nil)
 		return
 	}
-	c.JSON(http.StatusCreated, operator)
+	httpresponse.SendNoContent(c)
 }

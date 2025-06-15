@@ -9,8 +9,8 @@ type (
 
 	Err struct {
 		Message string                 `json:"message"`
-		Details map[string]interface{} `json:"details,omitempty"`
-		Code    int                    `json:"code,omitempty"`
+		Details map[string]interface{} `json:"details"`
+		Code    int                    `json:"code"`
 	}
 )
 

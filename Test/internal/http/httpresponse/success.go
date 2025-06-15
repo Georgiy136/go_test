@@ -14,10 +14,6 @@ func SendNoContent(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-func SendSuccessOK(c *gin.Context) {
-	SendSuccess(c, http.StatusOK, struct{}{})
-}
-
-func SendSuccessOKWithData(c *gin.Context, data any) {
+func SendSuccessOK(c *gin.Context, data any) {
 	SendSuccess(c, http.StatusOK, data)
 }

@@ -11,26 +11,26 @@ func SendError(c *gin.Context, httpCode int, commonErr common.CommonError, detai
 	c.AbortWithStatusJSON(httpCode, response.NewError(commonErr, details))
 }
 
-func SendFailBadRequestWithData(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusBadRequest, common.NotFoundError, details)
+func SendFailBadRequest(c *gin.Context, details map[string]interface{}) {
+	SendError(c, http.StatusBadRequest, common.CommonError{}, details)
 }
 
-func SendFailUnauthorized(c *gin.Context) {
-	SendError(c, http.StatusUnauthorized, common.CommonError{}, nil)
+func SendFailUnauthorized(c *gin.Context, details map[string]interface{}) {
+	SendError(c, http.StatusUnauthorized, common.CommonError{}, details)
 }
 
-func SendFailForbidden(c *gin.Context) {
-	SendError(c, http.StatusForbidden, common.CommonError{}, nil)
+func SendFailForbidden(c *gin.Context, details map[string]interface{}) {
+	SendError(c, http.StatusForbidden, common.CommonError{}, details)
 }
 
-func SendFailNotFound(c *gin.Context) {
-	SendError(c, http.StatusNotFound, common.CommonError{}, nil)
+func SendFailNotFound(c *gin.Context, details map[string]interface{}) {
+	SendError(c, http.StatusNotFound, common.NotFoundError, details)
 }
 
-func SendErrorInternalServerError(c *gin.Context) {
-	SendError(c, http.StatusInternalServerError, common.CommonError{}, nil)
+func SendErrorInternalServerError(c *gin.Context, details map[string]interface{}) {
+	SendError(c, http.StatusInternalServerError, common.CommonError{}, details)
 }
 
-func SendErrorServiceUnavailable(c *gin.Context, message string) {
-	SendError(c, http.StatusServiceUnavailable, common.CommonError{}, nil)
+func SendErrorServiceUnavailable(c *gin.Context, details map[string]interface{}) {
+	SendError(c, http.StatusServiceUnavailable, common.CommonError{}, details)
 }
