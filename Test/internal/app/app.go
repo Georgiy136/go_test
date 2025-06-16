@@ -48,13 +48,12 @@ func Run(cfg *config.Config) {
 	//}
 
 	// repo
-	redis := repository.NewGoodsRedis(rdb)
-	logrus.Infof("app - Run - redis - %v", redis)
+	redisGoods := repository.NewGoodsRedis(rdb)
 
 	goodsRepository := repository.NewGoods(pg)
 
 	// Use case
-	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository)
+	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository, redisGoods*repository.GoodsRedis)
 
 	// HTTP Server
 	router := gin.Default()

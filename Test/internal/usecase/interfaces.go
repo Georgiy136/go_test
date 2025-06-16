@@ -16,7 +16,7 @@ type GoodsStrore interface {
 	GetOneGoods(ctx context.Context, id uuid.UUID) (*models.Goods, error)
 }
 
-type RoleStore interface {
+type GoodsCache interface {
 	GetRoleRights(ctx context.Context, role string) ([]string, error)
 	AddRoleRights(ctx context.Context, role string, rights []string, period time.Duration) error
 }
