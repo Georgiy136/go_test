@@ -4,16 +4,13 @@ import (
 	"context"
 	"myapp/internal/models"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type GoodsStrore interface {
-	CreateGoods(ctx context.Context, p models.Goods) error
-	GetAllGoods(ctx context.Context) ([]models.Goods, error)
-	DeleteGoods(ctx context.Context, id uuid.UUID) error
-	UpdateGoods(ctx context.Context, id uuid.UUID, p models.Goods) (*models.Goods, error)
-	GetOneGoods(ctx context.Context, id uuid.UUID) (*models.Goods, error)
+	CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error)
+	ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) ([]models.Goods, error)
+	DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) error
+	UpdateGoods(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error)
 }
 
 type GoodsCache interface {

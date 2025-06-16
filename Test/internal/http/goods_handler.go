@@ -46,7 +46,12 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 		return
 	}
 
-	goods, err := h.us.AddGoods(c.Request.Context(), req.ProjectID, body.Name)
+	goods, err := h.us.AddGoods(c.Request.Context(), models.DataFromRequestGoodsAdd{
+		ProjectID:   req.ProjectID,
+		Name:        body.Name,
+		Description: body.Description,
+		Priority:    body.Priority,
+	})
 	if err != nil {
 		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return
@@ -88,7 +93,12 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 		return
 	}
 
-	goods, err := h.us.UpdateGood(c.Request.Context(), "", models.Goods{})
+	goods, err := h.us.UpdateGood(c.Request.Context(), models.DataFromRequestGoodsUpdate{
+		ID:          req.ID,
+		ProjectID:   req.ProjectID,
+		Name:        body.Name,
+		Description: body.Description,
+	})
 	if err != nil {
 		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return
@@ -119,12 +129,16 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 		return
 	}
 
-	err := h.us.DeleteGood(c.Request.Context(), req.ID, req.ProjectID)
+	goods, err := h.us.DeleteGood(c.Request.Context(), models.DataFromRequestGoodsDelete{
+		ID:        req.ID,
+		ProjectID: req.ProjectID,
+	})
+
 	if err != nil {
 		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return
 	}
-	httpresponse.SendNoContent(c)
+	httpresponse.SendSuccessOK(c, goods)
 }
 
 // GetAllGoodss godoc
@@ -151,7 +165,12 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 		return
 	}
 
-	goods, err := h.us.GetGoods(c.Request.Context())
+	goods, err := h.us.ListGoods(c.Request.Context(), models.DataFromRequestGoodsList{
+		ID:        req.ID,
+		ProjectID: req.ProjectID,
+		Limit:     req.Limit,
+		Offset:    req.Offset,
+	})
 	if err != nil {
 		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return

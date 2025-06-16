@@ -16,3 +16,28 @@ type Goods struct {
 	Removed     bool      `json:"removed" bun:"removed"`
 	CreatedAt   time.Time `json:"created_at" bun:"created_at"`
 }
+
+type DataFromRequestGoodsAdd struct {
+	ProjectID   int
+	Name        string
+	Description *string
+	Priority    *int
+}
+
+type DataFromRequestGoodsUpdate struct {
+	ID          int
+	ProjectID   int
+	Name        string
+	Description *string
+}
+
+type DataFromRequestGoodsDelete struct {
+	ID        int
+	ProjectID int
+}
+type DataFromRequestGoodsList struct {
+	ID        int
+	ProjectID int
+	Limit     int
+	Offset    int
+}
