@@ -21,13 +21,17 @@ func NewRouter(router *gin.Engine, os usecase.GoodsUseCases) {
 	// Routers
 	api := router.Group("/api")
 	{
+		goods := api.Group("/goods")
+		{
+			goods.GET("/list", goodsHandlers.ListGoods)
+		}
 		good := api.Group("/good")
 		{
-			good.POST("/", goodsHandlers.PostGoods)
-			good.GET("/", goodsHandlers.ListGoods)
-			good.GET("/:id", goodsHandlers.GetOneGood)
-			good.PUT("/:id", goodsHandlers.UpdateGood)
-			good.DELETE("/:id", goodsHandlers.DeleteGood)
+			good.POST("/create", goodsHandlers.PostGoods)
+			good.GET("/", goodsHandlers.GetOneGood)
+			good.PATCH("/update", goodsHandlers.UpdateGood)
+			good.PATCH("/reprioritize", goodsHandlers.UpdateGood)
+			good.DELETE("/remove", goodsHandlers.DeleteGood)
 		}
 	}
 }

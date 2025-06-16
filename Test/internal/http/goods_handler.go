@@ -29,14 +29,7 @@ type GoodsHandler struct {
 //	@Router			/Goods [post]
 func (h *GoodsHandler) PostGoods(c *gin.Context) {
 	type PostGoodsRequest struct {
-		Id         uuid.UUID `json:"id"`
-		FirstName  string    `json:"firstName" binding:"required"`
-		LastName   string    `json:"lastName" binding:"required"`
-		Patronymic string    `json:"patronymic" binding:"required"`
-		City       string    `json:"city" binding:"required"`
-		Phone      string    `json:"phone" binding:"required"`
-		Email      string    `json:"email" binding:"required"`
-		Password   string    `json:"password"`
+		Name string `json:"lastName" binding:"required"`
 	}
 
 	postGoodsRequest := &PostGoodsRequest{}
