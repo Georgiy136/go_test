@@ -20,12 +20,12 @@ func NewGoodsUsecases(db GoodsStrore, cache GoodsCache) *GoodsUseCases {
 	}
 }
 
-func (us *GoodsUseCases) AddGoods(ctx context.Context, p models.Goods) (*models.Goods, error) {
-	err := us.db.CreateGoods(ctx, p)
+func (us *GoodsUseCases) AddGoods(ctx context.Context, projectID int, name string) (*models.Goods, error) {
+	err := us.db.CreateGoods(ctx, models.Goods{})
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - AddGood - us.db.CreateGood: %w", err)
 	}
-	return &p, nil
+	return &models.Goods{}, nil
 }
 
 func (us *GoodsUseCases) GetAllGoods(ctx context.Context) ([]models.Goods, error) {

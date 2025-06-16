@@ -28,34 +28,30 @@ type GoodsHandler struct {
 //	@Success		201		{object}	models.Goods
 //	@Router			/Goods [post]
 func (h *GoodsHandler) PostGoods(c *gin.Context) {
+	type postGoodsParamsRequest struct {
+		ProjectID int `form:"projectID" binding:"required,gt=0"`
+	}
+	var req postGoodsParamsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+
 	type PostGoodsRequest struct {
-		Name string `json:"lastName" binding:"required"`
+		Name string `json:"name" binding:"required"`
 	}
-
-	postGoodsRequest := &PostGoodsRequest{}
-
-	if err := c.Bind(postGoodsRequest); err != nil {
-		httpresponse.SendFailBadRequest(c, "", nil)
+	var body PostGoodsRequest
+	if err := c.BindJSON(&body); err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return
 	}
 
-	Goods := &models.Goods{
-		Id:         postGoodsRequest.Id,
-		FirstName:  postGoodsRequest.FirstName,
-		LastName:   postGoodsRequest.LastName,
-		Patronymic: postGoodsRequest.Patronymic,
-		City:       postGoodsRequest.City,
-		Phone:      postGoodsRequest.Phone,
-		Email:      postGoodsRequest.Email,
-		Password:   postGoodsRequest.Password,
-	}
-
-	Goods, err := h.us.AddGoods(c.Request.Context(), *Goods)
+	goods, err := h.us.AddGoods(c.Request.Context(), req.ProjectID, body.Name)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return
 	}
-	httpresponse.SendSuccess(c, http.StatusCreated, Goods)
+	httpresponse.SendSuccess(c, http.StatusCreated, goods)
 }
 
 // GetOneGoods godoc

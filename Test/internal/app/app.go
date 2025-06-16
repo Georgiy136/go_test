@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"log"
 	"myapp/config"
 	"myapp/internal/http"
 	"myapp/internal/repository"
@@ -21,11 +20,11 @@ func Run(cfg *config.Config) {
 	}
 	defer pg.CloseConn()
 
-	rdb, err := redis.New(cfg.Redis)
+	redisConn, err := redis.New(cfg.Redis)
 	if err != nil {
-		log.Fatalf("app - Run - redis.New: %v", err)
+		logrus.Infof("app - Run - redis.New: %v", err)
 	}
-	defer rdb.Close()
+	defer redisConn.CloseConn()
 
 	//click, err := clickhouse.New(cfg.Clickhouse)
 	//if err != nil {
@@ -51,7 +50,7 @@ func Run(cfg *config.Config) {
 	//}
 
 	// repo
-	goodsRedis := repository.NewGoodsRedis(rdb)
+	goodsRedis := repository.NewGoodsRedis(redisConn)
 	goodsRepository := repository.NewGoods(pg)
 
 	// Use case
