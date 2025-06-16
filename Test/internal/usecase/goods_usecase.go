@@ -21,7 +21,7 @@ func NewGoodsUsecases(db GoodsStrore, cache GoodsCache) *GoodsUseCases {
 func (us *GoodsUseCases) AddGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
 	goods, err := us.db.CreateGoods(ctx, data)
 	if err != nil {
-		return nil, fmt.Errorf("GoodUseCases - AddGood - us.db.CreateGood: %w", err)
+		return nil, fmt.Errorf("GoodUseCases - AddGood - us.db.CreateGoods: %w", err)
 	}
 	return goods, nil
 }
