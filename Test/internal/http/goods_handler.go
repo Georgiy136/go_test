@@ -125,6 +125,38 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 	httpresponse.SendNoContent(c)
 }
 
+// GetAllGoodss godoc
+//
+//	@Security		ApiKeyAuth
+//	@Summary		Retrieves All Goodss
+//	@Tags			Goods
+//	@Description	get all Goodss
+//	@ID				get-all-Goodss
+//	@Accept			json
+//	@Produce		json
+//	@Success		202	{array}	[]models.Goods
+//	@Router			/Goods [get]
+func (h *GoodsHandler) ListGoods(c *gin.Context) {
+	type listGoodParamsRequest struct {
+		ID        int `form:"id" binding:"omitempty,gt=0"`
+		ProjectID int `form:"projectID" binding:"omitempty,gt=0"`
+		Limit     int `form:"id" binding:"omitempty,gt=0"`
+		Offset    int `form:"id" binding:"omitempty,gt=0"`
+	}
+	var req listGoodParamsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+
+	goods, err := h.us.GetGoods(c.Request.Context())
+	if err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+	httpresponse.SendSuccessOK(c, goods)
+}
+
 // GetGoods godoc
 //
 //	@Security		ApiKeyAuth
