@@ -28,7 +28,6 @@ func NewRouter(router *gin.Engine, os usecase.GoodsUseCases) {
 		good := api.Group("/good")
 		{
 			good.POST("/create", goodsHandlers.PostGoods)
-			good.GET("/", goodsHandlers.GetOneGood)
 			good.PATCH("/update", goodsHandlers.UpdateGood)
 			good.PATCH("/reprioritize", goodsHandlers.UpdateGood)
 			good.DELETE("/remove", goodsHandlers.DeleteGood)

@@ -59,15 +59,3 @@ func (us *GoodsUseCases) UpdateGood(ctx context.Context, id string, p models.Goo
 	}
 	return Good, nil
 }
-
-func (us *GoodsUseCases) GetOneGood(ctx context.Context, id string) (*models.Goods, error) {
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		return nil, fmt.Errorf("GoodUseCases - GetOneGood - uuid.Parse: %w", err)
-	}
-	p, err := us.db.GetOneGoods(ctx, uid)
-	if err != nil {
-		return nil, fmt.Errorf("GoodUseCases - GetOneGood - us.db.GetOneGood: %w", err)
-	}
-	return p, nil
-}

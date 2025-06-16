@@ -54,28 +54,6 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 	httpresponse.SendSuccess(c, http.StatusCreated, goods)
 }
 
-// GetOneGoods godoc
-//
-//	@Security		ApiKeyAuth
-//	@Summary		Retrieves Goods based on given ID
-//	@Tags			Goods
-//	@Description	get Goods by id
-//	@ID				get-Goods-by-id
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		string	true	"Goods ID"
-//	@Success		202	{object}	models.Goods
-//	@Router			/Goods/{id} [get]
-func (h *GoodsHandler) GetOneGood(c *gin.Context) {
-	projects, err := h.us.GetOneGood(c.Request.Context(), "1")
-	if err != nil {
-		logrus.Error(err)
-		httpresponse.SendFailBadRequest(c, "", nil)
-		return
-	}
-	httpresponse.SendSuccessOK(c, projects)
-}
-
 // GetAllGoodss godoc
 //
 //	@Security		ApiKeyAuth
