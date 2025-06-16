@@ -19,7 +19,7 @@ type GoodsHandler struct {
 //
 //	@Security		ApiKeyAuth
 //	@Summary		Add Goods to database
-//	@Tags			Goodss
+//	@Tags			Goods
 //	@Description	create Goods
 //	@ID				create-Goods
 //	@Accept			json
@@ -69,7 +69,7 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 //
 //	@Security		ApiKeyAuth
 //	@Summary		Retrieves Goods based on given ID
-//	@Tags			Goodss
+//	@Tags			Goods
 //	@Description	get Goods by id
 //	@ID				get-Goods-by-id
 //	@Accept			json
@@ -91,7 +91,7 @@ func (h *GoodsHandler) GetOneGood(c *gin.Context) {
 //
 //	@Security		ApiKeyAuth
 //	@Summary		Retrieves All Goodss
-//	@Tags			Goodss
+//	@Tags			Goods
 //	@Description	get all Goodss
 //	@ID				get-all-Goodss
 //	@Accept			json
@@ -112,7 +112,7 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 //
 //	@Security		ApiKeyAuth
 //	@Summary		Delete Goods based on given ID
-//	@Tags			Goodss
+//	@Tags			Goods
 //	@Description	delete Goods by id
 //	@ID				delete-Goods-by-id
 //	@Accept			json
@@ -135,7 +135,7 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 //
 //	@Security		ApiKeyAuth
 //	@Summary		Update Goods based on given ID
-//	@Tags			Goodss
+//	@Tags			Goods
 //	@Description	update Goods by id
 //	@ID				update-Goods-by-id
 //	@Accept			json
