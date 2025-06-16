@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS goods (
     project_id INTEGER NOT NULL,
     name character varying NOT NULL,
     description character varying,
-    priority INTEGER,
+    priority INTEGER NOT NULL DEFAULT 0,
     removed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
     CONSTRAINT pk_goods PRIMARY KEY (ID, project_id),

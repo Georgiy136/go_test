@@ -51,7 +51,7 @@ func Run(cfg *config.Config) {
 
 	// repo
 	goodsRedis := repository.NewGoodsRedis(redisConn)
-	goodsRepository := repository.NewGoods(pg)
+	goodsRepository := repository.NewGoodsRepo(pg)
 
 	// Use case
 	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository, goodsRedis)
