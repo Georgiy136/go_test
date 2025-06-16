@@ -36,7 +36,9 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 	}
 
 	type postGoodsRequest struct {
-		Name string `json:"name" binding:"required"`
+		Name        string  `json:"name" binding:"required"`
+		Description *string `json:"description" binding:"omitempty"`
+		Priority    *int    `json:"priority" binding:"required,gt=0"`
 	}
 	var body postGoodsRequest
 	if err := c.BindJSON(&body); err != nil {
@@ -179,7 +181,7 @@ func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 	}
 
 	type reprioritizeGoodsRequest struct {
-		NewPriority string `json:"NewPriority" binding:"required"`
+		NewPriority int `json:"NewPriority" binding:"required"`
 	}
 	var body reprioritizeGoodsRequest
 	if err := c.BindJSON(&body); err != nil {
