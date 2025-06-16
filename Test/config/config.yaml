@@ -18,7 +18,7 @@ clickhouse:
  host: "localhost" #localhost
  port: 9000
  user: "default"
- password: "some_password"
+ password: "default"
  dbname: "default"
 
 nats:
