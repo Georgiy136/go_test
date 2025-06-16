@@ -3,6 +3,7 @@ package nats
 import (
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"myapp/config"
 
 	"github.com/nats-io/nats.go"
@@ -20,7 +21,6 @@ func New(cfg config.Nats) (*Nats, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Ошибка подключения к NATS: %v", err)
 	}
-	defer nc.Close()
 
 	// Создание JetStream контекста
 	js, err := nc.JetStream()
@@ -32,19 +32,13 @@ func New(cfg config.Nats) (*Nats, error) {
 		return nil, fmt.Errorf("Ошибка создания стрима: %v", err)
 	}
 
+	logrus.Info("подключение к NATS завершено")
+
 	return &Nats{
 		js:  js,
 		nc:  nc,
-		cfg: cfg}, nil
-	/*
-		// Публикация сообщения в стрим
-		msg := []byte("Hello, JetStream!")
-		_, err = js.Publish("my.subject", msg)
-		if err != nil {
-			log.Fatalf("Ошибка публикации сообщения: %v", err)
-		}
-
-		fmt.Println("Сообщение успешно опубликовано в JetStream!")*/
+		cfg: cfg,
+	}, nil
 }
 
 func CreateConfStreamIfNotExist(js nats.JetStreamContext, streamName string) error {
