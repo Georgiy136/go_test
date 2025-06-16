@@ -10,9 +10,8 @@ import (
 )
 
 type Nats struct {
-	js  nats.JetStreamContext
-	nc  *nats.Conn
-	cfg config.Nats
+	Js nats.JetStreamContext
+	Nc *nats.Conn
 }
 
 func New(cfg config.Nats) (*Nats, error) {
@@ -28,20 +27,19 @@ func New(cfg config.Nats) (*Nats, error) {
 		return nil, fmt.Errorf("Ошибка создания JetStream контекста: %v", err)
 	}
 
-	if err = CreateConfStreamIfNotExist(js, cfg.ChannelName); err != nil {
+	if err = CreateStreamIfNotExist(js, cfg.ChannelName); err != nil {
 		return nil, fmt.Errorf("Ошибка создания стрима: %v", err)
 	}
 
 	logrus.Info("подключение к NATS завершено")
 
 	return &Nats{
-		js:  js,
-		nc:  nc,
-		cfg: cfg,
+		Js: js,
+		Nc: nc,
 	}, nil
 }
 
-func CreateConfStreamIfNotExist(js nats.JetStreamContext, streamName string) error {
+func CreateStreamIfNotExist(js nats.JetStreamContext, streamName string) error {
 	_, err := js.StreamInfo(streamName)
 	switch {
 	case err == nil:
@@ -71,13 +69,6 @@ func CreateConfStreamIfNotExist(js nats.JetStreamContext, streamName string) err
 	return nil
 }
 
-func (n *Nats) PublishData(data []byte) error {
-	if _, err := n.js.Publish(n.cfg.ChannelName, data); err != nil {
-		return fmt.Errorf("error publish to stream: %w, name: %s", err, n.cfg.ChannelName)
-	}
-	return nil
-}
-
 func (n *Nats) CloseConn() {
-	n.nc.Close()
+	n.Nc.Close()
 }

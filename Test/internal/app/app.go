@@ -39,6 +39,9 @@ func Run(cfg *config.Config) {
 	//}
 	//defer nats.CloseConn()
 
+	// очередь Nats для сохранения логов
+	// natsLogs := logs.NatsLogging(nats, cfg.Nats)
+
 	// Накатываем миграции
 	if err = pg.MigrateUpPostgres(); err != nil {
 		logrus.Fatalf("app - Run - MigrateUpPostgres: %v", err)
@@ -48,12 +51,11 @@ func Run(cfg *config.Config) {
 	//}
 
 	// repo
-	redisGoods := repository.NewGoodsRedis(rdb)
-
+	goodsRedis := repository.NewGoodsRedis(rdb)
 	goodsRepository := repository.NewGoods(pg)
 
 	// Use case
-	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository, redisGoods)
+	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository, goodsRedis)
 
 	// HTTP Server
 	router := gin.Default()
