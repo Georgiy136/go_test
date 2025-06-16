@@ -8,17 +8,17 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func NewRedis(rdb *redis.Client) *AuthRedis {
-	return &AuthRedis{
+func NewGoodsRedis(rdb *redis.Client) *GoodsRedis {
+	return &GoodsRedis{
 		Rdb: rdb,
 	}
 }
 
-type AuthRedis struct {
+type GoodsRedis struct {
 	Rdb *redis.Client
 }
 
-func (db *AuthRedis) GetRoleRights(ctx context.Context, role string) ([]string, error) {
+func (db *GoodsRedis) GetRoleRights(ctx context.Context, role string) ([]string, error) {
 	rights, err := db.Rdb.SMembers(ctx, role).Result()
 	if err != nil {
 		if err == redis.Nil {
@@ -30,7 +30,7 @@ func (db *AuthRedis) GetRoleRights(ctx context.Context, role string) ([]string, 
 	return rights, nil
 }
 
-func (db *AuthRedis) AddRoleRights(ctx context.Context, role string, rights []string, period time.Duration) error {
+func (db *GoodsRedis) AddRoleRights(ctx context.Context, role string, rights []string, period time.Duration) error {
 	err := db.Rdb.SAdd(ctx, role, rights).Err()
 	if err != nil {
 		return fmt.Errorf("AuthRedis - AddRoleRights - db.Rdb.SAdd: %w", err)

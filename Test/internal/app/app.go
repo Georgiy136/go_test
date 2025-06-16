@@ -14,18 +14,30 @@ import (
 )
 
 func Run(cfg *config.Config) {
-	// Repository
+	// connections
 	pg, err := postgres.New(cfg.Postgres)
 	if err != nil {
 		logrus.Fatalf("app - Run - postgres.New: %v", err)
 	}
 	defer pg.CloseConn()
 
+	rdb, err := redis.New(cfg.Redis)
+	if err != nil {
+		log.Fatalf("app - Run - redis.New: %v", err)
+	}
+	defer rdb.Close()
+
 	//click, err := clickhouse.New(cfg.Clickhouse)
 	//if err != nil {
 	//	logrus.Fatalf("app - Run - clickhouse.New: %v", err)
 	//}
 	//defer click.CloseConn()
+
+	//nats, err := nats.New(cfg.Nats)
+	//if err != nil {
+	//	logrus.Fatalf("app - Run - nats.New: %v", err)
+	//}
+	//defer nats.CloseConn()
 
 	// Накатываем миграции
 	if err = pg.MigrateUpPostgres(); err != nil {
@@ -35,16 +47,10 @@ func Run(cfg *config.Config) {
 	//	logrus.Fatalf("app - Run - MigrateUpClickhouse: %v", err)
 	//}
 
-	rdb, err := redis.New(cfg.Redis)
-	if err != nil {
-		log.Fatalf("app - Run - redis.New: %v", err)
-	}
-	defer rdb.Close()
-
-	redis := repository.NewRedis(rdb)
+	// repo
+	redis := repository.NewGoodsRedis(rdb)
 	logrus.Infof("app - Run - redis - %v", redis)
 
-	// repo
 	goodsRepository := repository.NewGoods(pg)
 
 	// Use case

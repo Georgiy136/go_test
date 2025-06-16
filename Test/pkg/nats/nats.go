@@ -78,6 +78,6 @@ func (n *Nats) PublishData(data []byte) error {
 	return nil
 }
 
-func (n *Nats) Close() {
+func (n *Nats) CloseConn() {
 	n.nc.Close()
 }
