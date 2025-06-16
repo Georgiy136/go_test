@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS logs (
-    ID SERIAL NOT NULL,
+    LogID SERIAL NOT NULL,
+    GoodsID INTEGER NOT NULL,
     ProjectID INTEGER NOT NULL,
     Name character varying NOT NULL,
     Description character varying,
