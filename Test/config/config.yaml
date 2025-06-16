@@ -2,7 +2,7 @@ http:
  port: 8080
 
 postgres:
- host: "postgres" #localhost
+ host: "localhost" #localhost
  port: 5432
  user: "postgres"
  password: "4650"
@@ -10,13 +10,17 @@ postgres:
  sslmode: "disable"
 
 redis:
- host: "redis" #localhost
+ host: "localhost" #localhost
  password: "some_password"
  port: 6379
 
 clickhouse:
- host: "clickhouse" #localhost
+ host: "localhost" #localhost
  port: 9000
  user: "default"
  password: "some_password"
  dbname: "default"
+
+nats:
+ host: "nats:4222" #localhost
+ channelName: "logs"
