@@ -47,18 +47,30 @@ func (db *Good) CreateGoods(ctx context.Context, data models.DataFromRequestGood
 	return &goods, nil
 }
 
-func (db *Good) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) ([]models.Goods, error) {
-	Goods := []*models.Goods{}
+func (db *Good) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
+	res := models.GoodsListDBResponse{}
 
-	err := db.Bun.NewSelect().Model(&models.Goods{}).Where("uuid IN (?)", bun.In(data.ID)).Scan(ctx, &Goods)
+	err := db.Bun.QueryRowContext(ctx,
+		`SELECT id,
+					  project_id, 
+					  name,
+					  description, 
+					  priority, 
+					  removed, 
+					  created_at
+				FROM goods 
+						  `,
+		data.ProjectID, data.Name, data.Description, data.Priority,
+	).Scan(&goods.Id, &goods.ProjectID, &goods.Name, &goods.Description, &goods.Priority, &goods.Removed, &goods.CreatedAt)
+	/*err := db.Bun.NewSelect().Model(&models.Goods{}).Where("uuid IN (?)", bun.In(data.ID)).Scan(ctx, &Goods)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		logrus.Error(err)
 		return nil, fmt.Errorf("Goods - ListGoods - db.Bun.NewSelect: %w", err)
-	}
-	return nil, nil
+	}*/
+	return &res, nil
 }
 
 func (db *Good) DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) error {

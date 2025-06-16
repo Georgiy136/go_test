@@ -42,6 +42,16 @@ type DataFromRequestGoodsList struct {
 	Offset    int
 }
 
+type GoodsListDBResponse struct {
+	Meta struct {
+		Total  int
+		Remove int
+		Limit  int
+		Offset int
+	} `json:"meta"`
+	Goods []Goods `json:"goods"`
+}
+
 type DataFromRequestReprioritizeGood struct {
 	ID          int
 	NewPriority int
