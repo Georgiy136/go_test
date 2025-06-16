@@ -70,7 +70,7 @@ func (db *Good) UpdateGoods(ctx context.Context, id uuid.UUID, p models.Goods) (
 		Column("first_name", "last_name", "patronymic", "city", "phone", "email").
 		Where(`uuid = ?`, id.String()).
 		Returning("uuid, password").
-		Scan(ctx, &p.Id, &p.Password)
+		Scan(ctx, &p.Id)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

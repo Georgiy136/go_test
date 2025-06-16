@@ -24,7 +24,7 @@ type GoodsHandler struct {
 //	@ID				create-Goods
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		PostGoodsRequest	true	"Goods info"
+//	@Param			input	body		postGoodsRequest	true	"Goods info"
 //	@Success		201		{object}	models.Goods
 //	@Router			/Goods [post]
 func (h *GoodsHandler) PostGoods(c *gin.Context) {
@@ -37,10 +37,10 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 		return
 	}
 
-	type PostGoodsRequest struct {
+	type postGoodsRequest struct {
 		Name string `json:"name" binding:"required"`
 	}
-	var body PostGoodsRequest
+	var body postGoodsRequest
 	if err := c.BindJSON(&body); err != nil {
 		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return
@@ -112,7 +112,6 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 //	@Success		201		{object}	models.Goods
 //	@Router			/Goods/{id} [put]
 func (h *GoodsHandler) UpdateGood(c *gin.Context) {
-
 	type PutGoodsRequest struct {
 		Id         uuid.UUID `json:"id"`
 		FirstName  string    `json:"firstName" binding:"required"`
@@ -133,22 +132,10 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 		return
 	}
 
-	Goods := &models.Goods{
-		Id:         postGoodsRequest.Id,
-		FirstName:  postGoodsRequest.FirstName,
-		LastName:   postGoodsRequest.LastName,
-		Patronymic: postGoodsRequest.Patronymic,
-		City:       postGoodsRequest.City,
-		Phone:      postGoodsRequest.Phone,
-		Email:      postGoodsRequest.Email,
-		Password:   postGoodsRequest.Password,
-	}
-
-	Goods, err := h.us.UpdateGood(c.Request.Context(), id, *Goods)
+	Goods, err := h.us.UpdateGood(c.Request.Context(), id, models.Goods{})
 	if err != nil {
-		logrus.Error(err)
 		httpresponse.SendFailBadRequest(c, "", nil)
 		return
 	}
-	httpresponse.SendNoContent(c)
+	httpresponse.SendSuccessOK(c, Goods)
 }
