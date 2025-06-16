@@ -42,7 +42,7 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 	postGoodsRequest := &PostGoodsRequest{}
 
 	if err := c.Bind(postGoodsRequest); err != nil {
-		httpresponse.SendFailBadRequest(c, nil)
+		httpresponse.SendFailBadRequest(c, "", nil)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (h *GoodsHandler) GetOneGood(c *gin.Context) {
 	projects, err := h.us.GetOneGood(c.Request.Context(), "1")
 	if err != nil {
 		logrus.Error(err)
-		httpresponse.SendFailBadRequest(c, nil)
+		httpresponse.SendFailBadRequest(c, "", nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, projects)
@@ -102,7 +102,7 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 	Goodss, err := h.us.GetAllGoods(c.Request.Context())
 	if err != nil {
 		logrus.Error(err)
-		httpresponse.SendFailBadRequest(c, nil)
+		httpresponse.SendFailBadRequest(c, "", nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, Goodss)
@@ -125,7 +125,7 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 	err := h.us.DeleteGood(c.Request.Context(), id)
 	if err != nil {
 		logrus.Error(err)
-		httpresponse.SendFailBadRequest(c, nil)
+		httpresponse.SendFailBadRequest(c, "", nil)
 		return
 	}
 	httpresponse.SendNoContent(c)
@@ -162,7 +162,7 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 	postGoodsRequest := &PutGoodsRequest{}
 
 	if err := c.Bind(postGoodsRequest); err != nil {
-		httpresponse.SendFailBadRequest(c, nil)
+		httpresponse.SendFailBadRequest(c, "", nil)
 		return
 	}
 
@@ -180,7 +180,7 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 	Goods, err := h.us.UpdateGood(c.Request.Context(), id, *Goods)
 	if err != nil {
 		logrus.Error(err)
-		httpresponse.SendFailBadRequest(c, nil)
+		httpresponse.SendFailBadRequest(c, "", nil)
 		return
 	}
 	httpresponse.SendNoContent(c)
