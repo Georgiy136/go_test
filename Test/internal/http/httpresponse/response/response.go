@@ -8,9 +8,10 @@ type (
 	}
 
 	Error struct {
-		Message string                 `json:"message"`
-		Details map[string]interface{} `json:"details"`
-		Code    int                    `json:"code"`
+		Message     string      `json:"message"`
+		Description string      `json:"description,omitempty"`
+		Details     interface{} `json:"details"`
+		Code        int         `json:"code"`
 	}
 )
 
@@ -20,12 +21,13 @@ func NewSuccess(data any) ResponseData {
 	}
 }
 
-func NewError(err common.CommonError, details map[string]interface{}) ResponseData {
+func NewError(err common.CommonError, description string, details interface{}) ResponseData {
 	return ResponseData{
 		Data: Error{
-			Code:    err.Code,
-			Message: err.Message,
-			Details: details,
+			Message:     err.Message,
+			Description: description,
+			Details:     details,
+			Code:        err.Code,
 		},
 	}
 }

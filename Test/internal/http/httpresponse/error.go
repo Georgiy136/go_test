@@ -7,30 +7,30 @@ import (
 	"net/http"
 )
 
-func SendError(c *gin.Context, httpCode int, commonErr common.CommonError, details map[string]interface{}) {
-	c.AbortWithStatusJSON(httpCode, response.NewError(commonErr, details))
+func SendError(c *gin.Context, httpCode int, commonErr common.CommonError, description *string, details interface{}) {
+	c.AbortWithStatusJSON(httpCode, response.NewError(commonErr, *description, details))
 }
 
-func SendFailBadRequest(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusBadRequest, common.BadRequest, details)
+func SendFailBadRequest(c *gin.Context, description *string, details interface{}) {
+	SendError(c, http.StatusBadRequest, common.BadRequest, description, details)
 }
 
-func SendFailUnauthorized(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusUnauthorized, common.Unauthorized, details)
+func SendFailUnauthorized(c *gin.Context, description *string, details interface{}) {
+	SendError(c, http.StatusUnauthorized, common.Unauthorized, description, details)
 }
 
-func SendFailForbidden(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusForbidden, common.Forbidden, details)
+func SendFailForbidden(c *gin.Context, description *string, details interface{}) {
+	SendError(c, http.StatusForbidden, common.Forbidden, description, details)
 }
 
-func SendFailNotFound(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusNotFound, common.NotFoundError, details)
+func SendFailNotFound(c *gin.Context, description *string, details interface{}) {
+	SendError(c, http.StatusNotFound, common.NotFoundError, description, details)
 }
 
-func SendErrorInternalServerError(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusInternalServerError, common.InternalServerError, details)
+func SendErrorInternalServerError(c *gin.Context, description *string, details interface{}) {
+	SendError(c, http.StatusInternalServerError, common.InternalServerError, description, details)
 }
 
-func SendErrorServiceUnavailable(c *gin.Context, details map[string]interface{}) {
-	SendError(c, http.StatusServiceUnavailable, common.ServiceUnavailable, details)
+func SendErrorServiceUnavailable(c *gin.Context, description *string, details interface{}) {
+	SendError(c, http.StatusServiceUnavailable, common.ServiceUnavailable, description, details)
 }
