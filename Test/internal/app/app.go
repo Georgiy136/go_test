@@ -53,7 +53,7 @@ func Run(cfg *config.Config) {
 	goodsRepository := repository.NewGoods(pg)
 
 	// Use case
-	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository, redisGoods*repository.GoodsRedis)
+	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository, redisGoods)
 
 	// HTTP Server
 	router := gin.Default()
