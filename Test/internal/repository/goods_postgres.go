@@ -23,11 +23,14 @@ func NewGoodsRepo(pg *postgres.Postgres) *Good {
 
 func (db *Good) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
 	rows, err := db.Bun.QueryContext(ctx,
-		`INSERT INTO goods(project_id, name, description, priority)
+		`INSERT INTO goods(project_id, 
+                  				 name, 
+                  				 description, 
+                 				 priority)
 			   VALUES (?, ?, ?, ?)
 			   RETURNING id,
 						 project_id, 
-						 name, 
+						 name,
 						 description, 
 					     priority, 
 						 removed, 
@@ -36,10 +39,14 @@ func (db *Good) CreateGoods(ctx context.Context, data models.DataFromRequestGood
 		data.ProjectID, data.Name, data.Description, data.Priority,
 	)
 
-	var res models.Goods
+	if err != nil {
+		return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
+	}
+
+	res := models.Goods{}
 	for rows.Next() {
 		if err = rows.Scan(&res.Id, &res.ProjectID, &res.Name, &res.Description, &res.Priority, &res.Removed, &res.CreatedAt); err != nil {
-			return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
+			return nil, fmt.Errorf("Goods - CreateGoods - Scan: %w", err)
 		}
 	}
 

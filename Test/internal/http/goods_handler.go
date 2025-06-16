@@ -36,9 +36,9 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 	}
 
 	type postGoodsRequest struct {
-		Name        string  `json:"name" binding:"required"`
-		Description *string `json:"description" binding:"omitempty"`
-		Priority    *int    `json:"priority" binding:"omitempty,gt=0"`
+		Name        string `json:"name" binding:"required"`
+		Description string `json:"description" binding:"omitempty"`
+		Priority    int    `json:"priority" binding:"omitempty,gt=0"`
 	}
 	var body postGoodsRequest
 	if err := c.BindJSON(&body); err != nil {

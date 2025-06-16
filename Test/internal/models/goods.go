@@ -20,8 +20,8 @@ type Goods struct {
 type DataFromRequestGoodsAdd struct {
 	ProjectID   int
 	Name        string
-	Description *string
-	Priority    *int
+	Description string
+	Priority    int
 }
 
 type DataFromRequestGoodsUpdate struct {

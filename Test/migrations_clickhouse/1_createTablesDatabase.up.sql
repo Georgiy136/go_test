@@ -3,8 +3,8 @@ CREATE TABLE IF NOT EXISTS logs (
     GoodsID INTEGER NOT NULL,
     ProjectID INTEGER NOT NULL,
     Name character varying NOT NULL,
-    Description character varying NOT NULL,
-    Priority INTEGER NOT NULL DEFAULT 0,
-    Removed BOOLEAN NOT NULL DEFAULT FALSE,
+    Description character varying,
+    Priority INTEGER DEFAULT 0,
+    Removed BOOLEAN DEFAULT FALSE,
     EventTime TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
 );
