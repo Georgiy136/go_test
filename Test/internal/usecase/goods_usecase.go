@@ -36,12 +36,8 @@ func (us *GoodsUseCases) GetAllGoods(ctx context.Context) ([]models.Goods, error
 	return p, nil
 }
 
-func (us *GoodsUseCases) DeleteGood(ctx context.Context, id string) error {
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		return fmt.Errorf("GoodUseCases - DeleteGood - uuid.Parse: %w", err)
-	}
-	err = us.db.DeleteGoods(ctx, uid)
+func (us *GoodsUseCases) DeleteGood(ctx context.Context, id, projectID int) error {
+	err := us.db.DeleteGoods(ctx, uuid.New())
 	if err != nil {
 		return fmt.Errorf("GoodUseCases - DeleteGood - us.db.DeleteGood: %w", err)
 	}

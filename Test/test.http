@@ -7,5 +7,18 @@ Content-Type: application/json
 }
 
 ### STATUS 200
-GET localhost:8080/api/good
+PATCH localhost:8080/api/good/update?projectID=2&id=1
+Content-Type: application/json
+
+{
+  "name": "Цветок",
+  "description": "Растение"
+}
+
+### STATUS 200
+DELETE localhost:8080/api/good/remove?projectID=2&id=1
+Content-Type: application/json
+
+### STATUS 200
+GET localhost:8080/api/goods/list
 Content-Type: application/json

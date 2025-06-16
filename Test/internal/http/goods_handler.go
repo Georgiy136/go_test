@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type GoodsHandler struct {
@@ -54,6 +53,79 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 	httpresponse.SendSuccess(c, http.StatusCreated, goods)
 }
 
+// UpdateGoods godoc
+//
+//	@Security		ApiKeyAuth
+//	@Summary		Update Goods based on given ID
+//	@Tags			Goods
+//	@Description	update Goods by id
+//	@ID				update-Goods-by-id
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string				true	"Goods ID"
+//	@Param			input	body		PutGoodsRequest	true	"Goods info"
+//	@Success		201		{object}	models.Goods
+//	@Router			/Goods/{id} [put]
+func (h *GoodsHandler) UpdateGood(c *gin.Context) {
+	type updateGoodParamsRequest struct {
+		ID        int `form:"id" binding:"required,gt=0"`
+		ProjectID int `form:"projectID" binding:"required,gt=0"`
+	}
+	var req updateGoodParamsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+
+	type updateGoodsRequest struct {
+		Name        string  `json:"name" binding:"required"`
+		Description *string `json:"description" binding:"omitempty"`
+	}
+	var body updateGoodsRequest
+	if err := c.BindJSON(&body); err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+
+	goods, err := h.us.UpdateGood(c.Request.Context(), "", models.Goods{})
+	if err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+	httpresponse.SendSuccessOK(c, goods)
+}
+
+// DeleteGoods godoc
+//
+//	@Security		ApiKeyAuth
+//	@Summary		Delete Goods based on given ID
+//	@Tags			Goods
+//	@Description	delete Goods by id
+//	@ID				delete-Goods-by-id
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"Goods ID"
+//	@Success		200
+//	@Router			/Goods/{id} [delete]
+func (h *GoodsHandler) DeleteGood(c *gin.Context) {
+	type deleteGoodParamsRequest struct {
+		ID        int `form:"id" binding:"required,gt=0"`
+		ProjectID int `form:"projectID" binding:"required,gt=0"`
+	}
+	var req deleteGoodParamsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+
+	err := h.us.DeleteGood(c.Request.Context(), req.ID, req.ProjectID)
+	if err != nil {
+		httpresponse.SendFailBadRequest(c, "", nil)
+		return
+	}
+	httpresponse.SendNoContent(c)
+}
+
 // GetAllGoodss godoc
 //
 //	@Security		ApiKeyAuth
@@ -73,69 +145,4 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 		return
 	}
 	httpresponse.SendSuccessOK(c, Goodss)
-}
-
-// DeleteGoods godoc
-//
-//	@Security		ApiKeyAuth
-//	@Summary		Delete Goods based on given ID
-//	@Tags			Goods
-//	@Description	delete Goods by id
-//	@ID				delete-Goods-by-id
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path	string	true	"Goods ID"
-//	@Success		200
-//	@Router			/Goods/{id} [delete]
-func (h *GoodsHandler) DeleteGood(c *gin.Context) {
-	id := c.Param("id")
-	err := h.us.DeleteGood(c.Request.Context(), id)
-	if err != nil {
-		logrus.Error(err)
-		httpresponse.SendFailBadRequest(c, "", nil)
-		return
-	}
-	httpresponse.SendNoContent(c)
-}
-
-// UpdateGoods godoc
-//
-//	@Security		ApiKeyAuth
-//	@Summary		Update Goods based on given ID
-//	@Tags			Goods
-//	@Description	update Goods by id
-//	@ID				update-Goods-by-id
-//	@Accept			json
-//	@Produce		json
-//	@Param			id		path		string				true	"Goods ID"
-//	@Param			input	body		PutGoodsRequest	true	"Goods info"
-//	@Success		201		{object}	models.Goods
-//	@Router			/Goods/{id} [put]
-func (h *GoodsHandler) UpdateGood(c *gin.Context) {
-	type PutGoodsRequest struct {
-		Id         uuid.UUID `json:"id"`
-		FirstName  string    `json:"firstName" binding:"required"`
-		LastName   string    `json:"lastName" binding:"required"`
-		Patronymic string    `json:"patronymic" binding:"required"`
-		City       string    `json:"city" binding:"required"`
-		Phone      string    `json:"phone" binding:"required"`
-		Email      string    `json:"email" binding:"required"`
-		Password   string    `json:"password"`
-	}
-
-	id := c.Param("id")
-
-	postGoodsRequest := &PutGoodsRequest{}
-
-	if err := c.Bind(postGoodsRequest); err != nil {
-		httpresponse.SendFailBadRequest(c, "", nil)
-		return
-	}
-
-	Goods, err := h.us.UpdateGood(c.Request.Context(), id, models.Goods{})
-	if err != nil {
-		httpresponse.SendFailBadRequest(c, "", nil)
-		return
-	}
-	httpresponse.SendSuccessOK(c, Goods)
 }
