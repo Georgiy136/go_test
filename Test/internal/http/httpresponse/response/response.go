@@ -3,8 +3,12 @@ package response
 import "myapp/internal/errors/common"
 
 type (
-	ResponseData struct {
+	SuccessData struct {
 		Data any `json:"data"`
+	}
+
+	ErrorData struct {
+		Error any `json:"error"`
 	}
 
 	Error struct {
@@ -15,15 +19,15 @@ type (
 	}
 )
 
-func NewSuccess(data any) ResponseData {
-	return ResponseData{
+func NewSuccess(data any) SuccessData {
+	return SuccessData{
 		Data: data,
 	}
 }
 
-func NewError(err common.CommonError, description string, details interface{}) ResponseData {
-	return ResponseData{
-		Data: Error{
+func NewError(err common.CommonError, description string, details interface{}) ErrorData {
+	return ErrorData{
+		Error: Error{
 			Message:     err.Message,
 			Description: description,
 			Details:     details,

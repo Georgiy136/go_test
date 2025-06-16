@@ -1,4 +1,11 @@
 ### STATUS 200
+POST localhost:8080/api/good/create?projectID=2
+Content-Type: application/json
+
+{
+  "name": "принтер"
+}
+
+### STATUS 200
 GET localhost:8080/api/good
 Content-Type: application/json
-Authorization: Basic admin test
