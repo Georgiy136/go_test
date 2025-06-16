@@ -200,7 +200,7 @@ func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 	}
 
 	type reprioritizeGoodsRequest struct {
-		NewPriority int `json:"NewPriority" binding:"required"`
+		NewPriority int `json:"NewPriority" binding:"required,gte=0"`
 	}
 	var body reprioritizeGoodsRequest
 	if err := c.BindJSON(&body); err != nil {
@@ -208,7 +208,10 @@ func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 		return
 	}
 
-	goods, err := h.us.GetGoods(c.Request.Context())
+	goods, err := h.us.ReprioritizeGood(c.Request.Context(), models.DataFromRequestReprioritizeGood{
+		ID:          req.ID,
+		NewPriority: body.NewPriority,
+	})
 	if err != nil {
 		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return

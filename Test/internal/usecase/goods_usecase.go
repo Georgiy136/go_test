@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"myapp/internal/models"
-
-	"github.com/google/uuid"
 )
 
 type GoodsUseCases struct {
@@ -45,9 +43,17 @@ func (us *GoodsUseCases) DeleteGood(ctx context.Context, data models.DataFromReq
 }
 
 func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) ([]models.Goods, error) {
-	p, err := us.db.ListGoods(ctx)
+	p, err := us.db.ListGoods(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - GetGoods - us.db.GetGoods: %w", err)
 	}
 	return p, nil
+}
+
+func (us *GoodsUseCases) ReprioritizeGood(ctx context.Context, data models.DataFromRequestReprioritizeGood) ([]models.Goods, error) {
+	/*p, err := us.db.ListGoods(ctx, data)
+	if err != nil {
+		return nil, fmt.Errorf("GoodUseCases - GetGoods - us.db.GetGoods: %w", err)
+	}*/
+	return nil, nil
 }

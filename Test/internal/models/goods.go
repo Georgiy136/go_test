@@ -41,3 +41,8 @@ type DataFromRequestGoodsList struct {
 	Limit     int
 	Offset    int
 }
+
+type DataFromRequestReprioritizeGood struct {
+	ID          int
+	NewPriority int
+}
