@@ -4,16 +4,16 @@ import (
 	"context"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	connector "myapp/pkg/redis"
+	connect "myapp/pkg/redis"
 	"time"
 )
 
-func NewGoodsRedis(rdb *connector.Redis) *GoodsRedis {
+func NewGoodsRedis(rdb *connect.Redis) *GoodsRedis {
 	return &GoodsRedis{rdb}
 }
 
 type GoodsRedis struct {
-	*connector.Redis
+	*connect.Redis
 }
 
 func (db *GoodsRedis) GetRoleRights(ctx context.Context, role string) ([]string, error) {
