@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS logs (
     ProjectID INTEGER NOT NULL,
     Name character varying NOT NULL,
     Description character varying,
-    Priority INTEGER,
+    Priority INTEGER NOT NULL DEFAULT 0,
     Removed BOOLEAN DEFAULT FALSE,
     EventTime TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
 );
