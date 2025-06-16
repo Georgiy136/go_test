@@ -20,5 +20,13 @@ DELETE localhost:8080/api/good/remove?projectID=2&id=1
 Content-Type: application/json
 
 ### STATUS 200
-GET localhost:8080/api/goods/list
+GET localhost:8080/api/goods/list?limit=3&offset=5&projectID=2&id=1
 Content-Type: application/json
+
+### STATUS 200
+PATCH localhost:8080/api/good/reprioritize?id=1
+Content-Type: application/json
+
+{
+  "NewPriority": 8
+}

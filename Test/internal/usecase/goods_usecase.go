@@ -28,22 +28,6 @@ func (us *GoodsUseCases) AddGoods(ctx context.Context, projectID int, name strin
 	return &models.Goods{}, nil
 }
 
-func (us *GoodsUseCases) GetAllGoods(ctx context.Context) ([]models.Goods, error) {
-	p, err := us.db.GetAllGoods(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("GoodUseCases - GetAllGoods - us.db.GetAllGoods: %w", err)
-	}
-	return p, nil
-}
-
-func (us *GoodsUseCases) DeleteGood(ctx context.Context, id, projectID int) error {
-	err := us.db.DeleteGoods(ctx, uuid.New())
-	if err != nil {
-		return fmt.Errorf("GoodUseCases - DeleteGood - us.db.DeleteGood: %w", err)
-	}
-	return nil
-}
-
 func (us *GoodsUseCases) UpdateGood(ctx context.Context, id string, p models.Goods) (*models.Goods, error) {
 	uid, err := uuid.Parse(id)
 	if err != nil {
@@ -54,4 +38,20 @@ func (us *GoodsUseCases) UpdateGood(ctx context.Context, id string, p models.Goo
 		return nil, fmt.Errorf("GoodUseCases - UpdateGood - us.db.UpdateGood: %w", err)
 	}
 	return Good, nil
+}
+
+func (us *GoodsUseCases) DeleteGood(ctx context.Context, id, projectID int) error {
+	err := us.db.DeleteGoods(ctx, uuid.New())
+	if err != nil {
+		return fmt.Errorf("GoodUseCases - DeleteGood - us.db.DeleteGood: %w", err)
+	}
+	return nil
+}
+
+func (us *GoodsUseCases) GetGoods(ctx context.Context) ([]models.Goods, error) {
+	p, err := us.db.GetAllGoods(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("GoodUseCases - GetGoods - us.db.GetGoods: %w", err)
+	}
+	return p, nil
 }

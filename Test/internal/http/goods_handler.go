@@ -1,7 +1,6 @@
 package http
 
 import (
-	"github.com/sirupsen/logrus"
 	"myapp/internal/http/httpresponse"
 	"myapp/internal/models"
 	"myapp/internal/usecase"
@@ -120,13 +119,13 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 
 	err := h.us.DeleteGood(c.Request.Context(), req.ID, req.ProjectID)
 	if err != nil {
-		httpresponse.SendFailBadRequest(c, "", nil)
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return
 	}
 	httpresponse.SendNoContent(c)
 }
 
-// GetAllGoodss godoc
+// GetGoods godoc
 //
 //	@Security		ApiKeyAuth
 //	@Summary		Retrieves All Goodss
@@ -137,12 +136,29 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 //	@Produce		json
 //	@Success		202	{array}	[]models.Goods
 //	@Router			/Goods [get]
-func (h *GoodsHandler) ListGoods(c *gin.Context) {
-	Goodss, err := h.us.GetAllGoods(c.Request.Context())
-	if err != nil {
-		logrus.Error(err)
-		httpresponse.SendFailBadRequest(c, "", nil)
+func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
+	type reprioritizeGoodParamsRequest struct {
+		ID int `form:"id" binding:"required,gt=0"`
+	}
+	var req reprioritizeGoodParamsRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return
 	}
-	httpresponse.SendSuccessOK(c, Goodss)
+
+	type reprioritizeGoodsRequest struct {
+		NewPriority string `json:"NewPriority" binding:"required"`
+	}
+	var body reprioritizeGoodsRequest
+	if err := c.BindJSON(&body); err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+
+	goods, err := h.us.GetGoods(c.Request.Context())
+	if err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+	httpresponse.SendSuccessOK(c, goods)
 }
