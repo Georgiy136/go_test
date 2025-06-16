@@ -22,7 +22,7 @@ func NewGoodsRepo(pg *postgres.Postgres) *Good {
 }
 
 func (db *Good) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
-	res := models.Goods{}
+	goods := models.Goods{}
 
 	err := db.Bun.QueryRowContext(ctx,
 		`INSERT INTO goods(project_id, 
@@ -39,25 +39,12 @@ func (db *Good) CreateGoods(ctx context.Context, data models.DataFromRequestGood
 						 created_at
 			   `,
 		data.ProjectID, data.Name, data.Description, data.Priority,
-	).Scan(&res.Id, &res.ProjectID, &res.Name, &res.Description, &res.Priority, &res.Removed, &res.CreatedAt)
-
+	).Scan(&goods.Id, &goods.ProjectID, &goods.Name, &goods.Description, &goods.Priority, &goods.Removed, &goods.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
 	}
-	//res := models.Goods{}
-	//for rows.Next() {
-	//	if err = rows.Scan(res); err != nil {
-	//		return nil, fmt.Errorf("Goods - CreateGoods - Scan: %w", err)
-	//	}
-	//}
-	//res := models.Goods{}
-	//for rows.Next() {
-	//	if err = rows.Scan(&res.Id, &res.ProjectID, &res.Name, &res.Description, &res.Priority, &res.Removed, &res.CreatedAt); err != nil {
-	//		return nil, fmt.Errorf("Goods - CreateGoods - Scan: %w", err)
-	//	}
-	//}
 
-	return &res, nil
+	return &goods, nil
 }
 
 func (db *Good) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) ([]models.Goods, error) {
