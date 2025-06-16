@@ -12,6 +12,7 @@ type (
 		Postgres
 		Redis
 		Clickhouse
+		Nats
 	}
 
 	Http struct {
@@ -39,6 +40,11 @@ type (
 		User     string
 		Password string
 		Dbname   string
+	}
+
+	Nats struct {
+		URL         string
+		ChannelName string
 	}
 )
 
