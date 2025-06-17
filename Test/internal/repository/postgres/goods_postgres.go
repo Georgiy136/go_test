@@ -11,17 +11,17 @@ import (
 	"myapp/pkg/postgres"
 )
 
-type Good struct {
+type GoodsRepo struct {
 	Bun *bun.DB
 }
 
-func NewGoodsRepo(pg *postgres.Postgres) *Good {
-	return &Good{
+func NewGoodsRepo(pg *postgres.Postgres) *GoodsRepo {
+	return &GoodsRepo{
 		Bun: pg.Conn,
 	}
 }
 
-func (db *Good) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
+func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
 	rows, err := db.Bun.QueryContext(ctx,
 		`
 			WITH cte AS (
@@ -54,7 +54,7 @@ func (db *Good) CreateGoods(ctx context.Context, data models.DataFromRequestGood
 	return goods, nil
 }
 
-func (db *Good) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
+func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
 	rows, err := db.Bun.QueryContext(ctx,
 		`
 			WITH cte AS (
@@ -87,7 +87,7 @@ func (db *Good) ListGoods(ctx context.Context, data models.DataFromRequestGoodsL
 	return goodsList, nil
 }
 
-func (db *Good) DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) error {
+func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) error {
 	Goods := &models.Goods{}
 	err := db.Bun.NewDelete().
 		Model(Goods).
@@ -105,7 +105,7 @@ func (db *Good) DeleteGoods(ctx context.Context, data models.DataFromRequestGood
 	return nil
 }
 
-func (db *Good) UpdateGoods(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error) {
+func (db *GoodsRepo) UpdateGoods(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error) {
 	err := db.Bun.NewUpdate().
 		Model(&data).
 		Column("first_name", "last_name", "patronymic", "city", "phone", "email").
