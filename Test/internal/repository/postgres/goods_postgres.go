@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"context"
@@ -55,29 +55,36 @@ func (db *Good) CreateGoods(ctx context.Context, data models.DataFromRequestGood
 }
 
 func (db *Good) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
-	res := models.GoodsListDBResponse{}
-
-	//err := db.Bun.QueryRowContext(ctx,
-	//	`SELECT id,
-	//				  project_id,
-	//				  name,
-	//				  description,
-	//				  priority,
-	//				  removed,
-	//				  created_at
-	//			FROM goods
-	//					  `,
-	//	data.ProjectID, data.Name, data.Description, data.Priority,
-	//).Scan(&goods.Id, &goods.ProjectID, &goods.Name, &goods.Description, &goods.Priority, &goods.Removed, &goods.CreatedAt)
-	/*err := db.Bun.NewSelect().Model(&models.Goods{}).Where("uuid IN (?)", bun.In(data.ID)).Scan(ctx, &Goods)
+	rows, err := db.Bun.QueryContext(ctx,
+		`
+			WITH cte AS (
+			    INSERT INTO goods AS g (project_id,
+			                      		name,
+			                      		description,
+			                      		priority)
+			    VALUES (?, ?, ?, ?)
+			    RETURNING g.id,
+			              g.project_id, 
+			              g.name,
+			              g.description, 
+			              g.priority, 
+			              g.removed, 
+			              g.created_at
+			)
+			SELECT jsonb_build_object('data', row_to_json(cte))
+			FROM cte;
+			`, data.ID, data.ProjectID, data.Limit, data.Offset,
+	)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-		logrus.Error(err)
-		return nil, fmt.Errorf("Goods - ListGoods - db.Bun.NewSelect: %w", err)
-	}*/
-	return &res, nil
+		return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
+	}
+
+	goodsList, err := GetDataFromDB[models.GoodsListDBResponse](rows)
+	if err != nil {
+		return nil, fmt.Errorf("Goods - CreateGoods - GetDataFromDB: %w", err)
+	}
+
+	return goodsList, nil
 }
 
 func (db *Good) DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) error {

@@ -6,7 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"myapp/config"
 	"myapp/internal/http"
-	"myapp/internal/repository"
+	postgres2 "myapp/internal/repository/postgres"
+	redis2 "myapp/internal/repository/redis"
 	"myapp/internal/usecase"
 	"myapp/pkg/postgres"
 	"myapp/pkg/redis"
@@ -50,8 +51,8 @@ func Run(cfg *config.Config) {
 	//}
 
 	// repo
-	goodsRedis := repository.NewGoodsRedis(redisConn)
-	goodsRepository := repository.NewGoodsRepo(pg)
+	goodsRedis := redis2.NewGoodsRedis(redisConn)
+	goodsRepository := postgres2.NewGoodsRepo(pg)
 
 	// Use case
 	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository, goodsRedis)
