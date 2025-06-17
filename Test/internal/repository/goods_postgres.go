@@ -22,46 +22,55 @@ func NewGoodsRepo(pg *postgres.Postgres) *Good {
 }
 
 func (db *Good) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
-	goods := models.Goods{}
-
-	err := db.Bun.QueryRowContext(ctx,
-		`INSERT INTO goods(project_id, 
-                  				 name, 
-                  				 description, 
-                 				 priority)
-			   VALUES (?, ?, ?, ?)
-			   RETURNING id,
-						 project_id, 
-						 name,
-						 description, 
-					     priority, 
-						 removed, 
-						 created_at
-			   `,
-		data.ProjectID, data.Name, data.Description, data.Priority,
-	).Scan(&goods.Id, &goods.ProjectID, &goods.Name, &goods.Description, &goods.Priority, &goods.Removed, &goods.CreatedAt)
+	rows, err := db.Bun.QueryContext(ctx,
+		`
+			WITH cte AS (
+			    INSERT INTO goods AS g (project_id, 
+			                      		name, 
+			                      		description, 
+			                      		priority)
+			    VALUES (?, ?, ?, ?)
+			    RETURNING g.id,
+			              g.project_id, 
+			              g.name,
+			              g.description, 
+			              g.priority, 
+			              g.removed, 
+			              g.created_at
+			)
+			SELECT jsonb_build_object('data', row_to_json(cte))
+			FROM cte;
+			`, data.ProjectID, data.Name, data.Description, data.Priority,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
 	}
 
-	return &goods, nil
+	result, err := GetDataFromDB[models.Goods](rows)
+	if err != nil {
+		return nil, fmt.Errorf("Goods - CreateGoods - GetDataFromDB: %w", err)
+	}
+
+	logrus.Infof("Goods - CreateGoods - db.Bun.NewInsert: %v", result)
+
+	return result, nil
 }
 
 func (db *Good) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
 	res := models.GoodsListDBResponse{}
 
-	err := db.Bun.QueryRowContext(ctx,
-		`SELECT id,
-					  project_id, 
-					  name,
-					  description, 
-					  priority, 
-					  removed, 
-					  created_at
-				FROM goods 
-						  `,
-		data.ProjectID, data.Name, data.Description, data.Priority,
-	).Scan(&goods.Id, &goods.ProjectID, &goods.Name, &goods.Description, &goods.Priority, &goods.Removed, &goods.CreatedAt)
+	//err := db.Bun.QueryRowContext(ctx,
+	//	`SELECT id,
+	//				  project_id,
+	//				  name,
+	//				  description,
+	//				  priority,
+	//				  removed,
+	//				  created_at
+	//			FROM goods
+	//					  `,
+	//	data.ProjectID, data.Name, data.Description, data.Priority,
+	//).Scan(&goods.Id, &goods.ProjectID, &goods.Name, &goods.Description, &goods.Priority, &goods.Removed, &goods.CreatedAt)
 	/*err := db.Bun.NewSelect().Model(&models.Goods{}).Where("uuid IN (?)", bun.In(data.ID)).Scan(ctx, &Goods)
 	if err != nil {
 		if err == sql.ErrNoRows {

@@ -42,7 +42,7 @@ func (us *GoodsUseCases) DeleteGood(ctx context.Context, data models.DataFromReq
 	return nil, nil
 }
 
-func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) ([]models.Goods, error) {
+func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
 	p, err := us.db.ListGoods(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - GetGoods - us.db.GetGoods: %w", err)

@@ -8,7 +8,7 @@ import (
 
 type GoodsStrore interface {
 	CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error)
-	ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) ([]models.Goods, error)
+	ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error)
 	DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) error
 	UpdateGoods(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error)
 }

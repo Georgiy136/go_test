@@ -16,6 +16,18 @@ Content-Type: application/json
 }
 
 
+
+### STATUS 200
+POST localhost:8080//api/categories/copy_settings_category?employee_id=228
+Content-Type: application/json
+Authorization: Basic admin test
+
+{
+  "source_category_id": 1,
+  "target_category_id": 5
+}
+
+
 ### STATUS 200
 DELETE localhost:8080/api/good/remove?projectID=2&id=1
 Content-Type: application/json
