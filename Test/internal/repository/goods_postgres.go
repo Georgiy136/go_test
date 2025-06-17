@@ -46,14 +46,12 @@ func (db *Good) CreateGoods(ctx context.Context, data models.DataFromRequestGood
 		return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
 	}
 
-	result, err := GetDataFromDB[models.Goods](rows)
+	goods, err := GetDataFromDB[models.Goods](rows)
 	if err != nil {
 		return nil, fmt.Errorf("Goods - CreateGoods - GetDataFromDB: %w", err)
 	}
 
-	logrus.Infof("Goods - CreateGoods - db.Bun.NewInsert: %v", result)
-
-	return result, nil
+	return goods, nil
 }
 
 func (db *Good) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {

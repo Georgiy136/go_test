@@ -21,15 +21,5 @@ func GetDataFromDB[T any](rows *sql.Rows) (*T, error) {
 	if err := jsoniter.Unmarshal(data, &result); err != nil {
 		return nil, fmt.Errorf("error json unmarshal data from db: %v", err)
 	}
-
-	return &result.Data, nil
-}
-
-func GetSliceDataFromDB[T any](rows *sql.Rows) (*T, error) {
-
-	result := struct {
-		Data T `json:"data"`
-	}{}
-
 	return &result.Data, nil
 }

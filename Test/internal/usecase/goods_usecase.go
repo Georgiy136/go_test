@@ -19,10 +19,14 @@ func NewGoodsUsecases(db GoodsStrore, cache GoodsCache) *GoodsUseCases {
 }
 
 func (us *GoodsUseCases) AddGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
+	// запрос в БД
 	goods, err := us.db.CreateGoods(ctx, data)
 	if err != nil {
-		return nil, fmt.Errorf("GoodUseCases - AddGood - us.db.CreateGoods: %w", err)
+		return nil, fmt.Errorf("GoodUseCases - AddGoods - us.db.CreateGoods: %w", err)
 	}
+
+	// сохраняем в redis
+
 	return goods, nil
 }
 
