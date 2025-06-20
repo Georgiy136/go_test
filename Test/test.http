@@ -15,8 +15,6 @@ Content-Type: application/json
   "description": "Растение"
 }
 
-
-
 ### STATUS 200
 POST localhost:8080//api/categories/copy_settings_category?employee_id=228
 Content-Type: application/json
@@ -43,4 +41,16 @@ Content-Type: application/json
 
 {
   "NewPriority": 8
+}
+
+
+
+### STATUS 200
+POST localhost:8080/api/categories/move_category?employee_id=22
+Content-Type: application/json
+Authorization: Basic admin test
+
+{
+  "category_id": 22,
+  "parent_category_id": 11
 }

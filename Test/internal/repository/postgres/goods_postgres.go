@@ -25,9 +25,9 @@ func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromReques
 	rows, err := db.Bun.QueryContext(ctx,
 		`
 			WITH cte AS (
-			    INSERT INTO goods AS g (project_id, 
-			                      		name, 
-			                      		description, 
+			    INSERT INTO goods AS g (project_id,
+			                      		name,
+			                      		description,
 			                      		priority)
 			    VALUES (?, ?, ?, ?)
 			    RETURNING g.id,
@@ -57,6 +57,19 @@ func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromReques
 func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
 	rows, err := db.Bun.QueryContext(ctx,
 		`
+			WITH goods_cte AS ( 
+				SELECT g.id,
+				       g.project_id, 
+				       g.name,
+				       g.description,
+				       g.priority, 
+				       g.removed, 
+				       g.created_at
+				FROM goods g
+			    WHERE g.project_id = COALESCE(?, g.project_id))
+				LIMIT COAL
+			)
+
 			WITH cte AS (
 			    INSERT INTO goods AS g (project_id,
 			                      		name,

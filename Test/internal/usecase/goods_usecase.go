@@ -20,14 +20,12 @@ func NewGoodsUsecases(db GoodsStrore, cache GoodsCache) *GoodsUseCases {
 
 func (us *GoodsUseCases) AddGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
 	// запрос в БД
-	goods, err := us.db.CreateGoods(ctx, data)
+	createdGood, err := us.db.CreateGoods(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - AddGoods - us.db.CreateGoods: %w", err)
 	}
 
-	// сохраняем в redis
-
-	return goods, nil
+	return createdGood, nil
 }
 
 func (us *GoodsUseCases) UpdateGood(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error) {
@@ -47,11 +45,18 @@ func (us *GoodsUseCases) DeleteGood(ctx context.Context, data models.DataFromReq
 }
 
 func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
-	p, err := us.db.ListGoods(ctx, data)
+	goodsList, err := us.db.ListGoods(ctx, data)
 	if err != nil {
-		return nil, fmt.Errorf("GoodUseCases - GetGoods - us.db.GetGoods: %w", err)
+		return nil, fmt.Errorf("GoodUseCases - ListGoods - us.db.ListGoods: %w", err)
 	}
-	return p, nil
+
+	// кладём в redis запись
+	if goodsList.Meta.Total == 1 {
+
+		// ...
+	}
+
+	return goodsList, nil
 }
 
 func (us *GoodsUseCases) ReprioritizeGood(ctx context.Context, data models.DataFromRequestReprioritizeGood) ([]models.Goods, error) {
