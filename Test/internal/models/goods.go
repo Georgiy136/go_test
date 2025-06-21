@@ -27,8 +27,9 @@ type DataFromRequestGoodsUpdate struct {
 }
 
 type DataFromRequestGoodsDelete struct {
-	GoodID    int
-	ProjectID int
+	GoodID    int       `json:"good_id"`
+	ProjectID int       `json:"project_id"`
+	DeletedAt time.Time `json:"deleted_at"`
 }
 type DataFromRequestGoodsList struct {
 	GoodsID   *int
@@ -48,7 +49,7 @@ type GoodsListDBResponse struct {
 }
 
 type DataFromRequestReprioritizeGood struct {
-	GoodsID     int
-	ProjectID   int
-	NewPriority int
+	GoodsID   int `json:"good_id"`
+	ProjectID int `json:"project_id"`
+	Priority  int `json:"priority"`
 }

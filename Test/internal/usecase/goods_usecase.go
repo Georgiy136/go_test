@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"github.com/go-faster/errors"
 	"github.com/sirupsen/logrus"
 	"myapp/internal/models"
 )
@@ -31,7 +32,7 @@ func (us *GoodsUseCases) AddGoods(ctx context.Context, data models.DataFromReque
 func (us *GoodsUseCases) UpdateGood(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error) {
 	updGood, err := us.db.UpdateGoods(ctx, data)
 	if err != nil {
-		return nil, fmt.Errorf("GoodUseCases - UpdateGood - us.db.UpdateGood: %w", err)
+		return nil, errors.Wrap(err, "GoodUseCases - UpdateGood - us.db.UpdateGood: %w")
 	}
 	// очищаем из redis
 	go func() {
@@ -43,7 +44,7 @@ func (us *GoodsUseCases) UpdateGood(ctx context.Context, data models.DataFromReq
 }
 
 func (us *GoodsUseCases) DeleteGood(ctx context.Context, data models.DataFromRequestGoodsDelete) (*models.Goods, error) {
-	err := us.db.DeleteGoods(ctx, data)
+	delData, err := us.db.DeleteGoods(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - DeleteGood - us.db.DeleteGood: %w", err)
 	}
@@ -53,7 +54,7 @@ func (us *GoodsUseCases) DeleteGood(ctx context.Context, data models.DataFromReq
 			logrus.Errorf("GoodUseCases - cache.ClearGoods: %v", err)
 		}
 	}()
-	return nil, nil
+	return delData, nil
 }
 
 func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
@@ -85,16 +86,16 @@ func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequ
 	return goodsList, nil
 }
 
-func (us *GoodsUseCases) ReprioritizeGood(ctx context.Context, data models.DataFromRequestReprioritizeGood) ([]models.Goods, error) {
-	/*p, err := us.db.ListGoods(ctx, data)
+func (us *GoodsUseCases) ReprioritizeGood(ctx context.Context, data models.DataFromRequestReprioritizeGood) (*models.Goods, error) {
+	goods, err := us.db.ReprioritizeGood(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - GetGoods - us.db.GetGoods: %w", err)
-	}*/
+	}
 	// очищаем из redis
 	go func() {
-		if err := us.cache.ClearGoods(ctx, data.GoodID, data.ProjectID); err != nil {
+		if err = us.cache.ClearGoods(ctx, data.GoodsID, data.ProjectID); err != nil {
 			logrus.Errorf("GoodUseCases - cache.ClearGoods: %v", err)
 		}
 	}()
-	return nil, nil
+	return goods, nil
 }

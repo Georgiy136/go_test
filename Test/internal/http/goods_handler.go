@@ -1,6 +1,8 @@
 package http
 
 import (
+	"errors"
+	"myapp/internal/errors/common"
 	"myapp/internal/http/httpresponse"
 	"myapp/internal/models"
 	"myapp/internal/usecase"
@@ -53,7 +55,12 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 		Priority:    body.Priority,
 	})
 	if err != nil {
-		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
+		var businessError *common.BusinessError
+		if errors.As(err, &businessError) {
+			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), nil)
+			return
+		}
+		httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), err.Error())
 		return
 	}
 	httpresponse.SendSuccess(c, http.StatusCreated, goods)
@@ -100,6 +107,11 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 		Description: body.Description,
 	})
 	if err != nil {
+		var businessError *common.BusinessError
+		if errors.As(err, &businessError) {
+			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), err.Error())
+			return
+		}
 		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
 		return
 	}
@@ -133,8 +145,12 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 		GoodID:    req.GoodsID,
 		ProjectID: req.ProjectID,
 	})
-
 	if err != nil {
+		var businessError *common.BusinessError
+		if errors.As(err, &businessError) {
+			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), nil)
+			return
+		}
 		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
 		return
 	}
@@ -172,6 +188,11 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 		Offset:    req.Offset,
 	})
 	if err != nil {
+		var businessError *common.BusinessError
+		if errors.As(err, &businessError) {
+			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), nil)
+			return
+		}
 		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
 		return
 	}
@@ -209,10 +230,15 @@ func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 	}
 
 	goods, err := h.us.ReprioritizeGood(c.Request.Context(), models.DataFromRequestReprioritizeGood{
-		GoodsID:     req.GoodsID,
-		NewPriority: body.NewPriority,
+		GoodsID:  req.GoodsID,
+		Priority: body.NewPriority,
 	})
 	if err != nil {
+		var businessError *common.BusinessError
+		if errors.As(err, &businessError) {
+			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), nil)
+			return
+		}
 		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
 		return
 	}
