@@ -20,13 +20,13 @@ func NewGoodsRepo(pg *postgres.Postgres) *GoodsRepo {
 }
 
 func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
-	dataBytes, err := jsoniter.Marshal(data)
+	dataJson, err := jsoniter.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
 	}
 
 	dbData, err := getDataFromDB[models.Goods](ctx, db.Pgconn,
-		`SELECT * FROM goods_upd($1);`, dataBytes,
+		`SELECT * FROM goods_upd($1);`, dataJson,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("CreateGoods getDataFromDB: %w", err)
