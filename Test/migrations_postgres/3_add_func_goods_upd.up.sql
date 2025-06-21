@@ -31,8 +31,7 @@ FROM jsonb_to_record(_src) as s (good_id INTEGER,
                                  description TEXT,
                                  priority INTEGER,
                                  deleted_at TIMESTAMPTZ
-    )
-         LEFT JOIN goods g ON s.good_id = g.good_id;
+    );
 
 IF _good_id IS NOT NULL AND _project_id IS NOT NULL THEN
         IF NOT EXISTS (SELECT 1 FROM goods g WHERE g.good_id = _good_id AND g.project_id = _project_id) THEN
@@ -40,7 +39,7 @@ IF _good_id IS NOT NULL AND _project_id IS NOT NULL THEN
         END IF;
 END IF;
 
-    IF _good_id IS NULL THEN _good_id = nextval('good_sq');
+IF _good_id IS NULL THEN _good_id = nextval('good_sq');
 END IF;
 
 WITH ins_cte AS (
