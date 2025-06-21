@@ -100,7 +100,7 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 		Description: body.Description,
 	})
 	if err != nil {
-		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goods)
@@ -120,7 +120,7 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 //	@Router			/Goods/{id} [delete]
 func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 	type deleteGoodParamsRequest struct {
-		ID        int `form:"id" binding:"required,gt=0"`
+		GoodsID   int `form:"goods_id" binding:"required,gt=0"`
 		ProjectID int `form:"projectID" binding:"required,gt=0"`
 	}
 	var req deleteGoodParamsRequest
@@ -130,12 +130,12 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 	}
 
 	goods, err := h.us.DeleteGood(c.Request.Context(), models.DataFromRequestGoodsDelete{
-		ID:        req.ID,
+		GoodID:    req.GoodsID,
 		ProjectID: req.ProjectID,
 	})
 
 	if err != nil {
-		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goods)
@@ -172,7 +172,7 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 		Offset:    req.Offset,
 	})
 	if err != nil {
-		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goodsList)
@@ -191,7 +191,7 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 //	@Router			/Goods [get]
 func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 	type reprioritizeGoodParamsRequest struct {
-		ID int `form:"id" binding:"required,gt=0"`
+		GoodsID int `form:"good_id" binding:"omitempty,gt=0"`
 	}
 	var req reprioritizeGoodParamsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -209,11 +209,11 @@ func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 	}
 
 	goods, err := h.us.ReprioritizeGood(c.Request.Context(), models.DataFromRequestReprioritizeGood{
-		ID:          req.ID,
+		GoodsID:     req.GoodsID,
 		NewPriority: body.NewPriority,
 	})
 	if err != nil {
-		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goods)

@@ -48,7 +48,7 @@ type GoodsListDBResponse struct {
 }
 
 type DataFromRequestReprioritizeGood struct {
-	GoodID      int
+	GoodsID     int
 	ProjectID   int
 	NewPriority int
 }

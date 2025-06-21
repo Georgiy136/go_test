@@ -2,8 +2,17 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"net/http"
+)
+
+const (
+	// Код "P0001" присваивается в случае намеренного возврата ошибки из базы
+	// с помощью EXCEPTION (ожидаемая ошибка бизнес логики)
+	defaultExceptionErrorCode = "P0001"
 )
 
 func getDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, query string, args ...any) (*T, error) {
@@ -17,6 +26,30 @@ func getDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, query string, a
 	}
 
 	return &result.Data, nil
+}
+
+// ParseProcedureError - парсит ошибку из базы данных, которая была инициирована вызовом RAISE EXCEPTION
+func ParseProcedureError(procedureErr error) error {
+	var pgErr *pgconn.PgError
+	if errors.As(procedureErr, &pgErr) {
+		if pgErr.Code == defaultExceptionErrorCode {
+			restDataCustomErr, parseErr := parseExceptionPgErrorMessage(pgErr)
+			if parseErr != nil {
+				return setRestDataErrorParseProcedureError(parseErr)
+			}
+
+			return rest_data.NewCustomError(
+				errors.New(restDataCustomErr.Detail),
+				restDataCustomErr.ErrorKey,
+				restDataCustomErr.Message,
+				restDataCustomErr.Detail,
+				http.StatusUnprocessableEntity,
+			)
+		}
+		return setRestDataReadResponseFromDb(errors.New(pgErr.Error()))
+	}
+
+	return setRestDataErrorParseProcedureError(procedureErr)
 }
 
 /*
