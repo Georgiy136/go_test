@@ -3,10 +3,8 @@ package postgres
 import (
 	"context"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
-	"github.com/sirupsen/logrus"
-
 	"github.com/jackc/pgx/v5"
+	jsoniter "github.com/json-iterator/go"
 	"myapp/internal/models"
 	"myapp/pkg/postgres"
 )
@@ -22,7 +20,6 @@ func NewGoodsRepo(pg *postgres.Postgres) *GoodsRepo {
 }
 
 func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
-	// маршалим в json
 	dataBytes, err := jsoniter.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %v", err)
@@ -37,10 +34,6 @@ func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromReques
 	).Scan(&result)
 	if err != nil {
 		return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
-	}
-
-	if &result == nil {
-		logrus.Infof("Goods - CreateGoods - db.Bun.NewInsert: respDB is nil")
 	}
 
 	//goods, err := GetDataFromDB[models.Goods](&rows)
