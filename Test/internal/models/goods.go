@@ -38,7 +38,7 @@ type DataFromRequestGoodsList struct {
 }
 
 type GoodsListDBResponse struct {
-	Meta struct {
+	Meta *struct {
 		Total  int `json:"total"`
 		Remove int `json:"remove"`
 		Limit  int `json:"limit"`

@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"myapp/internal/models"
-	"time"
 )
 
 type GoodsStrore interface {
@@ -14,6 +13,6 @@ type GoodsStrore interface {
 }
 
 type GoodsCache interface {
-	GetRoleRights(ctx context.Context, role string) ([]string, error)
-	AddRoleRights(ctx context.Context, role string, rights []string, period time.Duration) error
+	GetGoods(ctx context.Context, goodsID, projectID int) (*models.Goods, error)
+	SaveGoods(ctx context.Context, goodsID, projectID int, goods models.Goods) error
 }

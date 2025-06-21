@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"myapp/internal/models"
 )
 
@@ -45,16 +46,30 @@ func (us *GoodsUseCases) DeleteGood(ctx context.Context, data models.DataFromReq
 }
 
 func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
+	if data.GoodsID != nil && data.ProjectID != nil {
+		// ищем запись в redis
+		goods, err := us.cache.GetGoods(ctx, *data.GoodsID, *data.ProjectID)
+		if err != nil {
+			logrus.Errorf("ListGoods - us.cache.GetGoods error: %v", err)
+		}
+		if goods != nil {
+			return &models.GoodsListDBResponse{Goods: []models.Goods{*goods}}, nil
+		}
+	}
+
 	goodsList, err := us.db.ListGoods(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - ListGoods - us.db.ListGoods: %w", err)
 	}
 
-	// кладём в redis запись
-	//if goodsList.Meta.Total == 1 {
-	//
-	//	// ...
-	//}
+	// сохраняем в redis запись
+	if goodsList.Meta.Total == 1 {
+		go func() {
+			if err = us.cache.SaveGoods(ctx, *data.GoodsID, *data.ProjectID, goodsList.Goods[0]); err != nil {
+				logrus.Errorf("ListGoods - us.cache.SaveGoods error: %v", err)
+			}
+		}()
+	}
 
 	return goodsList, nil
 }
