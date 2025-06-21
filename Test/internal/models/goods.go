@@ -31,10 +31,10 @@ type DataFromRequestGoodsDelete struct {
 	ProjectID int
 }
 type DataFromRequestGoodsList struct {
-	GoodsID   *int `json:"goods_id"`
-	ProjectID *int `json:"project_id"`
-	Limit     *int `json:"limit"`
-	Offset    *int `json:"offset"`
+	GoodsID   *int
+	ProjectID *int
+	Limit     *int
+	Offset    *int
 }
 
 type GoodsListDBResponse struct {

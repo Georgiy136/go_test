@@ -154,10 +154,10 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 //	@Router			/Goods [get]
 func (h *GoodsHandler) ListGoods(c *gin.Context) {
 	type listGoodParamsRequest struct {
-		GoodsID   *int `form:"goods_id" binding:"omitempty,gt=0"`
+		GoodsID   *int `form:"good_id" binding:"omitempty,gt=0"`
 		ProjectID *int `form:"project_id" binding:"omitempty,gt=0"`
-		Limit     *int `form:"limit" binding:"omitempty,gt=0"`
-		Offset    *int `form:"offset" binding:"omitempty,gt=0"`
+		Limit     *int `form:"limit" binding:"omitempty,gte=0"`
+		Offset    *int `form:"offset" binding:"omitempty,gte=0"`
 	}
 	var req listGoodParamsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {

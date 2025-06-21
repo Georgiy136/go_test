@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"myapp/internal/models"
 )
 
@@ -46,8 +45,6 @@ func (us *GoodsUseCases) DeleteGood(ctx context.Context, data models.DataFromReq
 }
 
 func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
-	logrus.Infof("ListGoods data - %v", data)
-
 	goodsList, err := us.db.ListGoods(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - ListGoods - us.db.ListGoods: %w", err)
