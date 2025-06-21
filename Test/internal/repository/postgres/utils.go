@@ -1,5 +1,26 @@
 package postgres
 
+import (
+	"context"
+	"fmt"
+	"github.com/jackc/pgx/v5"
+)
+
+func getDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, query string, args ...any) (*T, error) {
+	result := struct {
+		Data T `json:"data"`
+	}{}
+
+	err := pgconn.QueryRow(ctx,
+		`SELECT * FROM goods_upd($1);`, args...,
+	).Scan(&result)
+	if err != nil {
+		return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
+	}
+
+	return &result.Data, nil
+}
+
 /*
 func GetDataFromDB[T any](rows *pgx.Rows) (*T, error) {
 	result := struct {

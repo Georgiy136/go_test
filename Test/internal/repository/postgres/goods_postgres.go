@@ -22,29 +22,17 @@ func NewGoodsRepo(pg *postgres.Postgres) *GoodsRepo {
 func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
 	dataBytes, err := jsoniter.Marshal(data)
 	if err != nil {
-		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %v", err)
+		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
 	}
 
-	result := struct {
-		Data *models.Goods `json:"data"`
-	}{}
-
-	err = db.Pgconn.QueryRow(ctx,
+	dbData, err := getDataFromDB[models.Goods](ctx, db.Pgconn,
 		`SELECT * FROM goods_upd($1);`, dataBytes,
-	).Scan(&result)
+	)
 	if err != nil {
-		return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
+		return nil, fmt.Errorf("CreateGoods getDataFromDB: %w", err)
 	}
 
-	//goods, err := GetDataFromDB[models.Goods](&rows)
-	//if err != nil {
-	//	return nil, fmt.Errorf("Goods - CreateGoods - GetDataFromDB: %w", err)
-	//}
-	//if err := jsoniter.Unmarshal(respDB, &result); err != nil {
-	//	return nil, fmt.Errorf("error json unmarshal data from db: %v", err)
-	//}
-
-	return result.Data, nil
+	return dbData, nil
 }
 
 func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
