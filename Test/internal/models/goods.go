@@ -3,13 +3,13 @@ package models
 import "time"
 
 type Goods struct {
-	GoodID      int       `json:"good_id"`
-	ProjectID   int       `json:"project_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Priority    int       `json:"priority"`
-	DeletedAt   time.Time `json:"deleted_at"`
-	CreatedAt   time.Time `json:"created_at"`
+	GoodID      int        `json:"good_id"`
+	ProjectID   int        `json:"project_id"`
+	Name        string     `json:"name"`
+	Description *string    `json:"description"`
+	Priority    int        `json:"priority"`
+	DeletedAt   *time.Time `json:"deleted_at"`
+	CreatedAt   time.Time  `json:"created_at"`
 }
 
 type DataFromRequestGoodsAdd struct {
@@ -31,10 +31,10 @@ type DataFromRequestGoodsDelete struct {
 	ProjectID int
 }
 type DataFromRequestGoodsList struct {
-	GoodsID   int `json:"goods_id"`
-	ProjectID int `json:"project_id"`
-	Limit     int `json:"limit"`
-	Offset    int `json:"offset"`
+	GoodsID   *int `json:"goods_id"`
+	ProjectID *int `json:"project_id"`
+	Limit     *int `json:"limit"`
+	Offset    *int `json:"offset"`
 }
 
 type GoodsListDBResponse struct {

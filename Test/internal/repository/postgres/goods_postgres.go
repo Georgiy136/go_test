@@ -36,14 +36,14 @@ func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromReques
 }
 
 func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
-	dbData, err := getDataFromDB[models.GoodsListDBResponse](ctx, db.pgconn,
+	dbData, err := getDataFromDB[*models.GoodsListDBResponse](ctx, db.pgconn,
 		`SELECT * FROM goods_list($1,$2,$3,$4);`, data.GoodsID, data.ProjectID, data.Limit, data.Offset,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("ListGoods getDataFromDB: %w", err)
 	}
 
-	return dbData, nil
+	return *dbData, nil
 }
 
 func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) error {
