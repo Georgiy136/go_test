@@ -27,7 +27,7 @@ type DataFromRequestGoodsUpdate struct {
 }
 
 type DataFromRequestGoodsDelete struct {
-	ID        int
+	GoodID    int
 	ProjectID int
 }
 type DataFromRequestGoodsList struct {
@@ -48,6 +48,7 @@ type GoodsListDBResponse struct {
 }
 
 type DataFromRequestReprioritizeGood struct {
-	ID          int
+	GoodID      int
+	ProjectID   int
 	NewPriority int
 }

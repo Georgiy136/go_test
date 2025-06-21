@@ -15,4 +15,5 @@ type GoodsStrore interface {
 type GoodsCache interface {
 	GetGoods(ctx context.Context, goodsID, projectID int) (*models.Goods, error)
 	SaveGoods(ctx context.Context, goodsID, projectID int, goods models.Goods) error
+	ClearGoods(ctx context.Context, goodsID, projectID int) error
 }

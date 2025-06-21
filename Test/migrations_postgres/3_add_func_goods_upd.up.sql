@@ -13,18 +13,17 @@ DECLARE
     _deleted_at  TIMESTAMPTZ;
     _js          JSONB;
 BEGIN
-
-SELECT COALESCE(s.good_id, nextval('good_sq')) as good_id,
+SELECT s.good_id,
        s.project_id,
        s.name,
        s.description,
        s.priority,
        s.deleted_at
-INTO _good_id ,
-    _project_id ,
-    _name ,
+INTO _good_id,
+    _project_id,
+    _name,
     _description,
-    _priority ,
+    _priority,
     _deleted_at
 FROM jsonb_to_record(_src) as s (good_id INTEGER,
                                  project_id INTEGER,
@@ -34,6 +33,15 @@ FROM jsonb_to_record(_src) as s (good_id INTEGER,
                                  deleted_at TIMESTAMPTZ
     )
          LEFT JOIN goods g ON s.good_id = g.good_id;
+
+IF _good_id IS NOT NULL AND _project_id IS NOT NULL THEN
+        IF NOT EXISTS (SELECT 1 FROM goods g WHERE g.good_id = _good_id AND g.project_id = _project_id) THEN
+            RAISE EXCEPTION 'goods not found. good_id = %, project_id = %', _good_id, _project_id;
+END IF;
+END IF;
+
+    IF _good_id IS NULL THEN _good_id = nextval('good_sq');
+END IF;
 
 WITH ins_cte AS (
 INSERT INTO goods AS g (good_id,
@@ -51,12 +59,12 @@ SELECT _good_id,
        _dt,
        _deleted_at
     ON CONFLICT (good_id, project_id) DO UPDATE
-             SET name        = excluded.name,
-                 description = excluded.description,
-                 priority    = excluded.priority,
-                 created_at  = excluded.created_at,
-                 deleted_at  = excluded.deleted_at
-                 RETURNING g.*)
+                                             SET name = excluded.name,
+                                             description = excluded.description,
+                                             priority = excluded.priority,
+                                             created_at = excluded.created_at,
+                                             deleted_at = excluded.deleted_at
+                                             RETURNING g.*)
 
 SELECT jsonb_build_object('data', row_to_json(ins_cte))
 FROM ins_cte

@@ -20,7 +20,6 @@ func NewGoodsUsecases(db GoodsStrore, cache GoodsCache) *GoodsUseCases {
 }
 
 func (us *GoodsUseCases) AddGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
-	// запрос в БД
 	createdGood, err := us.db.CreateGoods(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - AddGoods - us.db.CreateGoods: %w", err)
@@ -30,11 +29,17 @@ func (us *GoodsUseCases) AddGoods(ctx context.Context, data models.DataFromReque
 }
 
 func (us *GoodsUseCases) UpdateGood(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error) {
-	Good, err := us.db.UpdateGoods(ctx, data)
+	updGood, err := us.db.UpdateGoods(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - UpdateGood - us.db.UpdateGood: %w", err)
 	}
-	return Good, nil
+	// очищаем из redis
+	go func() {
+		if err = us.cache.ClearGoods(ctx, data.GoodID, data.ProjectID); err != nil {
+			logrus.Errorf("GoodUseCases - cache.ClearGoods: %v", err)
+		}
+	}()
+	return updGood, nil
 }
 
 func (us *GoodsUseCases) DeleteGood(ctx context.Context, data models.DataFromRequestGoodsDelete) (*models.Goods, error) {
@@ -42,12 +47,18 @@ func (us *GoodsUseCases) DeleteGood(ctx context.Context, data models.DataFromReq
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - DeleteGood - us.db.DeleteGood: %w", err)
 	}
+	// очищаем из redis
+	go func() {
+		if err = us.cache.ClearGoods(ctx, data.GoodID, data.ProjectID); err != nil {
+			logrus.Errorf("GoodUseCases - cache.ClearGoods: %v", err)
+		}
+	}()
 	return nil, nil
 }
 
 func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
+	// ищем запись в redis
 	if data.GoodsID != nil && data.ProjectID != nil {
-		// ищем запись в redis
 		goods, err := us.cache.GetGoods(ctx, *data.GoodsID, *data.ProjectID)
 		if err != nil {
 			logrus.Errorf("ListGoods - us.cache.GetGoods error: %v", err)
@@ -79,5 +90,11 @@ func (us *GoodsUseCases) ReprioritizeGood(ctx context.Context, data models.DataF
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - GetGoods - us.db.GetGoods: %w", err)
 	}*/
+	// очищаем из redis
+	go func() {
+		if err := us.cache.ClearGoods(ctx, data.GoodID, data.ProjectID); err != nil {
+			logrus.Errorf("GoodUseCases - cache.ClearGoods: %v", err)
+		}
+	}()
 	return nil, nil
 }

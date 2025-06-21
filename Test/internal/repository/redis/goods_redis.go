@@ -69,3 +69,17 @@ func (db *GoodsRedis) SaveGoods(ctx context.Context, goodsID, projectID int, goo
 
 	return nil
 }
+
+func (db *GoodsRedis) ClearGoods(ctx context.Context, goodsID, projectID int) error {
+	if db.Conn == nil {
+		return nil
+	}
+
+	key := fmt.Sprintf(goodsKeyFormat, goodsID, projectID)
+	_, err := db.Conn.Del(ctx, key).Result()
+	if err != nil {
+
+		return fmt.Errorf("GetGoods - db.Conn.Get: %w", err)
+	}
+	return nil
+}

@@ -6,8 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"myapp/config"
 	"myapp/internal/http"
-	postgres2 "myapp/internal/repository/postgres"
-	redis2 "myapp/internal/repository/redis"
+	db "myapp/internal/repository/postgres"
+	cache "myapp/internal/repository/redis"
 	"myapp/internal/usecase"
 	"myapp/pkg/postgres"
 	"myapp/pkg/redis"
@@ -51,14 +51,17 @@ func Run(cfg *config.Config) {
 	//}
 
 	// repo
-	goodsRedis := redis2.NewGoodsRedis(redisConn)
-	goodsRepository := postgres2.NewGoodsRepo(pg)
+	goodsRedis := cache.NewGoodsRedis(redisConn)
+	goodsRepository := db.NewGoodsRepo(pg)
 
 	// Use case
 	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository, goodsRedis)
 
 	// HTTP Server
 	router := gin.Default()
+
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
 
 	http.NewRouter(router, *goodsUseCases)
 
