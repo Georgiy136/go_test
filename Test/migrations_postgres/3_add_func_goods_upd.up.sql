@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION goods_upd(_src JSONB) RETURNS JSONB
 AS
 $$
 DECLARE
-_dt          TIMESTAMPTZ := now() AT TIME ZONE 'Europe/Moscow';
+    _dt          TIMESTAMPTZ := now() AT TIME ZONE 'Europe/Moscow';
     _good_id     INTEGER;
     _project_id  INTEGER;
     _name        VARCHAR(32);
@@ -51,12 +51,12 @@ SELECT _good_id,
        _dt,
        _deleted_at
     ON CONFLICT (good_id, project_id) DO UPDATE
-                                             SET name = excluded.name,
-                                             description = excluded.description,
-                                             priority = excluded.priority,
-                                             created_at = excluded.created_at,
-                                             deleted_at = excluded.deleted_at
-                                             RETURNING g.*)
+             SET name        = excluded.name,
+                 description = excluded.description,
+                 priority    = excluded.priority,
+                 created_at  = excluded.created_at,
+                 deleted_at  = excluded.deleted_at
+                 RETURNING g.*)
 
 SELECT jsonb_build_object('data', row_to_json(ins_cte))
 FROM ins_cte
