@@ -74,7 +74,7 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 //	@Router			/Goods/{id} [put]
 func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 	type updateGoodParamsRequest struct {
-		ID        int `form:"id" binding:"required,gt=0"`
+		GoodID    int `form:"good_id" binding:"required,gt=0"`
 		ProjectID int `form:"projectID" binding:"required,gt=0"`
 	}
 	var req updateGoodParamsRequest
@@ -94,7 +94,7 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 	}
 
 	goods, err := h.us.UpdateGood(c.Request.Context(), models.DataFromRequestGoodsUpdate{
-		ID:          req.ID,
+		GoodID:      req.GoodID,
 		ProjectID:   req.ProjectID,
 		Name:        body.Name,
 		Description: body.Description,

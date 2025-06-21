@@ -20,10 +20,10 @@ type DataFromRequestGoodsAdd struct {
 }
 
 type DataFromRequestGoodsUpdate struct {
-	ID          int
-	ProjectID   int
-	Name        string
-	Description *string
+	GoodID      int     `json:"good_id"`
+	ProjectID   int     `json:"project_id"`
+	Name        string  `json:"name"`
+	Description *string `json:"description"`
 }
 
 type DataFromRequestGoodsDelete struct {
