@@ -8,21 +8,21 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jackc/pgx/v5"
 	"github.com/sirupsen/logrus"
-	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
 	"myapp/config"
-	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/uptrace/bun"
 )
 
 type Postgres struct {
-	Conn *bun.DB
-	cfg  config.Postgres
+	Pgconn *pgx.Conn
+	cfg    config.Postgres
 }
 
+const connFormat = "host=%s port=%d user=%s password=%s dbname=%s sslmode=%s"
+
+/*
 func New(cfg config.Postgres) (*Postgres, error) {
 	pgconn := pgdriver.NewConnector(
 		pgdriver.WithNetwork("tcp"),
@@ -50,10 +50,34 @@ func New(cfg config.Postgres) (*Postgres, error) {
 		Conn: db,
 		cfg:  cfg,
 	}, nil
+}*/
+
+func NewPostgres(cfg config.Postgres) (*Postgres, error) {
+	pgconn, err := pgx.Connect(context.Background(), fmt.Sprintf(connFormat, cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Dbname, cfg.Sslmode))
+	if err != nil {
+		logrus.Fatalf("unable to connect to database: %v\n", err)
+	}
+
+	if _, err := pgconn.Exec(context.Background(), "select 1"); err != nil {
+		return nil, err
+	}
+
+	logrus.Infof("соединение с базой данных postgres успешно установлено")
+
+	return &Postgres{
+		Pgconn: pgconn,
+		cfg:    cfg,
+	}, nil
 }
 
 func (db *Postgres) MigrateUpPostgres() error {
-	instance, err := postgres.WithInstance(db.Conn.DB, &postgres.Config{})
+	connString := fmt.Sprintf(connFormat, db.cfg.Host, db.cfg.Port, db.cfg.User, db.cfg.Password, db.cfg.Dbname, db.cfg.Sslmode)
+	sqlConn, err := sql.Open("postgres", connString)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	instance, err := postgres.WithInstance(sqlConn, &postgres.Config{})
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -82,5 +106,5 @@ func (db *Postgres) MigrateUpPostgres() error {
 }
 
 func (db *Postgres) CloseConn() {
-	db.Conn.Close()
+	db.Pgconn.Close(context.Background())
 }

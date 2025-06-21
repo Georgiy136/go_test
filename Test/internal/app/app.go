@@ -15,7 +15,7 @@ import (
 
 func Run(cfg *config.Config) {
 	// connections
-	pg, err := postgres.New(cfg.Postgres)
+	pg, err := postgres.NewPostgres(cfg.Postgres)
 	if err != nil {
 		logrus.Fatalf("app - Run - postgres.New: %v", err)
 	}

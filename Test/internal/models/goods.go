@@ -11,10 +11,10 @@ type Goods struct {
 }
 
 type DataFromRequestGoodsAdd struct {
-	ProjectID   int
-	Name        string
-	Description string
-	Priority    int
+	ProjectID   int    `json:"project_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Priority    int    `json:"priority"`
 }
 
 type DataFromRequestGoodsUpdate struct {

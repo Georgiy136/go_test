@@ -2,61 +2,68 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
-	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-	"github.com/uptrace/bun"
+
+	"github.com/jackc/pgx/v5"
 	"myapp/internal/models"
 	"myapp/pkg/postgres"
 )
 
 type GoodsRepo struct {
-	Bun *bun.DB
+	Pgconn *pgx.Conn
 }
 
 func NewGoodsRepo(pg *postgres.Postgres) *GoodsRepo {
 	return &GoodsRepo{
-		Bun: pg.Conn,
+		Pgconn: pg.Pgconn,
 	}
 }
 
 func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
 	// маршалим в json
-	dataBytes, err := jsoniter.MarshalToString(data)
+	dataBytes, err := jsoniter.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %v", err)
 	}
 
-	rows, err := db.Bun.QueryContext(ctx,
-		`SELECT * FROM goods_upd('{
-"project_id": 1,
-"name": "принтер"
-}'::jsonb);`, dataBytes,
-	)
+	result := struct {
+		Data *models.Goods `json:"data"`
+	}{}
+
+	err = db.Pgconn.QueryRow(ctx,
+		`SELECT * FROM goods_upd($1);`, dataBytes,
+	).Scan(&result)
 	if err != nil {
 		return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
 	}
 
-	goods, err := GetDataFromDB[models.Goods](rows)
-	if err != nil {
-		return nil, fmt.Errorf("Goods - CreateGoods - GetDataFromDB: %w", err)
+	if &result == nil {
+		logrus.Infof("Goods - CreateGoods - db.Bun.NewInsert: respDB is nil")
 	}
 
-	return goods, nil
+	//goods, err := GetDataFromDB[models.Goods](&rows)
+	//if err != nil {
+	//	return nil, fmt.Errorf("Goods - CreateGoods - GetDataFromDB: %w", err)
+	//}
+	//if err := jsoniter.Unmarshal(respDB, &result); err != nil {
+	//	return nil, fmt.Errorf("error json unmarshal data from db: %v", err)
+	//}
+
+	return result.Data, nil
 }
 
 func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
-	rows, err := db.Bun.QueryContext(ctx,
+	/*rows, err := db.Bun.QueryContext(ctx,
 		`
-			WITH goods_cte AS ( 
+			WITH goods_cte AS (
 				SELECT g.id,
-				       g.project_id, 
+				       g.project_id,
 				       g.name,
 				       g.description,
-				       g.priority, 
-				       g.removed, 
+				       g.priority,
+				       g.removed,
 				       g.created_at
 				FROM goods g
 			    WHERE g.project_id = COALESCE(?, g.project_id))
@@ -70,11 +77,11 @@ func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestG
 			                      		priority)
 			    VALUES (?, ?, ?, ?)
 			    RETURNING g.id,
-			              g.project_id, 
+			              g.project_id,
 			              g.name,
-			              g.description, 
-			              g.priority, 
-			              g.removed, 
+			              g.description,
+			              g.priority,
+			              g.removed,
 			              g.created_at
 			)
 			SELECT jsonb_build_object('data', row_to_json(cte))
@@ -88,13 +95,13 @@ func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestG
 	goodsList, err := GetDataFromDB[models.GoodsListDBResponse](rows)
 	if err != nil {
 		return nil, fmt.Errorf("Goods - CreateGoods - GetDataFromDB: %w", err)
-	}
+	}*/
 
-	return goodsList, nil
+	return nil, nil
 }
 
 func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) error {
-	Goods := &models.Goods{}
+	/*Goods := &models.Goods{}
 	err := db.Bun.NewDelete().
 		Model(Goods).
 		Where(`uuid = ?`, data.ID).
@@ -107,12 +114,12 @@ func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromReques
 		}
 		logrus.Error(err)
 		return fmt.Errorf("Goods - DeleteGoods - db.Bun.NewDelete: %w", err)
-	}
+	}*/
 	return nil
 }
 
 func (db *GoodsRepo) UpdateGoods(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error) {
-	err := db.Bun.NewUpdate().
+	/*err := db.Bun.NewUpdate().
 		Model(&data).
 		Column("first_name", "last_name", "patronymic", "city", "phone", "email").
 		Where(`uuid = ?`, data.ID).
@@ -125,7 +132,7 @@ func (db *GoodsRepo) UpdateGoods(ctx context.Context, data models.DataFromReques
 		}
 		logrus.Error(err)
 		return nil, fmt.Errorf("Goods - UpdateGoods - db.Bun.NewUpdate: %w", err)
-	}
+	}*/
 
 	return nil, nil
 }
