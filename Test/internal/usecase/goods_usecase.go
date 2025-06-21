@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github.com/go-faster/errors"
 	"github.com/sirupsen/logrus"
 	"myapp/internal/models"
 )
@@ -32,7 +31,7 @@ func (us *GoodsUseCases) AddGoods(ctx context.Context, data models.DataFromReque
 func (us *GoodsUseCases) UpdateGood(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error) {
 	updGood, err := us.db.UpdateGoods(ctx, data)
 	if err != nil {
-		return nil, errors.Wrap(err, "GoodUseCases - UpdateGood - us.db.UpdateGood: %w")
+		return nil, fmt.Errorf("GoodUseCases - UpdateGood - us.db.UpdateGoo: %w", err)
 	}
 	// очищаем из redis
 	go func() {

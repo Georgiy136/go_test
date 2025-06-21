@@ -8,11 +8,6 @@ import (
 	"myapp/internal/errors/common"
 )
 
-const (
-	// Код "P0001" присваивается в случае намеренного возврата ошибки из базы с помощью EXCEPTION (ожидаемая ошибка бизнес логики)
-	defaultExceptionErrorCode = "P0001"
-)
-
 func getDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, query string, args ...any) (*T, error) {
 	result := struct {
 		Data T `json:"data"`
@@ -25,12 +20,14 @@ func getDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, query string, a
 	return &result.Data, nil
 }
 
+const defaultExceptionErrorCode = "P0001" // Код "P0001" присваивается в случае намеренного возврата ошибки из базы с помощью EXCEPTION (ожидаемая ошибка бизнес логики)
+
 // ParseProcedureError - парсит ошибку из базы данных, которая была инициирована вызовом RAISE EXCEPTION
 func ParseProcedureError(procedureErr error) error {
 	var pgErr *pgconn.PgError
 	if errors.As(procedureErr, &pgErr) {
 		if pgErr.Code == defaultExceptionErrorCode {
-			return &common.BusinessError{Message: pgErr.Error()} //errors.Wrap(pgErr, common.ProcedureError)
+			return &common.BusinessError{Message: pgErr.Error()}
 		}
 		return procedureErr
 	}

@@ -15,8 +15,6 @@ var (
 	ServiceUnprocessableEntity = CommonError{Code: 7, Message: "errors.common.unprocessableEntity"}
 )
 
-//const ProcedureError = "RAISE EXCEPTION procedure error"
-
 type BusinessError struct {
 	Message string
 }

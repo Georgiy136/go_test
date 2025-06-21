@@ -109,7 +109,7 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 	if err != nil {
 		var businessError *common.BusinessError
 		if errors.As(err, &businessError) {
-			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), err.Error())
+			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), nil)
 			return
 		}
 		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
