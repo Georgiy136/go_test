@@ -22,36 +22,6 @@ type Postgres struct {
 
 const connFormat = "host=%s port=%d user=%s password=%s dbname=%s sslmode=%s"
 
-/*
-func New(cfg config.Postgres) (*Postgres, error) {
-	pgconn := pgdriver.NewConnector(
-		pgdriver.WithNetwork("tcp"),
-		pgdriver.WithAddr(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)),
-		pgdriver.WithUser(cfg.User),
-		pgdriver.WithPassword(cfg.Password),
-		pgdriver.WithDatabase(cfg.Dbname),
-		pgdriver.WithTimeout(5*time.Second),
-		pgdriver.WithDialTimeout(5*time.Second),
-		pgdriver.WithReadTimeout(5*time.Second),
-		pgdriver.WithWriteTimeout(5*time.Second),
-		pgdriver.WithInsecure(true),
-	)
-
-	sqlDB := sql.OpenDB(pgconn)
-	db := bun.NewDB(sqlDB, pgdialect.New())
-
-	if _, err := db.ExecContext(context.Background(), "select 1"); err != nil {
-		return nil, err
-	}
-
-	logrus.Infof("соединение с базой данных postgres успешно установлено")
-
-	return &Postgres{
-		Conn: db,
-		cfg:  cfg,
-	}, nil
-}*/
-
 func NewPostgres(cfg config.Postgres) (*Postgres, error) {
 	pgconn, err := pgx.Connect(context.Background(), fmt.Sprintf(connFormat, cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Dbname, cfg.Sslmode))
 	if err != nil {

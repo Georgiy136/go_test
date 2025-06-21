@@ -11,11 +11,9 @@ func getDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, query string, a
 		Data T `json:"data"`
 	}{}
 
-	err := pgconn.QueryRow(ctx,
-		`SELECT * FROM goods_upd($1);`, args...,
-	).Scan(&result)
+	err := pgconn.QueryRow(ctx, query, args...).Scan(&result)
 	if err != nil {
-		return nil, fmt.Errorf("Goods - CreateGoods - db.Bun.NewInsert: %w", err)
+		return nil, fmt.Errorf("getDataFromDB ERROR: %w", err)
 	}
 
 	return &result.Data, nil

@@ -32,7 +32,7 @@ Content-Type: application/json
 
 
 ### STATUS 200
-GET localhost:8080/api/goods/list?limit=3&offset=5&projectID=2&id=1
+GET localhost:8080/api/goods/list
 Content-Type: application/json
 
 ### STATUS 200
