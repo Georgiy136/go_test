@@ -53,7 +53,7 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 		Priority:    body.Priority,
 	})
 	if err != nil {
-		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
 		return
 	}
 	httpresponse.SendSuccess(c, http.StatusCreated, goods)

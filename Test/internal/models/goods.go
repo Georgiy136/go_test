@@ -1,12 +1,12 @@
 package models
 
 type Goods struct {
-	Id          int    `json:"id"`
+	GoodID      int    `json:"good_id"`
 	ProjectID   int    `json:"project_id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Priority    int    `json:"priority"`
-	Removed     bool   `json:"removed"`
+	DeletedAt   string `json:"deleted_at"`
 	CreatedAt   string `json:"created_at"`
 }
 
