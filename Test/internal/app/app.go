@@ -37,14 +37,14 @@ func Run(cfg *config.Config) {
 
 	nats, err := nats_conn.New(cfg.Nats)
 	if err != nil {
-		logrus.Fatalf("app - Run - nats.New: %v", err)
+		logrus.Errorf("app - Run - nats.New: %v", err)
 	}
 	defer nats.CloseConn()
 
 	// очередь Nats для сохранения логов
 	natsLogs := nats_service.NewNatsService(nats)
 
-	// инициализация middleware для сохранения логов в очередь
+	// инициализация сервиса для сохранения логов в очередь
 	logger := middleware.NewLogger(natsLogs, cfg.Nats.ChannelName)
 
 	// Накатываем миграции
