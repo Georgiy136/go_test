@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
+	"io"
 	"myapp/internal/models"
 	"myapp/internal/sevice/nats"
 	"time"
@@ -32,11 +32,13 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 
 func (l *Logger) LoggingMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var bodyBytes []byte
+		var reqBody []byte
 		if c.Request.Body != nil {
-			bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+			reqBody, _ = io.ReadAll(c.Request.Body)
 		}
-		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
+		// Восстановление тела запроса
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(reqBody))
 
 		rw := &responseWriter{Body: bytes.NewBuffer([]byte{}), ResponseWriter: c.Writer}
 		c.Writer = rw
@@ -45,15 +47,15 @@ func (l *Logger) LoggingMiddleware() gin.HandlerFunc {
 
 		api := c.FullPath()
 		statusCode := rw.Status()
-		responseBody := rw.Body.Bytes()
+		responseBody := rw.Body.String()
 
 		log := models.Log{
 			Dt:           time.Now(),
-			Api:          &api,
+			Api:          api,
 			ServiceName:  "test_service",
-			Request:      bodyBytes,
+			Request:      string(reqBody),
 			Response:     responseBody,
-			ResponseCode: &statusCode,
+			ResponseCode: statusCode,
 		}
 
 		logBytes, err := json.Marshal(log)
