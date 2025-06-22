@@ -5,6 +5,7 @@ import (
 	"myapp/internal/models"
 	"myapp/internal/usecase"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +28,7 @@ type GoodsHandler struct {
 //	@Router			/Goods [post]
 func (h *GoodsHandler) PostGoods(c *gin.Context) {
 	type postGoodsParamsRequest struct {
-		ProjectID int `form:"projectID" binding:"required,gt=0"`
+		ProjectID int `form:"project_id" binding:"required,gt=0"`
 	}
 	var req postGoodsParamsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -75,7 +76,7 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 	type updateGoodParamsRequest struct {
 		GoodID    int `form:"good_id" binding:"required,gt=0"`
-		ProjectID int `form:"projectID" binding:"required,gt=0"`
+		ProjectID int `form:"project_id" binding:"required,gt=0"`
 	}
 	var req updateGoodParamsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -121,7 +122,7 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 	type deleteGoodParamsRequest struct {
 		GoodsID   int `form:"goods_id" binding:"required,gt=0"`
-		ProjectID int `form:"projectID" binding:"required,gt=0"`
+		ProjectID int `form:"project_id" binding:"required,gt=0"`
 	}
 	var req deleteGoodParamsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -132,6 +133,7 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 	goods, err := h.us.DeleteGood(c.Request.Context(), models.DataFromRequestGoodsDelete{
 		GoodID:    req.GoodsID,
 		ProjectID: req.ProjectID,
+		DeletedAt: time.Now(),
 	})
 	if err != nil {
 		httpresponse.HandleError(c, err, err.Error(), nil)
