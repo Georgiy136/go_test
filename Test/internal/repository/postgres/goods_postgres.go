@@ -21,19 +21,28 @@ func NewGoodsRepo(pg *postgres.Postgres) usecase.GoodsStrore {
 }
 
 func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
-	const sp = "goods_upd"
+	query := `
+	WITH ins_cte AS (
+		INSERT INTO goods AS g (good_id,
+		                        project_id,
+		                        name,
+		                        description,
+		                        priority,
+		                        created_at,
+		                        deleted_at)
+		SELECT nextval('good_sq') AS good_id,
+    	       $1,
+    	       $2,
+    	       $3,
+    	       $4,
+		       NOW(),
+		       null
+		RETURNING g.*)
 
-	dataJson, err := jsoniter.Marshal(data)
-	if err != nil {
-		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
-	}
+	SELECT jsonb_build_object('data', row_to_json(ins_cte))
+	FROM ins_cte;`
 
-	pg := new(postgres.PgSpec)
-	pg.SetStoredProcedure(sp)
-	pg.SetParams(dataJson)
-	pg.SetUseFunction()
-
-	dbData, err := getDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
+	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, query, data.ProjectID, data.Name, data.Description, data.Priority)
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +93,34 @@ func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromReques
 }
 
 func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsList, error) {
-	const sp = "goods_list"
+	query := `WITH goods_cte AS (SELECT g.good_id,
+										g.project_id,
+										g.name,
+										g.description,
+										g.priority,
+										g.created_at,
+										g.deleted_at
+  								 FROM goods AS g
+  								 WHERE good_id = COALESCE($1, g.good_id)
+  								 AND project_id = COALESCE($2, g.project_id)
+  								 LIMIT $3 OFFSET $4)
 
-	pg := new(postgres.PgSpec)
-	pg.SetStoredProcedure(sp)
-	pg.SetParams(data.GoodsID, data.ProjectID, data.Limit, data.Offset)
-	pg.SetUseFunction()
+		SELECT JSONB_BUILD_OBJECT('data', (
+				SELECT JSONB_BUILD_OBJECT('meta', JSONB_BUILD_OBJECT('total', (SELECT COUNT(*) FROM goods_cte),
+										  'remove', (SELECT COUNT(*) FROM goods_cte g WHERE g.deleted_at IS NOT NULL),
+										  'limit', $3,
+   										  'offset', $4),
+										  'goods', JSONB_AGG(c))
+				FROM (SELECT g.good_id,
+					g.project_id,
+					g.name,
+					g.description,
+					g.priority,
+					g.created_at,
+					g.deleted_at
+				FROM goods_cte g) c));`
 
-	dbData, err := getDataFromDB[models.GoodsListDBResponse](ctx, db.pgconn, pg)
+	dbData, err := GetDataFromDB[models.GoodsListDBResponse](ctx, db.pgconn, query, data.GoodsID, data.ProjectID, data.Limit, data.Offset)
 	if err != nil {
 		return nil, err
 	}

@@ -10,6 +10,16 @@ import (
 	"myapp/pkg/postgres"
 )
 
+func GetDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, query string, args ...any) (*T, error) {
+	var result T
+
+	if err := pgconn.QueryRow(ctx, query, args...).Scan(&result); err != nil {
+		return nil, fmt.Errorf("db error: %w", HandleDBError(err))
+	}
+
+	return &result, nil
+}
+
 func getDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, pg *postgres.PgSpec) (*T, error) {
 	var result T
 
