@@ -1,8 +1,6 @@
 package http
 
 import (
-	"errors"
-	"myapp/internal/errors/common"
 	"myapp/internal/http/httpresponse"
 	"myapp/internal/models"
 	"myapp/internal/usecase"
@@ -55,12 +53,7 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 		Priority:    body.Priority,
 	})
 	if err != nil {
-		var businessError *common.BusinessError
-		if errors.As(err, &businessError) {
-			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), nil)
-			return
-		}
-		httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), err.Error())
+		httpresponse.HandleError(c, err, err.Error(), nil)
 		return
 	}
 	httpresponse.SendSuccess(c, http.StatusCreated, goods)
@@ -107,12 +100,7 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 		Description: body.Description,
 	})
 	if err != nil {
-		var businessError *common.BusinessError
-		if errors.As(err, &businessError) {
-			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), nil)
-			return
-		}
-		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
+		httpresponse.HandleError(c, err, err.Error(), nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goods)
@@ -146,12 +134,7 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 		ProjectID: req.ProjectID,
 	})
 	if err != nil {
-		var businessError *common.BusinessError
-		if errors.As(err, &businessError) {
-			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), nil)
-			return
-		}
-		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
+		httpresponse.HandleError(c, err, err.Error(), nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goods)
@@ -188,12 +171,7 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 		Offset:    req.Offset,
 	})
 	if err != nil {
-		var businessError *common.BusinessError
-		if errors.As(err, &businessError) {
-			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), nil)
-			return
-		}
-		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
+		httpresponse.HandleError(c, err, err.Error(), nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goodsList)
@@ -234,12 +212,7 @@ func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 		Priority: body.NewPriority,
 	})
 	if err != nil {
-		var businessError *common.BusinessError
-		if errors.As(err, &businessError) {
-			httpresponse.SendFailUnprocessableEntity(c, businessError.Error(), nil)
-			return
-		}
-		httpresponse.SendErrorInternalServerError(c, err.Error(), nil)
+		httpresponse.HandleError(c, err, err.Error(), nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goods)

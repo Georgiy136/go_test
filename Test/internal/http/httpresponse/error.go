@@ -1,40 +1,60 @@
 package httpresponse
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"myapp/internal/errors/common"
 	"myapp/internal/http/httpresponse/response"
-	"net/http"
 )
 
+func HandleError(c *gin.Context, err error, description string, details interface{}) {
+	var businessError *common.BusinessError // ошибка бизнес-логики
+	if errors.As(err, &businessError) {
+		if businessError.Err == nil {
+			businessError.Err = &common.ServiceUnprocessableEntity
+		}
+		SendError(c, *businessError.Err, description, details)
+		return
+	}
+	var dbError *common.DBError // ошибка БД
+	if errors.As(err, &dbError) {
+		if dbError.Err == nil {
+			dbError.Err = &common.ServiceUnprocessableEntity
+		}
+		SendError(c, *dbError.Err, description, details)
+		return
+	}
+	SendErrorInternalServerError(c, err.Error(), nil)
+}
+
+func SendError(c *gin.Context, commonErr common.CommonError, description string, details interface{}) {
+	c.AbortWithStatusJSON(commonErr.HttpCode, response.NewError(commonErr, description, details))
+}
+
 func SendFailBadRequest(c *gin.Context, description string, details interface{}) {
-	SendError(c, http.StatusBadRequest, common.BadRequest, description, details)
+	SendError(c, common.BadRequest, description, details)
 }
 
 func SendFailUnauthorized(c *gin.Context, description string, details interface{}) {
-	SendError(c, http.StatusUnauthorized, common.Unauthorized, description, details)
+	SendError(c, common.Unauthorized, description, details)
 }
 
 func SendFailForbidden(c *gin.Context, description string, details interface{}) {
-	SendError(c, http.StatusForbidden, common.Forbidden, description, details)
+	SendError(c, common.Forbidden, description, details)
 }
 
 func SendFailNotFound(c *gin.Context, description string, details interface{}) {
-	SendError(c, http.StatusNotFound, common.NotFoundError, description, details)
+	SendError(c, common.NotFoundError, description, details)
 }
 
 func SendFailUnprocessableEntity(c *gin.Context, description string, details interface{}) {
-	SendError(c, http.StatusUnprocessableEntity, common.ServiceUnprocessableEntity, description, details)
+	SendError(c, common.ServiceUnprocessableEntity, description, details)
 }
 
 func SendErrorInternalServerError(c *gin.Context, description string, details interface{}) {
-	SendError(c, http.StatusInternalServerError, common.InternalServerError, description, details)
+	SendError(c, common.InternalServerError, description, details)
 }
 
 func SendErrorServiceUnavailable(c *gin.Context, description string, details interface{}) {
-	SendError(c, http.StatusServiceUnavailable, common.ServiceUnavailable, description, details)
-}
-
-func SendError(c *gin.Context, httpCode int, commonErr common.CommonError, description string, details interface{}) {
-	c.AbortWithStatusJSON(httpCode, response.NewError(commonErr, description, details))
+	SendError(c, common.ServiceUnavailable, description, details)
 }

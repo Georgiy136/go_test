@@ -27,7 +27,7 @@ func ParseProcedureError(procedureErr error) error {
 	var pgErr *pgconn.PgError
 	if errors.As(procedureErr, &pgErr) {
 		if pgErr.Code == defaultExceptionErrorCode {
-			return &common.BusinessError{Message: pgErr.Error()}
+			return &common.DBError{Message: pgErr.Error()}
 		}
 		return procedureErr
 	}
