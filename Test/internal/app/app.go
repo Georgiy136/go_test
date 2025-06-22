@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"myapp/config"
 	"myapp/internal/http"
+	"myapp/internal/http/middleware"
 	db "myapp/internal/repository/postgres"
 	cache "myapp/internal/repository/redis"
 	"myapp/internal/usecase"
@@ -58,9 +59,9 @@ func Run(cfg *config.Config) {
 
 	// HTTP Server
 	router := gin.Default()
-
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(middleware.LoggingMiddleware())
 
 	http.NewRouter(router, *goodsUseCases)
 
