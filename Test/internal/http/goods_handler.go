@@ -190,7 +190,8 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 //	@Router			/Goods [get]
 func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 	type reprioritizeGoodParamsRequest struct {
-		GoodsID int `form:"good_id" binding:"omitempty,gt=0"`
+		GoodsID   int `form:"good_id" binding:"required,gt=0"`
+		ProjectID int `form:"project_id" binding:"required,gt=0"`
 	}
 	var req reprioritizeGoodParamsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -208,8 +209,9 @@ func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 	}
 
 	goods, err := h.us.ReprioritizeGood(c.Request.Context(), models.DataFromRequestReprioritizeGood{
-		GoodsID:  req.GoodsID,
-		Priority: body.NewPriority,
+		GoodsID:   req.GoodsID,
+		ProjectID: req.ProjectID,
+		Priority:  body.NewPriority,
 	})
 	if err != nil {
 		httpresponse.HandleError(c, err, err.Error(), nil)
