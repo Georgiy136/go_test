@@ -29,7 +29,7 @@ func NewRouter(router *gin.Engine, os usecase.GoodsUseCases) {
 		{
 			good.POST("/create", goodsHandlers.PostGoods)
 			good.PATCH("/update", goodsHandlers.UpdateGood)
-			good.PATCH("/reprioritize", goodsHandlers.UpdateGood)
+			good.PATCH("/reprioritize", goodsHandlers.ReprioritizeGood)
 			good.DELETE("/remove", goodsHandlers.DeleteGood)
 		}
 	}
