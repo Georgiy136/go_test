@@ -21,11 +21,10 @@ func Run(cfg *config.Config) {
 	}
 	defer pg.CloseConn()
 
-	redisConn, err := redis.New(cfg.Redis)
+	redisConn, err := redis.NewConn(cfg.Redis)
 	if err != nil {
 		logrus.Infof("app - Run - redis.New: %v", err)
 	}
-	defer redisConn.CloseConn()
 
 	//click, err := clickhouse.New(cfg.Clickhouse)
 	//if err != nil {

@@ -7,7 +7,7 @@ Content-Type: application/json
 }
 
 ### STATUS 200
-PATCH localhost:8080/api/good/update?project_id=2&good_id=1
+PATCH localhost:8080/api/good/update?project_id=1&good_id=116
 Content-Type: application/json
 
 {
