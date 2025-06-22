@@ -9,7 +9,9 @@ import (
 	"myapp/internal/http/middleware"
 	db "myapp/internal/repository/postgres"
 	cache "myapp/internal/repository/redis"
+	nats_service "myapp/internal/sevice/nats"
 	"myapp/internal/usecase"
+	nats_conn "myapp/pkg/nats"
 	"myapp/pkg/postgres"
 	"myapp/pkg/redis"
 )
@@ -33,14 +35,17 @@ func Run(cfg *config.Config) {
 	//}
 	//defer click.CloseConn()
 
-	//nats, err := nats.New(cfg.Nats)
-	//if err != nil {
-	//	logrus.Fatalf("app - Run - nats.New: %v", err)
-	//}
-	//defer nats.CloseConn()
+	nats, err := nats_conn.New(cfg.Nats)
+	if err != nil {
+		logrus.Fatalf("app - Run - nats.New: %v", err)
+	}
+	defer nats.CloseConn()
 
 	// очередь Nats для сохранения логов
-	// natsLogs := logs.NatsLogging(nats, cfg.Nats)
+	natsLogs := nats_service.NewNatsService(nats)
+
+	// инициализация middleware для сохранения логов в очередь
+	logger := middleware.NewLogger(natsLogs, cfg.Nats.ChannelName)
 
 	// Накатываем миграции
 	if err = pg.MigrateUpPostgres(); err != nil {
@@ -61,7 +66,7 @@ func Run(cfg *config.Config) {
 	router := gin.Default()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-	router.Use(middleware.LoggingMiddleware())
+	router.Use(logger.LoggingMiddleware())
 
 	http.NewRouter(router, *goodsUseCases)
 

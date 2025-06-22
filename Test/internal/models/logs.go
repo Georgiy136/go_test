@@ -1,14 +1,14 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Log struct {
-	LogID       int       `json:"id"`
-	GoodsID     int       `json:"goods_id"`
-	ProjectID   int       `json:"project_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Priority    int       `json:"priority"`
-	Removed     bool      `json:"removed"`
-	EventTime   time.Time `json:"eventTime"`
+	Dt           time.Time `clickhouse:"dt" json:"dt"`
+	Api          *string   `clickhouse:"api" json:"api"`
+	ServiceName  string    `clickhouse:"service_name" json:"service_name"`
+	Request      []byte    `clickhouse:"request" json:"request"`
+	Response     []byte    `clickhouse:"response" json:"response"`
+	ResponseCode *int      `clickhouse:"response_code" json:"response_code"`
 }

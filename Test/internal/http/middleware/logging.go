@@ -2,10 +2,23 @@ package middleware
 
 import (
 	"bytes"
-	"fmt"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"io/ioutil"
+	"myapp/internal/models"
+	"myapp/internal/sevice/nats"
+	"time"
 )
+
+func NewLogger(nats *nats.NatsService, channelName string) *Logger {
+	return &Logger{nats: nats, channelName: channelName}
+}
+
+type Logger struct {
+	nats        *nats.NatsService
+	channelName string
+}
 
 type responseWriter struct {
 	gin.ResponseWriter
@@ -17,7 +30,7 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 	return rw.ResponseWriter.Write(b)
 }
 
-func LoggingMiddleware() gin.HandlerFunc {
+func (l *Logger) LoggingMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var bodyBytes []byte
 		if c.Request.Body != nil {
@@ -30,14 +43,26 @@ func LoggingMiddleware() gin.HandlerFunc {
 
 		c.Next()
 
+		api := c.FullPath()
 		statusCode := rw.Status()
-		responseBody := rw.Body.String()
+		responseBody := rw.Body.Bytes()
 
-		// отправляем лог в Nats
-		// ...
+		log := models.Log{
+			Dt:           time.Now(),
+			Api:          &api,
+			ServiceName:  "test_service",
+			Request:      bodyBytes,
+			Response:     responseBody,
+			ResponseCode: &statusCode,
+		}
 
-		fmt.Printf("Request Body: %s\n", string(bodyBytes))
-		fmt.Printf("Response Status Code: %d\n", statusCode)
-		fmt.Printf("Response Body: %s\n", responseBody)
+		logBytes, err := json.Marshal(log)
+		if err != nil {
+			logrus.Errorf("loggingMiddleware error marshalling log: %v", err)
+		}
+
+		if err = l.nats.SendBatch(l.channelName, logBytes); err != nil {
+			logrus.Errorf("loggingMiddleware error publish log: %v", err)
+		}
 	}
 }
