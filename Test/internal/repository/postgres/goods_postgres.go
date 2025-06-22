@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5"
 	jsoniter "github.com/json-iterator/go"
 	"myapp/internal/models"
@@ -22,76 +21,101 @@ func NewGoodsRepo(pg *postgres.Postgres) usecase.GoodsStrore {
 }
 
 func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
+	const sp = "goods_upd"
+
 	dataJson, err := jsoniter.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
 	}
 
-	dbData, err := getDataFromDB[models.Goods](ctx, db.pgconn,
-		`SELECT * FROM goods_upd($1);`, dataJson,
-	)
+	pg := new(postgres.PgSpec)
+	pg.SetStoredProcedure(sp)
+	pg.SetParams(dataJson)
+	pg.SetUseFunction()
+
+	dbData, err := getDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		return nil, err
 	}
 
-	return dbData, nil
+	return dbData.Data, nil
 }
 
 func (db *GoodsRepo) UpdateGoods(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error) {
+	const sp = "goods_upd"
+
 	dataJson, err := jsoniter.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
 	}
 
-	dbData, err := getDataFromDB[models.Goods](ctx, db.pgconn,
-		`SELECT * FROM goods_upd($1);`, dataJson,
-	)
+	pg := new(postgres.PgSpec)
+	pg.SetStoredProcedure(sp)
+	pg.SetParams(dataJson)
+	pg.SetUseFunction()
+
+	dbData, err := getDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
-		return nil, errors.Wrap(err, "UpdateGoods getDataFromDB")
+		return nil, err
 	}
 
-	return dbData, nil
+	return dbData.Data, nil
 }
 
 func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) (*models.Goods, error) {
+	const sp = "goods_upd"
+
 	dataJson, err := jsoniter.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
 	}
 
-	dbData, err := getDataFromDB[models.Goods](ctx, db.pgconn,
-		`SELECT * FROM goods_upd($1);`, dataJson,
-	)
+	pg := new(postgres.PgSpec)
+	pg.SetStoredProcedure(sp)
+	pg.SetParams(dataJson)
+	pg.SetUseFunction()
+
+	dbData, err := getDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
-		return nil, errors.Wrap(err, "CreateGoods getDataFromDB")
+		return nil, err
 	}
 
-	return dbData, nil
+	return dbData.Data, nil
 }
 
-func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
-	dbData, err := getDataFromDB[*models.GoodsListDBResponse](ctx, db.pgconn,
-		`SELECT * FROM goods_list($1,$2,$3,$4);`, data.GoodsID, data.ProjectID, data.Limit, data.Offset,
-	)
+func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsList, error) {
+	const sp = "goods_list"
+
+	pg := new(postgres.PgSpec)
+	pg.SetStoredProcedure(sp)
+	pg.SetParams(data.GoodsID, data.ProjectID, data.Limit, data.Offset)
+	pg.SetUseFunction()
+
+	dbData, err := getDataFromDB[models.GoodsListDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
-		return nil, errors.Wrap(err, "ListGoods getDataFromDB")
+		return nil, err
 	}
 
-	return *dbData, nil
+	return dbData.Data, nil
 }
 
 func (db *GoodsRepo) ReprioritizeGood(ctx context.Context, data models.DataFromRequestReprioritizeGood) (*models.Goods, error) {
+	const sp = "goods_upd"
+
 	dataJson, err := jsoniter.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
 	}
 
-	dbData, err := getDataFromDB[models.Goods](ctx, db.pgconn,
-		`SELECT * FROM goods_upd($1);`, dataJson,
-	)
+	pg := new(postgres.PgSpec)
+	pg.SetStoredProcedure(sp)
+	pg.SetParams(dataJson)
+	pg.SetUseFunction()
+
+	dbData, err := getDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
-		return nil, errors.Wrap(err, "UpdateGoods getDataFromDB")
+		return nil, err
 	}
 
-	return dbData, nil
+	return dbData.Data, nil
 }

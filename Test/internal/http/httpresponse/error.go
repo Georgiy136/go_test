@@ -8,20 +8,12 @@ import (
 )
 
 func HandleError(c *gin.Context, err error, description string, details interface{}) {
-	var businessError *common.BusinessError // ошибка бизнес-логики
-	if errors.As(err, &businessError) {
-		if businessError.Err == nil {
-			businessError.Err = &common.ServiceUnprocessableEntity
+	var customError *common.CustomError
+	if errors.As(err, &customError) {
+		if customError.Err == nil {
+			customError.Err = &common.ServiceUnprocessableEntity
 		}
-		SendError(c, *businessError.Err, description, details)
-		return
-	}
-	var dbError *common.DBError // ошибка БД
-	if errors.As(err, &dbError) {
-		if dbError.Err == nil {
-			dbError.Err = &common.ServiceUnprocessableEntity
-		}
-		SendError(c, *dbError.Err, description, details)
+		SendError(c, *customError.Err, description, details)
 		return
 	}
 	SendErrorInternalServerError(c, err.Error(), nil)

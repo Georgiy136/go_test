@@ -2,6 +2,10 @@ package models
 
 import "time"
 
+type GoodsUpdDBResponse struct {
+	Data *Goods `json:"data"`
+}
+
 type Goods struct {
 	GoodID      int        `json:"good_id"`
 	ProjectID   int        `json:"project_id"`
@@ -39,12 +43,16 @@ type DataFromRequestGoodsList struct {
 }
 
 type GoodsListDBResponse struct {
+	Data *GoodsList `json:"data"`
+}
+
+type GoodsList struct {
 	Meta *struct {
 		Total  int `json:"total"`
 		Remove int `json:"remove"`
 		Limit  int `json:"limit"`
 		Offset int `json:"offset"`
-	} `json:"meta"`
+	} `json:"meta,omitempty"`
 	Goods []Goods `json:"goods"`
 }
 

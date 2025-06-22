@@ -20,20 +20,11 @@ var (
 	ServiceUnprocessableEntity = CommonError{Code: 7, Message: "errors.common.unprocessableEntity", HttpCode: http.StatusUnprocessableEntity}
 )
 
-type BusinessError struct {
+type CustomError struct {
 	Err     *CommonError
 	Message string
 }
 
-func (err *BusinessError) Error() string {
-	return err.Message
-}
-
-type DBError struct {
-	Err     *CommonError
-	Message string
-}
-
-func (err *DBError) Error() string {
+func (err *CustomError) Error() string {
 	return err.Message
 }
