@@ -106,11 +106,11 @@ func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestG
   								 LIMIT $3 OFFSET $4)
 
 		SELECT JSONB_BUILD_OBJECT('data', (
-				SELECT JSONB_BUILD_OBJECT('meta', JSONB_BUILD_OBJECT('total', (SELECT COUNT(*) FROM goods_cte),
-										  'remove', (SELECT COUNT(*) FROM goods_cte g WHERE g.deleted_at IS NOT NULL),
-										  'limit', $3,
-   										  'offset', $4),
-										  'goods', JSONB_AGG(c))
+				SELECT JSONB_BUILD_OBJECT('meta', JSONB_BUILD_OBJECT('total',  (SELECT COUNT(*) FROM goods_cte),
+										  							 'remove', (SELECT COUNT(*) FROM goods_cte g WHERE g.deleted_at IS NOT NULL),
+										  							 'limit',   $3,
+   										  							 'offset',  $4),
+                                          'goods', JSONB_AGG(c))
 				FROM (SELECT g.good_id,
 					g.project_id,
 					g.name,
