@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"myapp/internal/errors/common"
 	"myapp/pkg/postgres"
 )
 
@@ -15,7 +17,7 @@ func getDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, pg *postgres.Pg
 	params := pg.GetParameters()
 
 	if err := pgconn.QueryRow(ctx, query, params...).Scan(&result); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("db error: %w", handleDBError(err))
 	}
 
 	return &result, nil
@@ -23,14 +25,13 @@ func getDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, pg *postgres.Pg
 
 const defaultExceptionErrorCode = "P0001" // Код "P0001" присваивается в случае намеренного возврата ошибки из базы с помощью EXCEPTION (ожидаемая ошибка бизнес логики)
 
-// ProcedureError - парсит ошибку из базы данных, которая была инициирована вызовом RAISE EXCEPTION
-func IsProcedureError(err error) (bool, string) {
+func handleDBError(err error) error {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		if pgErr.Code == defaultExceptionErrorCode {
-			return true, pgErr.Error()
+			return &common.CustomError{Message: pgErr.Message}
 		}
-		return false, ""
+		return err
 	}
-	return false, ""
+	return err
 }
