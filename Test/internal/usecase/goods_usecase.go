@@ -56,7 +56,7 @@ func (us *GoodsUseCases) DeleteGood(ctx context.Context, data models.DataFromReq
 	return delData, nil
 }
 
-func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsListDBResponse, error) {
+func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsList, error) {
 	// ищем запись в redis
 	if data.GoodsID != nil && data.ProjectID != nil {
 		goods, err := us.cache.GetGoods(ctx, *data.GoodsID, *data.ProjectID)
@@ -64,7 +64,7 @@ func (us *GoodsUseCases) ListGoods(ctx context.Context, data models.DataFromRequ
 			logrus.Errorf("ListGoods - us.cache.GetGoods error: %v", err)
 		}
 		if goods != nil {
-			return &models.GoodsListDBResponse{Goods: []models.Goods{*goods}}, nil
+			return &models.GoodsList{Goods: []models.Goods{*goods}}, nil
 		}
 	}
 
