@@ -9,6 +9,7 @@ type GoodsUpdDBResponse struct {
 type Goods struct {
 	GoodID      int        `json:"good_id"`
 	ProjectID   int        `json:"project_id"`
+	ProjectName string     `json:"project_name"`
 	Name        string     `json:"name"`
 	Description *string    `json:"description"`
 	Priority    int        `json:"priority"`

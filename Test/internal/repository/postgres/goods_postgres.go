@@ -89,13 +89,15 @@ func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestG
 	query := `WITH goods_cte AS (SELECT g.good_id,
 										g.project_id,
 										g.name,
+										p.name as project_name,
 										g.description,
 										g.priority,
 										g.created_at,
 										g.deleted_at
   								 FROM goods AS g
-  								 WHERE good_id = COALESCE($1, g.good_id)
-  								 AND project_id = COALESCE($2, g.project_id)
+								 INNER JOIN projects p ON p.project_id = g.project_id
+  								 WHERE g.good_id = COALESCE($1, g.good_id)
+  								 AND g.project_id = COALESCE($2, g.project_id)
   								 LIMIT $3 OFFSET $4)
 
 		SELECT JSONB_BUILD_OBJECT('data', (
@@ -105,12 +107,13 @@ func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestG
    										  							 'offset',  $4),
                                           'goods', JSONB_AGG(c))
 				FROM (SELECT g.good_id,
-					g.project_id,
-					g.name,
-					g.description,
-					g.priority,
-					g.created_at,
-					g.deleted_at
+							 g.project_id,
+							 g.project_name,
+							 g.name,
+							 g.description,
+							 g.priority,
+							 g.created_at,
+							 g.deleted_at
 				FROM goods_cte g) c));`
 
 	dbData, err := GetDataFromDB[models.GoodsListDBResponse](ctx, db.pgconn, query, data.GoodsID, data.ProjectID, data.Limit, data.Offset)

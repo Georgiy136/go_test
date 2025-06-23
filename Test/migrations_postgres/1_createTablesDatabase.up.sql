@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS projects (
-    project_id INTEGER PRIMARY KEY,
+    project_id SERIAL PRIMARY KEY,
     name character varying NOT NULL UNIQUE,
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS goods (
@@ -20,5 +20,3 @@ CREATE INDEX IF NOT EXISTS idx_goods_project_id on goods (project_id);
 CREATE INDEX IF NOT EXISTS idx_goods_good_id_project_id on goods (good_id, project_id);
 
 CREATE SEQUENCE IF NOT EXISTS good_sq AS INTEGER START WITH 1;
-
-CREATE SEQUENCE IF NOT EXISTS project_sq AS INTEGER START WITH 1;
