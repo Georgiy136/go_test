@@ -34,9 +34,9 @@ services:
     volumes:
       - clickhouse_data:/var/lib/clickhouse
     environment:
-      CLICKHOUSE_USER: default
-      CLICKHOUSE_PASSWORD: some_password
-      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: user
+      CLICKHOUSE_PASSWORD: password
+      CLICKHOUSE_DB: direct_log
 
   nats:
     image: nats:latest

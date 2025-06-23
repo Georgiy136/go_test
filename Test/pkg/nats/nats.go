@@ -31,7 +31,7 @@ func New(cfg config.Nats) (*Nats, error) {
 		return nil, fmt.Errorf("Ошибка создания стрима: %v", err)
 	}
 
-	logrus.Info("подключение к NATS завершено")
+	logrus.Info("соединение с NATS успешно установлено")
 
 	return &Nats{
 		Js: js,
@@ -67,8 +67,4 @@ func CreateStreamIfNotExist(js nats.JetStreamContext, streamName string) error {
 	}
 
 	return nil
-}
-
-func (n *Nats) CloseConn() {
-	n.Nc.Close()
 }

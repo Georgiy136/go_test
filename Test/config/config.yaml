@@ -17,10 +17,10 @@ redis:
 clickhouse:
  host: "localhost" #localhost
  port: 9000
- user: "default"
- password: "default"
- dbname: "default"
+ user: "user"
+ password: "password"
+ dbname: "direct_log"
 
 nats:
  host: "nats:4222" #localhost
- channelName: "logs"
+ channelName: "logs_to_click"

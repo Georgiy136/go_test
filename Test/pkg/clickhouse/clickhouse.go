@@ -37,7 +37,7 @@ func New(cfg config.Clickhouse) (*Clickhouse, error) {
 		},
 	})
 	if err := conn.Ping(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("New - clickhouse Ping failed: %w", err)
 	}
 
 	logrus.Infof("соединение с базой данных clickhouse успешно установлено")
@@ -51,7 +51,7 @@ func New(cfg config.Clickhouse) (*Clickhouse, error) {
 func (db *Clickhouse) MigrateUpClickhouse() error {
 	instance, err := clickhouse.WithInstance(db.Conn, &clickhouse.Config{})
 	if err != nil {
-		logrus.Fatal(err)
+		return fmt.Errorf("MigrateUpClickhouse - clickhouse.WithInstance failed: %w", err)
 	}
 
 	// Создание мигратора
@@ -61,7 +61,7 @@ func (db *Clickhouse) MigrateUpClickhouse() error {
 		instance,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to create migrations_clickhouse instance: %v", err)
+		return fmt.Errorf("failed to create migrations_clickhouse instance: %w", err)
 	}
 
 	// Выполняем миграции
@@ -70,13 +70,10 @@ func (db *Clickhouse) MigrateUpClickhouse() error {
 			logrus.Infof("no migrations to clickhouse to apply")
 			return nil
 		}
-		return fmt.Errorf("failed to apply migrations to clickhouse: %v", err)
+		return fmt.Errorf("failed to apply migrations to clickhouse: %w", err)
 	}
 
 	logrus.Infof("migrations to clickhouse applied")
-	return nil
-}
 
-func (db *Clickhouse) CloseConn() {
-	db.Conn.Close()
+	return nil
 }

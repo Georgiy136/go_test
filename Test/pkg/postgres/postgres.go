@@ -28,7 +28,7 @@ func NewPostgres(cfg config.Postgres) (*Postgres, error) {
 		logrus.Fatalf("unable to connect to database: %v\n", err)
 	}
 
-	if _, err := pgconn.Exec(context.Background(), "select 1"); err != nil {
+	if _, err = pgconn.Exec(context.Background(), "select 1"); err != nil {
 		return nil, err
 	}
 
@@ -73,8 +73,4 @@ func (db *Postgres) MigrateUpPostgres() error {
 
 	logrus.Infof("migrations to postgres applied")
 	return nil
-}
-
-func (db *Postgres) CloseConn() {
-	db.Pgconn.Close(context.Background())
 }

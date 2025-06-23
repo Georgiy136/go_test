@@ -11,6 +11,7 @@ import (
 	cache "myapp/internal/repository/redis"
 	nats_service "myapp/internal/sevice/nats"
 	"myapp/internal/usecase"
+	"myapp/pkg/clickhouse"
 	nats_conn "myapp/pkg/nats"
 	"myapp/pkg/postgres"
 	"myapp/pkg/redis"
@@ -22,24 +23,21 @@ func Run(cfg *config.Config) {
 	if err != nil {
 		logrus.Fatalf("app - Run - postgres.New: %v", err)
 	}
-	defer pg.CloseConn()
 
 	redisConn, err := redis.NewConn(cfg.Redis)
 	if err != nil {
-		logrus.Infof("app - Run - redis.New: %v", err)
+		logrus.Errorf("app - Run - redis.New: %v", err)
 	}
 
-	//click, err := clickhouse.New(cfg.Clickhouse)
-	//if err != nil {
-	//	logrus.Fatalf("app - Run - clickhouse.New: %v", err)
-	//}
-	//defer click.CloseConn()
+	_, err = clickhouse.New(cfg.Clickhouse)
+	if err != nil {
+		logrus.Errorf("app - Run - clickhouse.New: %v", err)
+	}
 
 	nats, err := nats_conn.New(cfg.Nats)
 	if err != nil {
 		logrus.Errorf("app - Run - nats.New: %v", err)
 	}
-	defer nats.CloseConn()
 
 	// очередь Nats для сохранения логов
 	natsLogs := nats_service.NewNatsService(nats)
@@ -52,7 +50,7 @@ func Run(cfg *config.Config) {
 		logrus.Fatalf("app - Run - MigrateUpPostgres: %v", err)
 	}
 	//if err = click.MigrateUpClickhouse(); err != nil {
-	//	logrus.Fatalf("app - Run - MigrateUpClickhouse: %v", err)
+	//	logrus.Errorf("app - Run - MigrateUpClickhouse: %v", err)
 	//}
 
 	// repo
