@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5"
 	jsoniter "github.com/json-iterator/go"
+	"myapp/internal/errors/common"
 	"myapp/internal/models"
 	"myapp/internal/usecase"
 	"myapp/pkg/postgres"
+	"strings"
 )
 
 type GoodsRepo struct {
@@ -56,6 +58,9 @@ func (db *GoodsRepo) UpdateGoods(ctx context.Context, data models.DataFromReques
 
 	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
+		if strings.Contains(err.Error(), common.GoodsNotFoundDbError) {
+			return nil, &common.CustomError{Message: common.GoodsNotFoundDbError, Err: &common.NotFoundError}
+		}
 		return nil, err
 	}
 
@@ -77,6 +82,9 @@ func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromReques
 
 	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
+		if strings.Contains(err.Error(), common.GoodsNotFoundDbError) {
+			return nil, &common.CustomError{Message: common.GoodsNotFoundDbError, Err: &common.NotFoundError}
+		}
 		return nil, err
 	}
 
@@ -114,6 +122,9 @@ func (db *GoodsRepo) ReprioritizeGood(ctx context.Context, data models.DataFromR
 
 	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
+		if strings.Contains(err.Error(), common.GoodsNotFoundDbError) {
+			return nil, &common.CustomError{Message: common.GoodsNotFoundDbError, Err: &common.NotFoundError}
+		}
 		return nil, err
 	}
 
