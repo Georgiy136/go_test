@@ -57,7 +57,7 @@ type GoodsList struct {
 }
 
 type DataFromRequestReprioritizeGood struct {
-	GoodsID   int `json:"good_id"`
+	GoodID    int `json:"good_id"`
 	ProjectID int `json:"project_id"`
 	Priority  int `json:"priority"`
 }

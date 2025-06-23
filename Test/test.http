@@ -7,12 +7,11 @@ Content-Type: application/json
 }
 
 ### STATUS 200
-PATCH localhost:8080/api/good/update?project_id=1&good_id=116
+PATCH localhost:8080/api/good/update?project_id=1&good_id=141
 Content-Type: application/json
 
 {
-  "name": "Цветок22",
-  "description": "Растение"
+  "name": "Цветок22"
 }
 
 ### STATUS 200

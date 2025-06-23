@@ -211,7 +211,7 @@ func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 	}
 
 	goods, err := h.us.ReprioritizeGood(c.Request.Context(), models.DataFromRequestReprioritizeGood{
-		GoodsID:   req.GoodsID,
+		GoodID:    req.GoodsID,
 		ProjectID: req.ProjectID,
 		Priority:  body.NewPriority,
 	})

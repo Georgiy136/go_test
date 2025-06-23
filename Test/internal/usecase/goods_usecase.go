@@ -92,7 +92,7 @@ func (us *GoodsUseCases) ReprioritizeGood(ctx context.Context, data models.DataF
 	}
 	// очищаем из redis
 	go func() {
-		if err = us.cache.ClearGoods(ctx, data.GoodsID, data.ProjectID); err != nil {
+		if err = us.cache.ClearGoods(ctx, data.GoodID, data.ProjectID); err != nil {
 			logrus.Errorf("GoodUseCases - cache.ClearGoods: %v", err)
 		}
 	}()
