@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"github.com/jackc/pgx/v5"
+	"myapp/internal/errors/common"
 	"myapp/internal/models"
 	"myapp/internal/usecase"
 	"myapp/pkg/postgres"
@@ -45,29 +46,64 @@ func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromReques
 		return nil, err
 	}
 
-	return dbData.Data, nil
+	return &dbData.Data, nil
 }
 
 func (db *GoodsRepo) UpdateGoods(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error) {
-	query := `
-			WITH upd_cte AS (
-					UPDATE goods AS g SET name = $3,
-										  description = $4
-					WHERE good_id = $1 AND project_id = $2
-			RETURNING g.*)
+	/*checkQuery := `SELECT True as exist FROM goods g WHERE g.good_id = $1 AND g.project_id = $2`
+	exist, err := GetDataFromDB[bool](ctx, db.pgconn, checkQuery, data.GoodID, data.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+	if !*exist {
+		return nil, &common.CustomError{Err: &common.NotFoundError}
+	}*/
 
-			SELECT jsonb_build_object('data', row_to_json(upd_cte))
-			FROM upd_cte;`
+	query := `
+DO
+$$
+BEGIN
+	WITH ins_cte AS (
+		INSERT INTO goods AS g (good_id,
+		                        project_id,
+		                        name,
+		                        description,
+		                        priority,
+		                        created_at,
+		                        deleted_at)
+		SELECT nextval('good_sq') AS good_id,
+    	       $1,
+    	       $2,
+    	       $3,
+    	       $4,
+		       NOW(),
+		       null
+		RETURNING g.*)
+
+	SELECT jsonb_build_object('data', row_to_json(ins_cte))
+	FROM ins_cte;
+END;
+$$;
+END;`
 
 	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, query, data.GoodID, data.ProjectID, data.Name, data.Description)
 	if err != nil {
 		return nil, err
 	}
 
-	return dbData.Data, nil
+	return &dbData.Data, nil
 }
 
 func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) (*models.Goods, error) {
+	checkQuery := `SELECT True FROM goods g WHERE g.good_id = $1 AND g.project_id = $2`
+	exist, err := GetDataFromDB[bool](ctx, db.pgconn, checkQuery, data.GoodID, data.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+	if !*exist {
+		return nil, &common.CustomError{Err: &common.NotFoundError}
+	}
+
 	query := `
 			WITH upd_cte AS (
 					UPDATE goods AS g SET deleted_at = $3
@@ -82,7 +118,7 @@ func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromReques
 		return nil, err
 	}
 
-	return dbData.Data, nil
+	return &dbData.Data, nil
 }
 
 func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsList, error) {
@@ -125,6 +161,15 @@ func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestG
 }
 
 func (db *GoodsRepo) ReprioritizeGood(ctx context.Context, data models.DataFromRequestReprioritizeGood) (*models.Goods, error) {
+	checkQuery := `SELECT True FROM goods g WHERE g.good_id = $1 AND g.project_id = $2`
+	exist, err := GetDataFromDB[bool](ctx, db.pgconn, checkQuery, data.GoodID, data.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+	if !*exist {
+		return nil, &common.CustomError{Err: &common.NotFoundError}
+	}
+
 	query := `
 			WITH upd_cte AS (
 					UPDATE goods AS g SET priority = $3
@@ -139,5 +184,5 @@ func (db *GoodsRepo) ReprioritizeGood(ctx context.Context, data models.DataFromR
 		return nil, err
 	}
 
-	return dbData.Data, nil
+	return &dbData.Data, nil
 }

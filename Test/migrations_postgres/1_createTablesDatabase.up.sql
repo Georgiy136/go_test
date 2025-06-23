@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS projects (
 CREATE TABLE IF NOT EXISTS goods (
     good_id INTEGER NOT NULL,
     project_id INTEGER NOT NULL,
-    name character varying NOT NULL,
+    name character varying,
     description character varying,
     priority INTEGER DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW(),

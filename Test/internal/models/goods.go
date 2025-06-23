@@ -3,7 +3,7 @@ package models
 import "time"
 
 type GoodsUpdDBResponse struct {
-	Data *Goods `json:"data"`
+	Data Goods `json:"data"`
 }
 
 type Goods struct {

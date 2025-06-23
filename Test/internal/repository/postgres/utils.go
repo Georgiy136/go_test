@@ -13,6 +13,9 @@ func GetDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, query string, a
 	var result T
 
 	if err := pgconn.QueryRow(ctx, query, args...).Scan(&result); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("db error: %w", HandleDBError(err))
 	}
 
