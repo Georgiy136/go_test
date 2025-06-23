@@ -1,1 +1,0 @@
-DROP FUNCTION IF EXISTS goods_upd(_src JSONB);
