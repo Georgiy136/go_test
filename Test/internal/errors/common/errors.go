@@ -21,10 +21,10 @@ var (
 )
 
 type CustomError struct {
-	Err     *CommonError
-	Message string
+	Err         *CommonError
+	Description string
 }
 
 func (err *CustomError) Error() string {
-	return err.Message
+	return err.Description
 }

@@ -32,7 +32,7 @@ func HandleDBError(err error) error {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		if pgErr.Code == defaultExceptionErrorCode {
-			return &common.CustomError{Message: pgErr.Message, Err: &common.ServiceUnprocessableEntity}
+			return &common.CustomError{Description: pgErr.Message, Err: &common.ServiceUnprocessableEntity}
 		}
 		return err
 	}

@@ -54,7 +54,7 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 		Priority:    body.Priority,
 	})
 	if err != nil {
-		httpresponse.HandleError(c, err, err.Error(), nil)
+		httpresponse.HandleError(c, err, nil)
 		return
 	}
 	httpresponse.SendSuccess(c, http.StatusCreated, goods)
@@ -101,7 +101,7 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 		Description: body.Description,
 	})
 	if err != nil {
-		httpresponse.HandleError(c, err, err.Error(), nil)
+		httpresponse.HandleError(c, err, nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goods)
@@ -136,7 +136,7 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 		DeletedAt: time.Now(),
 	})
 	if err != nil {
-		httpresponse.HandleError(c, err, err.Error(), nil)
+		httpresponse.HandleError(c, err, nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goods)
@@ -173,7 +173,7 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 		Offset:    req.Offset,
 	})
 	if err != nil {
-		httpresponse.HandleError(c, err, err.Error(), nil)
+		httpresponse.HandleError(c, err, nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goodsList)
@@ -216,7 +216,7 @@ func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 		Priority:  body.NewPriority,
 	})
 	if err != nil {
-		httpresponse.HandleError(c, err, err.Error(), nil)
+		httpresponse.HandleError(c, err, nil)
 		return
 	}
 	httpresponse.SendSuccessOK(c, goods)

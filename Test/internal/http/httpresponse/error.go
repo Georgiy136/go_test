@@ -7,13 +7,10 @@ import (
 	"myapp/internal/http/httpresponse/response"
 )
 
-func HandleError(c *gin.Context, err error, description string, details interface{}) {
+func HandleError(c *gin.Context, err error, details interface{}) {
 	var customError *common.CustomError
 	if errors.As(err, &customError) {
-		if customError.Err == nil {
-			customError.Err = &common.ServiceUnprocessableEntity
-		}
-		SendError(c, *customError.Err, description, details)
+		SendError(c, *customError.Err, customError.Description, details)
 		return
 	}
 	SendErrorInternalServerError(c, err.Error(), nil)
