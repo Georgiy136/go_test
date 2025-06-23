@@ -30,16 +30,6 @@ Content-Type: application/json
   "NewPriority": 1
 }
 
-
-
-
-
-
-
-
-
-
-
 ### STATUS 200
 POST localhost:8080/api/categories/move_category?employee_id=22
 Content-Type: application/json

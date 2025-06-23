@@ -20,25 +20,25 @@ func NewGoodsRepo(pg *postgres.Postgres) usecase.GoodsStrore {
 
 func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
 	query := `
-	WITH ins_cte AS (
-		INSERT INTO goods AS g (good_id,
-		                        project_id,
-		                        name,
-		                        description,
-		                        priority,
-		                        created_at,
-		                        deleted_at)
-		SELECT nextval('good_sq') AS good_id,
-    	       $1,
-    	       $2,
-    	       $3,
-    	       $4,
-		       NOW(),
-		       null
-		RETURNING g.*)
-
-	SELECT jsonb_build_object('data', row_to_json(ins_cte))
-	FROM ins_cte;`
+			WITH ins_cte AS (
+				INSERT INTO goods AS g (good_id,
+				                        project_id,
+				                        name,
+				                        description,
+				                        priority,
+				                        created_at,
+				                        deleted_at)
+				SELECT nextval('good_sq') AS good_id,
+    			       $1,
+    			       $2,
+    			       $3,
+    			       $4,
+				       NOW(),
+				       null
+				RETURNING g.*)
+		
+			SELECT jsonb_build_object('data', row_to_json(ins_cte))
+			FROM ins_cte;`
 
 	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, query, data.ProjectID, data.Name, data.Description, data.Priority)
 	if err != nil {
@@ -56,8 +56,8 @@ func (db *GoodsRepo) UpdateGoods(ctx context.Context, data models.DataFromReques
 					WHERE good_id = $1 AND project_id = $2
 			RETURNING g.*)
 
-	SELECT jsonb_build_object('data', row_to_json(upd_cte))
-	FROM upd_cte;`
+			SELECT jsonb_build_object('data', row_to_json(upd_cte))
+			FROM upd_cte;`
 
 	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, query, data.GoodID, data.ProjectID, data.Name, data.Description)
 	if err != nil {
@@ -74,8 +74,8 @@ func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromReques
 					WHERE good_id = $1 AND project_id = $2
 			RETURNING g.*)
 
-	SELECT jsonb_build_object('data', row_to_json(upd_cte))
-	FROM upd_cte;`
+			SELECT jsonb_build_object('data', row_to_json(upd_cte))
+			FROM upd_cte;`
 
 	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, query, data.GoodID, data.ProjectID, data.DeletedAt)
 	if err != nil {
@@ -131,8 +131,8 @@ func (db *GoodsRepo) ReprioritizeGood(ctx context.Context, data models.DataFromR
 					WHERE good_id = $1 AND project_id = $2
 			RETURNING g.*)
 
-	SELECT jsonb_build_object('data', row_to_json(upd_cte))
-	FROM upd_cte;`
+			SELECT jsonb_build_object('data', row_to_json(upd_cte))
+			FROM upd_cte;`
 
 	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, query, data.GoodID, data.ProjectID, data.Priority)
 	if err != nil {
