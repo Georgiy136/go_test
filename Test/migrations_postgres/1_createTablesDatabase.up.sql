@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS projects (
 );
 
 CREATE TABLE IF NOT EXISTS goods (
-    good_id INTEGER NOT NULL,
-    project_id INTEGER NOT NULL,
+    good_id INTEGER,
+    project_id INTEGER,
     name character varying,
     description character varying,
     priority INTEGER DEFAULT 0,

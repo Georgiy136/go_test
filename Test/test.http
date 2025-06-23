@@ -7,7 +7,7 @@ Content-Type: application/json
 }
 
 ### STATUS 200
-PATCH localhost:8080/api/good/update?project_id=1&good_id=151
+PATCH localhost:8080/api/good/update?project_id=1&good_id=5
 Content-Type: application/json
 
 {
@@ -15,7 +15,7 @@ Content-Type: application/json
 }
 
 ### STATUS 200
-DELETE localhost:8080/api/good/remove?project_id=1&goods_id=116
+DELETE localhost:8080/api/good/remove?project_id=1&goods_id=5
 Content-Type: application/json
 
 
@@ -24,19 +24,9 @@ GET localhost:8080/api/goods/list?limit=10&offset=0
 Content-Type: application/json
 
 ### STATUS 200
-PATCH localhost:8080/api/good/reprioritize?project_id=1&good_id=116
+PATCH localhost:8080/api/good/reprioritize?project_id=1&good_id=5
 Content-Type: application/json
 
 {
   "NewPriority": 8
-}
-
-### STATUS 200
-POST localhost:8080/api/categories/move_category?employee_id=22
-Content-Type: application/json
-Authorization: Basic admin test
-
-{
-  "category_id": 22,
-  "parent_category_id": 11
 }

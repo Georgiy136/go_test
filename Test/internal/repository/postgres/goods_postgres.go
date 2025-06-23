@@ -2,8 +2,9 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
-	"myapp/internal/errors/common"
+	jsoniter "github.com/json-iterator/go"
 	"myapp/internal/models"
 	"myapp/internal/usecase"
 	"myapp/pkg/postgres"
@@ -20,28 +21,19 @@ func NewGoodsRepo(pg *postgres.Postgres) usecase.GoodsStrore {
 }
 
 func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
-	query := `
-			WITH ins_cte AS (
-				INSERT INTO goods AS g (good_id,
-				                        project_id,
-				                        name,
-				                        description,
-				                        priority,
-				                        created_at,
-				                        deleted_at)
-				SELECT nextval('good_sq') AS good_id,
-    			       $1,
-    			       $2,
-    			       $3,
-    			       $4,
-				       NOW(),
-				       null
-				RETURNING g.*)
-		
-			SELECT jsonb_build_object('data', row_to_json(ins_cte))
-			FROM ins_cte;`
+	const sp = "goods_upd"
 
-	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, query, data.ProjectID, data.Name, data.Description, data.Priority)
+	dataJson, err := jsoniter.Marshal(data)
+	if err != nil {
+		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
+	}
+
+	pg := new(postgres.PgSpec)
+	pg.SetStoredProcedure(sp)
+	pg.SetParams(dataJson)
+	pg.SetUseFunction()
+
+	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		return nil, err
 	}
@@ -50,43 +42,19 @@ func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromReques
 }
 
 func (db *GoodsRepo) UpdateGoods(ctx context.Context, data models.DataFromRequestGoodsUpdate) (*models.Goods, error) {
-	/*checkQuery := `SELECT True as exist FROM goods g WHERE g.good_id = $1 AND g.project_id = $2`
-	exist, err := GetDataFromDB[bool](ctx, db.pgconn, checkQuery, data.GoodID, data.ProjectID)
+	const sp = "goods_upd"
+
+	dataJson, err := jsoniter.Marshal(data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
 	}
-	if !*exist {
-		return nil, &common.CustomError{Err: &common.NotFoundError}
-	}*/
 
-	query := `
-DO
-$$
-BEGIN
-	WITH ins_cte AS (
-		INSERT INTO goods AS g (good_id,
-		                        project_id,
-		                        name,
-		                        description,
-		                        priority,
-		                        created_at,
-		                        deleted_at)
-		SELECT nextval('good_sq') AS good_id,
-    	       $1,
-    	       $2,
-    	       $3,
-    	       $4,
-		       NOW(),
-		       null
-		RETURNING g.*)
+	pg := new(postgres.PgSpec)
+	pg.SetStoredProcedure(sp)
+	pg.SetParams(dataJson)
+	pg.SetUseFunction()
 
-	SELECT jsonb_build_object('data', row_to_json(ins_cte))
-	FROM ins_cte;
-END;
-$$;
-END;`
-
-	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, query, data.GoodID, data.ProjectID, data.Name, data.Description)
+	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		return nil, err
 	}
@@ -95,25 +63,19 @@ END;`
 }
 
 func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) (*models.Goods, error) {
-	checkQuery := `SELECT True FROM goods g WHERE g.good_id = $1 AND g.project_id = $2`
-	exist, err := GetDataFromDB[bool](ctx, db.pgconn, checkQuery, data.GoodID, data.ProjectID)
+	const sp = "goods_upd"
+
+	dataJson, err := jsoniter.Marshal(data)
 	if err != nil {
-		return nil, err
-	}
-	if !*exist {
-		return nil, &common.CustomError{Err: &common.NotFoundError}
+		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
 	}
 
-	query := `
-			WITH upd_cte AS (
-					UPDATE goods AS g SET deleted_at = $3
-					WHERE good_id = $1 AND project_id = $2
-			RETURNING g.*)
+	pg := new(postgres.PgSpec)
+	pg.SetStoredProcedure(sp)
+	pg.SetParams(dataJson)
+	pg.SetUseFunction()
 
-			SELECT jsonb_build_object('data', row_to_json(upd_cte))
-			FROM upd_cte;`
-
-	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, query, data.GoodID, data.ProjectID, data.DeletedAt)
+	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		return nil, err
 	}
@@ -122,37 +84,14 @@ func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromReques
 }
 
 func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsList, error) {
-	query := `WITH goods_cte AS (SELECT g.good_id,
-										g.project_id,
-										g.name,
-										p.name as project_name,
-										g.description,
-										g.priority,
-										g.created_at,
-										g.deleted_at
-  								 FROM goods AS g
-								 INNER JOIN projects p ON p.project_id = g.project_id
-  								 WHERE g.good_id = COALESCE($1, g.good_id)
-  								 AND g.project_id = COALESCE($2, g.project_id)
-  								 LIMIT $3 OFFSET $4)
+	const sp = "goods_list"
 
-		SELECT JSONB_BUILD_OBJECT('data', (
-				SELECT JSONB_BUILD_OBJECT('meta', JSONB_BUILD_OBJECT('total',  (SELECT COUNT(*) FROM goods_cte),
-										  							 'remove', (SELECT COUNT(*) FROM goods_cte g WHERE g.deleted_at IS NOT NULL),
-										  							 'limit',   $3,
-   										  							 'offset',  $4),
-                                          'goods', JSONB_AGG(c))
-				FROM (SELECT g.good_id,
-							 g.project_id,
-							 g.project_name,
-							 g.name,
-							 g.description,
-							 g.priority,
-							 g.created_at,
-							 g.deleted_at
-				FROM goods_cte g) c));`
+	pg := new(postgres.PgSpec)
+	pg.SetStoredProcedure(sp)
+	pg.SetParams(data.GoodsID, data.ProjectID, data.Limit, data.Offset)
+	pg.SetUseFunction()
 
-	dbData, err := GetDataFromDB[models.GoodsListDBResponse](ctx, db.pgconn, query, data.GoodsID, data.ProjectID, data.Limit, data.Offset)
+	dbData, err := GetDataFromDB[models.GoodsListDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		return nil, err
 	}
@@ -161,25 +100,19 @@ func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestG
 }
 
 func (db *GoodsRepo) ReprioritizeGood(ctx context.Context, data models.DataFromRequestReprioritizeGood) (*models.Goods, error) {
-	checkQuery := `SELECT True FROM goods g WHERE g.good_id = $1 AND g.project_id = $2`
-	exist, err := GetDataFromDB[bool](ctx, db.pgconn, checkQuery, data.GoodID, data.ProjectID)
+	const sp = "goods_upd"
+
+	dataJson, err := jsoniter.Marshal(data)
 	if err != nil {
-		return nil, err
-	}
-	if !*exist {
-		return nil, &common.CustomError{Err: &common.NotFoundError}
+		return nil, fmt.Errorf("json marshal dataFromRequestGoodsAdd err: %w", err)
 	}
 
-	query := `
-			WITH upd_cte AS (
-					UPDATE goods AS g SET priority = $3
-					WHERE good_id = $1 AND project_id = $2
-			RETURNING g.*)
+	pg := new(postgres.PgSpec)
+	pg.SetStoredProcedure(sp)
+	pg.SetParams(dataJson)
+	pg.SetUseFunction()
 
-			SELECT jsonb_build_object('data', row_to_json(upd_cte))
-			FROM upd_cte;`
-
-	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, query, data.GoodID, data.ProjectID, data.Priority)
+	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		return nil, err
 	}
