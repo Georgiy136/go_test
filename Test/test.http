@@ -7,7 +7,7 @@ Content-Type: application/json
 }
 
 ### STATUS 200
-PATCH localhost:8080/api/good/update?project_id=1&good_id=58
+PATCH localhost:8080/api/good/update?project_id=1&good_id=1
 Content-Type: application/json
 
 {
@@ -15,7 +15,7 @@ Content-Type: application/json
 }
 
 ### STATUS 200
-DELETE localhost:8080/api/good/remove?project_id=1&goods_id=5
+DELETE localhost:8080/api/good/remove?project_id=1&goods_id=1
 Content-Type: application/json
 
 

@@ -14,18 +14,6 @@ type GoodsHandler struct {
 	us usecase.GoodsUseCases
 }
 
-// PostGoods godoc
-//
-//	@Security		ApiKeyAuth
-//	@Summary		Add Goods to database
-//	@Tags			Goods
-//	@Description	create Goods
-//	@ID				create-Goods
-//	@Accept			json
-//	@Produce		json
-//	@Param			input	body		postGoodsRequest	true	"Goods info"
-//	@Success		201		{object}	models.Goods
-//	@Router			/Goods [post]
 func (h *GoodsHandler) PostGoods(c *gin.Context) {
 	type postGoodsParamsRequest struct {
 		ProjectID int `form:"project_id" binding:"required,gt=0"`
@@ -60,19 +48,6 @@ func (h *GoodsHandler) PostGoods(c *gin.Context) {
 	httpresponse.SendSuccess(c, http.StatusCreated, goods)
 }
 
-// UpdateGoods godoc
-//
-//	@Security		ApiKeyAuth
-//	@Summary		Update Goods based on given ID
-//	@Tags			Goods
-//	@Description	update Goods by id
-//	@ID				update-Goods-by-id
-//	@Accept			json
-//	@Produce		json
-//	@Param			id		path		string				true	"Goods ID"
-//	@Param			input	body		PutGoodsRequest	true	"Goods info"
-//	@Success		201		{object}	models.Goods
-//	@Router			/Goods/{id} [put]
 func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 	type updateGoodParamsRequest struct {
 		GoodID    int `form:"good_id" binding:"required,gt=0"`
@@ -107,18 +82,6 @@ func (h *GoodsHandler) UpdateGood(c *gin.Context) {
 	httpresponse.SendSuccessOK(c, goods)
 }
 
-// DeleteGoods godoc
-//
-//	@Security		ApiKeyAuth
-//	@Summary		Delete Goods based on given ID
-//	@Tags			Goods
-//	@Description	delete Goods by id
-//	@ID				delete-Goods-by-id
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path	string	true	"Goods ID"
-//	@Success		200
-//	@Router			/Goods/{id} [delete]
 func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 	type deleteGoodParamsRequest struct {
 		GoodsID   int `form:"goods_id" binding:"required,gt=0"`
@@ -142,17 +105,6 @@ func (h *GoodsHandler) DeleteGood(c *gin.Context) {
 	httpresponse.SendSuccessOK(c, goods)
 }
 
-// GetAllGoodss godoc
-//
-//	@Security		ApiKeyAuth
-//	@Summary		Retrieves All Goodss
-//	@Tags			Goods
-//	@Description	get all Goodss
-//	@ID				get-all-Goodss
-//	@Accept			json
-//	@Produce		json
-//	@Success		202	{array}	[]models.Goods
-//	@Router			/Goods [get]
 func (h *GoodsHandler) ListGoods(c *gin.Context) {
 	type listGoodParamsRequest struct {
 		GoodsID   *int `form:"good_id" binding:"omitempty,gt=0"`
@@ -179,17 +131,6 @@ func (h *GoodsHandler) ListGoods(c *gin.Context) {
 	httpresponse.SendSuccessOK(c, goodsList)
 }
 
-// GetGoods godoc
-//
-//	@Security		ApiKeyAuth
-//	@Summary		Retrieves All Goodss
-//	@Tags			Goods
-//	@Description	get all Goodss
-//	@ID				get-all-Goodss
-//	@Accept			json
-//	@Produce		json
-//	@Success		202	{array}	[]models.Goods
-//	@Router			/Goods [get]
 func (h *GoodsHandler) ReprioritizeGood(c *gin.Context) {
 	type reprioritizeGoodParamsRequest struct {
 		GoodsID   int `form:"good_id" binding:"required,gt=0"`
