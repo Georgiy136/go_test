@@ -6,10 +6,11 @@ import (
 	"errors"
 	"fmt"
 	click "github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/Georgiy136/go_test/Cron_send_logs/config"
+	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/clickhouse"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
-	"myapp/config"
 	"net"
 )
 

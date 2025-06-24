@@ -9,8 +9,7 @@ import (
 type (
 	Config struct {
 		Http
-		Postgres
-		Redis
+		Clickhouse
 		Nats
 	}
 
@@ -18,19 +17,12 @@ type (
 		Port int
 	}
 
-	Postgres struct {
+	Clickhouse struct {
 		Host     string
 		Port     int
 		User     string
 		Password string
 		Dbname   string
-		Sslmode  string
-	}
-
-	Redis struct {
-		Host     string
-		Port     int
-		Password string
 	}
 
 	Nats struct {

@@ -43,9 +43,6 @@ func Run(cfg *config.Config) {
 	if err = pg.MigrateUpPostgres(); err != nil {
 		logrus.Fatalf("app - Run - MigrateUpPostgres: %v", err)
 	}
-	//if err = click.MigrateUpClickhouse(); err != nil {
-	//	logrus.Errorf("app - Run - MigrateUpClickhouse: %v", err)
-	//}
 
 	// repo
 	goodsRedis := cache.NewGoodsRedis(redisConn)

@@ -1,4 +1,4 @@
-module myapp
+module github.com/Georgiy136/go_test/Cron_send_logs
 
 go 1.24.2
 

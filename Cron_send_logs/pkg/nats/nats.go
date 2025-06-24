@@ -1,10 +1,9 @@
 package nats
 
 import (
-	"errors"
 	"fmt"
+	"github.com/Georgiy136/go_test/Cron_send_logs/config"
 	"github.com/sirupsen/logrus"
-	"myapp/config"
 
 	"github.com/nats-io/nats.go"
 )
@@ -27,44 +26,10 @@ func New(cfg config.Nats) (*Nats, error) {
 		return nil, fmt.Errorf("Ошибка создания JetStream контекста: %v", err)
 	}
 
-	if err = CreateStreamIfNotExist(js, cfg.ChannelName); err != nil {
-		return nil, fmt.Errorf("Ошибка создания стрима: %v", err)
-	}
-
 	logrus.Info("соединение с NATS успешно установлено")
 
 	return &Nats{
 		Js: js,
 		Nc: nc,
 	}, nil
-}
-
-func CreateStreamIfNotExist(js nats.JetStreamContext, streamName string) error {
-	_, err := js.StreamInfo(streamName)
-	switch {
-	case err == nil:
-		return nil
-	case errors.Is(err, nats.ErrStreamNotFound):
-		break
-	default:
-		return fmt.Errorf("can not get stream info: %w", err)
-	}
-
-	cfg := nats.StreamConfig{
-		Name:              streamName,
-		Storage:           nats.FileStorage,
-		Retention:         nats.LimitsPolicy,
-		MaxConsumers:      -1,
-		MaxMsgs:           -1,
-		MaxBytes:          -1,
-		MaxMsgsPerSubject: -1,
-		Discard:           nats.DiscardOld,
-	}
-
-	_, err = js.AddStream(&cfg)
-	if err != nil {
-		return fmt.Errorf("can not create stream: %w, name: %s", err, streamName)
-	}
-
-	return nil
 }

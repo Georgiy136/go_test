@@ -1,0 +1,13 @@
+http:
+ port: 8081
+
+clickhouse:
+ host: "localhost" #localhost
+ port: 9000
+ user: "user"
+ password: "password"
+ dbname: "log_buf"
+
+nats:
+ host: "nats:4222" #localhost
+ channelName: "logs_to_click"

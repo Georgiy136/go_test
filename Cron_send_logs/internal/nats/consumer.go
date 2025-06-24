@@ -2,7 +2,7 @@ package nats
 
 import (
 	"fmt"
-	"myapp/pkg/nats"
+	"github.com/Georgiy136/go_test/Cron_send_logs/pkg/nats"
 )
 
 type NatsService struct {

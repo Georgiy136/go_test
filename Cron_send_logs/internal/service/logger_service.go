@@ -3,8 +3,8 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"github.com/Georgiy136/go_test/Cron_send_logs/internal/models"
 	"github.com/sirupsen/logrus"
-	"myapp/internal/models"
 )
 
 type GoodsUseCases struct {
