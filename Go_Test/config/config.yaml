@@ -1,0 +1,26 @@
+http:
+ port: 8080
+
+postgres:
+ host: "localhost" #localhost
+ port: 5432
+ user: "postgres"
+ password: "4650"
+ dbname: "postgres"
+ sslmode: "disable"
+
+redis:
+ host: "localhost" #localhost
+ password: "some_password"
+ port: 6379
+
+clickhouse:
+ host: "localhost" #localhost
+ port: 9000
+ user: "user"
+ password: "password"
+ dbname: "log_buf"
+
+nats:
+ host: "nats:4222" #localhost
+ channelName: "logs_to_click"
