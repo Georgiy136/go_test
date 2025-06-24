@@ -31,11 +31,6 @@ func (s *PgSpec) SetStoredProcedure(spName string) {
 	s.storedProcedure = spName
 }
 
-// SetDatabaseKey - устанавливает ключ БД, на котором будет выполнен запрос.
-func (s *PgSpec) SetDatabaseKey(key string) {
-	s.databaseKey = key
-}
-
 func (s *PgSpec) SetUseProcedure() {
 	s.useProcedure = true
 }
@@ -43,9 +38,6 @@ func (s *PgSpec) SetUseProcedure() {
 func (s *PgSpec) SetUseFunction() {
 	s.useProcedure = false
 }
-
-// GetDatabaseKey - возвращает ключ БД, на котором выполнить запрос.
-func (s *PgSpec) GetDatabaseKey() string { return s.databaseKey }
 
 // GetStoredProcedureName - возвращает имя установленной хранимой процедуры.
 func (s *PgSpec) GetStoredProcedureName() string { return s.storedProcedure }
@@ -82,7 +74,6 @@ func (s *PgSpec) GetQuery() string {
 	return buf.String()
 }
 
-// GetParameters - формирует параметры для вызова хранимой процедуры.
 func (s *PgSpec) GetParameters() []interface{} {
 	if s.params == nil {
 		return nil
