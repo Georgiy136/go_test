@@ -1,4 +1,4 @@
-module github.com/Georgiy136/go_test/go_test
+module myapp
 
 go 1.24.2
 

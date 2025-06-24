@@ -2,9 +2,9 @@ package httpresponse
 
 import (
 	"errors"
+	"github.com/Georgiy136/go_test/go_test/internal/errors/common"
+	"github.com/Georgiy136/go_test/go_test/internal/http/httpresponse/response"
 	"github.com/gin-gonic/gin"
-	"myapp/internal/errors/common"
-	"myapp/internal/http/httpresponse/response"
 )
 
 func HandleError(c *gin.Context, err error, details interface{}) {

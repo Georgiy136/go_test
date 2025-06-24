@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"myapp/internal/models"
+	"github.com/Georgiy136/go_test/go_test/internal/models"
 )
 
 type GoodsStrore interface {

@@ -1,8 +1,8 @@
 package httpresponse
 
 import (
+	"github.com/Georgiy136/go_test/go_test/internal/http/httpresponse/response"
 	"github.com/gin-gonic/gin"
-	"myapp/internal/http/httpresponse/response"
 	"net/http"
 )
 

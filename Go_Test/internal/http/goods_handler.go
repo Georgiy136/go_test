@@ -1,9 +1,9 @@
 package http
 
 import (
-	"myapp/internal/http/httpresponse"
-	"myapp/internal/models"
-	"myapp/internal/usecase"
+	"github.com/Georgiy136/go_test/go_test/internal/http/httpresponse"
+	"github.com/Georgiy136/go_test/go_test/internal/models"
+	"github.com/Georgiy136/go_test/go_test/internal/usecase"
 	"net/http"
 	"time"
 

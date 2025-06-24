@@ -1,6 +1,6 @@
 package response
 
-import "myapp/internal/errors/common"
+import "github.com/Georgiy136/go_test/go_test/internal/errors/common"
 
 type (
 	SuccessData struct {

@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Georgiy136/go_test/go_test/internal/models"
+	"github.com/Georgiy136/go_test/go_test/internal/usecase"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/redis/go-redis/v9"
-	"myapp/internal/models"
-	"myapp/internal/usecase"
 	"time"
 )
 

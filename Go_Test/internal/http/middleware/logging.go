@@ -3,11 +3,11 @@ package middleware
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/Georgiy136/go_test/go_test/internal/models"
+	"github.com/Georgiy136/go_test/go_test/internal/nats"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"io"
-	"myapp/internal/models"
-	"myapp/internal/sevice/nats"
 	"time"
 )
 

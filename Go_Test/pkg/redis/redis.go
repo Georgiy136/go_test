@@ -3,7 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
-	"myapp/config"
+	"github.com/Georgiy136/go_test/go_test/config"
 
 	"github.com/redis/go-redis/v9"
 )

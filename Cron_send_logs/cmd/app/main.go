@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/Georgiy136/go_test/go_test/config"
-	"github.com/Georgiy136/go_test/go_test/internal/app"
 	"github.com/sirupsen/logrus"
+	"myapp/config"
+	"myapp/internal/app"
 )
 
 func main() {

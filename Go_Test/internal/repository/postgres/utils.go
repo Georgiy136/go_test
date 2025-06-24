@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"context"
+	"github.com/Georgiy136/go_test/go_test/internal/errors/common"
+	"github.com/Georgiy136/go_test/go_test/pkg/postgres"
 	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"myapp/internal/errors/common"
-	"myapp/pkg/postgres"
 )
 
 func GetDataFromDB[T any](ctx context.Context, pgconn *pgx.Conn, pg *postgres.PgSpec) (*T, error) {

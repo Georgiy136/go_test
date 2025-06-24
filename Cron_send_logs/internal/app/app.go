@@ -2,30 +2,26 @@ package app
 
 import (
 	"fmt"
-	"github.com/Georgiy136/go_test/go_test/config"
-	"github.com/Georgiy136/go_test/go_test/internal/http"
-	"github.com/Georgiy136/go_test/go_test/internal/http/middleware"
-	nats_service "github.com/Georgiy136/go_test/go_test/internal/nats"
-	db "github.com/Georgiy136/go_test/go_test/internal/repository/postgres"
-	cache "github.com/Georgiy136/go_test/go_test/internal/repository/redis"
-	"github.com/Georgiy136/go_test/go_test/internal/usecase"
-	nats_conn "github.com/Georgiy136/go_test/go_test/pkg/nats"
-	"github.com/Georgiy136/go_test/go_test/pkg/postgres"
-	"github.com/Georgiy136/go_test/go_test/pkg/redis"
+	"github.com/Georgiy136/go_test/go_test/Cron_send_logs/pkg/clickhouse"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"myapp/config"
+	"myapp/internal/http"
+	"myapp/internal/http/middleware"
+	nats_service "myapp/internal/nats"
+	db "myapp/internal/repository/postgres"
+	cache "myapp/internal/repository/redis"
+	"myapp/internal/usecase"
+	nats_conn "myapp/pkg/nats"
+	"myapp/pkg/postgres"
+	"myapp/pkg/redis"
 )
 
 func Run(cfg *config.Config) {
 	// connections
-	pg, err := postgres.NewPostgres(cfg.Postgres)
+	_, err = clickhouse.New(cfg.Clickhouse)
 	if err != nil {
-		logrus.Fatalf("app - Run - postgres.New: %v", err)
-	}
-
-	redisConn, err := redis.NewConn(cfg.Redis)
-	if err != nil {
-		logrus.Errorf("app - Run - redis.New: %v", err)
+		logrus.Errorf("app - Run - clickhouse.New: %v", err)
 	}
 
 	nats, err := nats_conn.New(cfg.Nats)

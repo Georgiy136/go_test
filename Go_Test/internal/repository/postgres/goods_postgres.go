@@ -3,12 +3,12 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"github.com/Georgiy136/go_test/go_test/internal/errors/common"
+	"github.com/Georgiy136/go_test/go_test/internal/models"
+	"github.com/Georgiy136/go_test/go_test/internal/usecase"
+	"github.com/Georgiy136/go_test/go_test/pkg/postgres"
 	"github.com/jackc/pgx/v5"
 	jsoniter "github.com/json-iterator/go"
-	"myapp/internal/errors/common"
-	"myapp/internal/models"
-	"myapp/internal/usecase"
-	"myapp/pkg/postgres"
 	"strings"
 )
 

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	click "github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/clickhouse"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"

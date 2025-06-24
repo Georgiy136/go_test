@@ -3,8 +3,8 @@ package nats
 import (
 	"errors"
 	"fmt"
-	"github.com/Georgiy136/go_test/go_test/config"
 	"github.com/sirupsen/logrus"
+	"myapp/config"
 
 	"github.com/nats-io/nats.go"
 )
