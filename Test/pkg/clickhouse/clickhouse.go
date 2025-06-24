@@ -27,6 +27,7 @@ func New(cfg config.Clickhouse) (*Clickhouse, error) {
 			Username: cfg.User,
 			Password: cfg.Password,
 		},
+
 		DialContext: func(ctx context.Context, addr string) (net.Conn, error) {
 			var d net.Dialer
 			return d.DialContext(ctx, "tcp", addr)
