@@ -1,10 +1,11 @@
-CREATE TABLE IF NOT EXISTS logs (
-    LogID SERIAL NOT NULL,
-    GoodsID INTEGER NOT NULL,
-    ProjectID INTEGER NOT NULL,
-    Name character varying NOT NULL,
-    Description character varying,
-    Priority INTEGER DEFAULT 0,
-    Removed BOOLEAN DEFAULT FALSE,
-    EventTime TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
-);
+CREATE TABLE IF NOT EXISTS log_buf
+(
+    dt            DateTime64(9, 'Europe/Moscow'),
+    api           Nullable(String),
+    service_name  Nullable(String),
+    server_key    Nullable(String),
+    request       Nullable(String),
+    response      Nullable(String),
+    response_code Nullable(UInt32)
+)
+    engine = Buffer('default', 'log_buf', 16, 10, 100, 10000, 1000000, 10000000, 100000000);

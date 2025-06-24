@@ -19,7 +19,7 @@ clickhouse:
  port: 9000
  user: "user"
  password: "password"
- dbname: "direct_log"
+ dbname: "log_buf"
 
 nats:
  host: "nats:4222" #localhost
