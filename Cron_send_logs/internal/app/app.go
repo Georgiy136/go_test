@@ -1,13 +1,11 @@
 package app
 
 import (
-	"fmt"
 	"github.com/Georgiy136/go_test/Cron_send_logs/config"
 	nats_service "github.com/Georgiy136/go_test/Cron_send_logs/internal/nats"
 	"github.com/Georgiy136/go_test/Cron_send_logs/internal/service"
 	"github.com/Georgiy136/go_test/Cron_send_logs/pkg/clickhouse"
 	nats_conn "github.com/Georgiy136/go_test/Cron_send_logs/pkg/nats"
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,19 +22,11 @@ func Run(cfg *config.Config) {
 	}
 
 	// очередь Nats для сохранения логов
-	natsLogs := nats_service.NewNatsService(nats)
+	natsLogs := nats_service.NewNats(nats)
 
-	// инициализация сервиса для сохранения логов в очередь
+	// Запуск крона
 	logger := middleware.NewLogger(natsLogs, cfg.Nats.ChannelName)
 
 	// Use case
 	goodsUseCases := usecase.NewGoodsUsecases(goodsRepository, goodsRedis)
-
-	// HTTP Server
-	router := gin.Default()
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
-	router.Use(logger.LoggingMiddleware())
-
-	router.Run(fmt.Sprintf(":%d", cfg.Http.Port))
 }

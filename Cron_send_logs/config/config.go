@@ -8,13 +8,10 @@ import (
 
 type (
 	Config struct {
-		Http
 		Clickhouse
 		Nats
-	}
-
-	Http struct {
-		Port int
+		Cron
+		Port
 	}
 
 	Clickhouse struct {
@@ -28,6 +25,14 @@ type (
 	Nats struct {
 		URL         string
 		ChannelName string
+	}
+
+	Cron struct {
+		SleepPeriod string
+	}
+
+	Port struct {
+		Port int
 	}
 )
 
