@@ -20,6 +20,7 @@ type Clickhouse struct {
 }
 
 func New(cfg config.Clickhouse) (*Clickhouse, error) {
+
 	conn := click.OpenDB(&click.Options{
 		Addr: []string{fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)},
 		Auth: click.Auth{
