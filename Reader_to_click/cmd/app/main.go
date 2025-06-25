@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Georgiy136/go_test/Cron_send_logs/config"
-	"github.com/Georgiy136/go_test/Cron_send_logs/internal/app"
+	"github.com/Georgiy136/go_test/Reader_to_click/config"
+	"github.com/Georgiy136/go_test/Reader_to_click/internal/app"
 	"github.com/sirupsen/logrus"
 )
 

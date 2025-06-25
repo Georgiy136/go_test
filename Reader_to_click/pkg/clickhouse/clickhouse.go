@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	click "github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/Georgiy136/go_test/Cron_send_logs/config"
+	"github.com/Georgiy136/go_test/Reader_to_click/config"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/clickhouse"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -16,7 +16,7 @@ import (
 
 type Clickhouse struct {
 	Conn *sql.DB
-	cfg  config.Clickhouse
+	Cfg  config.Clickhouse
 }
 
 func New(cfg config.Clickhouse) (*Clickhouse, error) {
@@ -44,7 +44,7 @@ func New(cfg config.Clickhouse) (*Clickhouse, error) {
 
 	return &Clickhouse{
 		Conn: conn,
-		cfg:  cfg,
+		Cfg:  cfg,
 	}, nil
 }
 
@@ -57,7 +57,7 @@ func (db *Clickhouse) MigrateUpClickhouse() error {
 	// Создание мигратора
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://migrations_clickhouse",
-		db.cfg.Dbname,
+		db.Cfg.Dbname,
 		instance,
 	)
 	if err != nil {

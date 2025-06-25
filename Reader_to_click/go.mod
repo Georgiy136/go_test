@@ -1,4 +1,4 @@
-module github.com/Georgiy136/go_test/Cron_send_logs
+module github.com/Georgiy136/go_test/Reader_to_click
 
 go 1.24.2
 

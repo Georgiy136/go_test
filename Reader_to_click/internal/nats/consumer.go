@@ -2,7 +2,7 @@ package nats
 
 import (
 	"fmt"
-	"github.com/Georgiy136/go_test/Cron_send_logs/pkg/nats"
+	"github.com/Georgiy136/go_test/Reader_to_click/pkg/nats"
 )
 
 type Nats struct {

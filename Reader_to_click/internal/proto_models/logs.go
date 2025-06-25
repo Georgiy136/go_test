@@ -1,4 +1,4 @@
-package models
+package proto_models
 
 import (
 	"time"

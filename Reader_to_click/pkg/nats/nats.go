@@ -2,7 +2,7 @@ package nats
 
 import (
 	"fmt"
-	"github.com/Georgiy136/go_test/Cron_send_logs/config"
+	"github.com/Georgiy136/go_test/Reader_to_click/config"
 	"github.com/sirupsen/logrus"
 
 	"github.com/nats-io/nats.go"
