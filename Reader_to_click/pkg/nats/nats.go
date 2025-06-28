@@ -4,15 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Georgiy136/go_test/Reader_to_click/config"
-	"github.com/sirupsen/logrus"
-	"time"
-
 	"github.com/nats-io/nats.go"
+	"github.com/sirupsen/logrus"
 )
 
 type Nats struct {
-	Js nats.JetStreamContext
-	Nc *nats.Conn
+	Js  nats.JetStreamContext
+	Nc  *nats.Conn
+	Sub *nats.Subscription
 }
 
 func New(cfg config.Nats) (*Nats, error) {
@@ -30,29 +29,24 @@ func New(cfg config.Nats) (*Nats, error) {
 
 	logrus.Info("соединение с NATS успешно установлено")
 
-	subject := cfg.ChannelName
-	consumerName := cfg.ConsumerName
-
-	sub, err := js.PullSubscribe(subject, consumerName)
+	err = createConsumerIfNotExist(js, cfg.ChannelName, cfg.ConsumerName)
 	if err != nil {
-		return nil, fmt.Errorf("[%s]: can not create subscription: %v", subject, err)
+		return nil, fmt.Errorf("[%s]: can not create subscription: %v", cfg.ChannelName, err)
 	}
 
-	msgs, err := sub.Fetch(2, nil)
+	sub, err := js.PullSubscribe(cfg.ChannelName, cfg.ConsumerName)
 	if err != nil {
-		logrus.Errorf("[%s]: error getting msgs on subject: %s, err: %v", subject, err)
-		time.Sleep(time.Second)
-		continue
+		return nil, fmt.Errorf("[%s]: can not create subscription: %v", cfg.ChannelName, err)
 	}
 
 	return &Nats{
-		Js: js,
-		Nc: nc,
+		Js:  js,
+		Nc:  nc,
+		Sub: sub,
 	}, nil
 }
 
-// createConsumerIfNotExist создает консьюмера на натс-сервере
-func createConsumerIfNotExist(js nats.JetStreamContext, streamName, consumerName, subject string) error {
+func createConsumerIfNotExist(js nats.JetStreamContext, streamName, consumerName string) error {
 	_, err := js.ConsumerInfo(streamName, consumerName)
 	switch {
 	case err == nil:
@@ -64,12 +58,12 @@ func createConsumerIfNotExist(js nats.JetStreamContext, streamName, consumerName
 	}
 
 	consumerConfig := nats.ConsumerConfig{
-		Durable:       consumerName,             // durable имя консьюмера
-		Name:          consumerName,             // имя консьюмера (должно быть равно durable)
-		AckPolicy:     nats.AckExplicitPolicy,   // требуется подтверждение на все сообщения
-		MaxDeliver:    -1,                       // отключаем ограничение на количество перепосылок сообщения
-		BackOff:       nil,                      // тоже что и AckWait только позволяет задать промежутки между повтором
-		FilterSubject: subject,                  // subject, на который подписывается консьюмер
+		Durable:    consumerName,           // durable имя консьюмера
+		Name:       consumerName,           // имя консьюмера (должно быть равно durable)
+		AckPolicy:  nats.AckExplicitPolicy, // требуется подтверждение на все сообщения
+		MaxDeliver: -1,                     // отключаем ограничение на количество перепосылок сообщения
+		BackOff:    nil,                    // тоже что и AckWait только позволяет задать промежутки между повтором
+		// FilterSubject: subject,               // subject, на который подписывается консьюмер
 		ReplayPolicy:  nats.ReplayInstantPolicy, // прокачка как можно быстрее, ReplayOriginalPolicy - в оригинальном темпе
 		MaxAckPending: 0,                        // максимальное значение сообщений ожидающих Ack
 		Replicas:      1,                        // количество реплик консьюмера

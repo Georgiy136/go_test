@@ -20,10 +20,11 @@ func NewNats(nats *nats_pkg.Nats) *Nats {
 	}
 }
 
-func (n *Nats) GetData(channelName string) ([]byte, error) {
-	msg, err := n.nats.Js.GetMsg(channelName, 1)
+func (n *Nats) GetLogs() ([]byte, error) {
+	msgs, err := n.nats.Sub.Fetch(2, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error GetData, stream: %w, err: %s", channelName, err)
+		return nil, fmt.Errorf("[%s]: error getting msgs on subject: %s, err: %v", subject, err)
 	}
+
 	return msg.Data, nil
 }
