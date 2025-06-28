@@ -27,7 +27,7 @@ func NewCron(cfg config.Cron, nats *nats_pkg.Nats, clickhouse *clickhouse.Clickh
 func (c *Cron) Start() {
 	for {
 		// Получаем данные из шины
-		msgs, err := c.nats.Sub.Fetch(2)
+		msgs, err := c.nats.Sub.Fetch(10)
 		if err != nil {
 			logrus.Errorf("error getting msgs:  err: %v", err)
 			time.Sleep(time.Duration(c.cfg.TimeSleepOnError) * time.Second)
