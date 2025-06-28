@@ -38,11 +38,14 @@ func (c *Cron) Start() {
 		for _, msg := range msgs {
 			var log models.Log
 			if err = json.Unmarshal(msg.Data, &log); err != nil {
-				logrus.Errorf("error unmarshalling log: %v", err)
+				logrus.Errorf("error unmarshalling log, data: %v, err: %v", msg.Data, err)
 				time.Sleep(time.Duration(c.cfg.TimeSleepOnError) * time.Second)
-				continue
 			}
 			logs = append(logs, log)
+		}
+
+		if err != nil {
+			continue
 		}
 
 		if len(logs) == 0 {
