@@ -34,4 +34,4 @@ COPY --from=builder /app/migrations_clickhouse ./migrations_clickhouse
 CMD ["./main"]
 
 # Открываем порт, на котором будет работать приложение
-EXPOSE 8081
+EXPOSE 8080
