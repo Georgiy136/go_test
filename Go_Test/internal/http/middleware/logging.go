@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-func NewLogger(nats *nats.NatsService, channelName string) *Logger {
-	return &Logger{nats: nats, channelName: channelName}
+func NewLogger(nats *nats.NatsService) *Logger {
+	return &Logger{nats: nats}
 }
 
 type Logger struct {
@@ -63,7 +63,7 @@ func (l *Logger) LoggingMiddleware() gin.HandlerFunc {
 			logrus.Errorf("loggingMiddleware error marshalling log: %v", err)
 		}
 
-		if err = l.nats.SendBatch(l.channelName, logBytes); err != nil {
+		if err = l.nats.SendBatch(logBytes); err != nil {
 			logrus.Errorf("loggingMiddleware error publish log: %v", err)
 		}
 	}

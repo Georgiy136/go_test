@@ -15,10 +15,10 @@ func NewNatsService(nats *nats.Nats) *NatsService {
 	}
 }
 
-func (n *NatsService) SendBatch(channelName string, data []byte) error {
+func (n *NatsService) SendBatch(data []byte) error {
 	if n.nats != nil {
-		if _, err := n.nats.Js.Publish(channelName, data); err != nil {
-			return fmt.Errorf("error publish to stream: %w, name: %s", err, channelName)
+		if _, err := n.nats.Js.Publish(n.nats.Cfg.ChannelName, data); err != nil {
+			return fmt.Errorf("error publish to stream: %w, name: %s", err, n.nats.Cfg.ChannelName)
 		}
 	}
 	return nil

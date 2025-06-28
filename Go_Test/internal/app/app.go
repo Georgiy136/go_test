@@ -34,10 +34,10 @@ func Run(cfg *config.Config) {
 	}
 
 	// очередь Nats для сохранения логов
-	natsLogs := nats_service.NewNatsService(nats)
+	natsService := nats_service.NewNatsService(nats)
 
 	// инициализация сервиса для сохранения логов в очередь
-	logger := middleware.NewLogger(natsLogs, cfg.Nats.ChannelName)
+	logger := middleware.NewLogger(natsService)
 
 	// Накатываем миграции
 	if err = pg.MigrateUpPostgres(); err != nil {
@@ -59,5 +59,7 @@ func Run(cfg *config.Config) {
 
 	http.NewRouter(router, *goodsUseCases)
 
-	router.Run(fmt.Sprintf(":%d", cfg.Http.Port))
+	if err = router.Run(fmt.Sprintf(":%d", cfg.Http.Port)); err != nil {
+		logrus.Fatalf("app - Run - router.Run: %v", err)
+	}
 }
