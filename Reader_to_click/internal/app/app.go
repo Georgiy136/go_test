@@ -17,7 +17,7 @@ func Run(cfg *config.Config) {
 	}
 	natsConn, err := nats_conn.New(cfg.Nats)
 	if err != nil {
-		logrus.Fatalf("app - Run - cron.New: %v", err)
+		logrus.Fatalf("app - Run - nats_conn.New: %v", err)
 	}
 	click := clickhouse_service.NewClickhouse(clickConn)
 
