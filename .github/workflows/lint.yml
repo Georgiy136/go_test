@@ -26,11 +26,26 @@ jobs:
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.1.6
 
+  go_test_lint:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Go_Test golangci-lint
         run: |
           cd Go_Test
           golangci-lint run ./...
-        
+
+  reader_to_click_lint:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Reader_to_click golangci-lint
         run: |
