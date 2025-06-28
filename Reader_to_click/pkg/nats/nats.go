@@ -18,13 +18,13 @@ func New(cfg config.Nats) (*Nats, error) {
 	// Подключение к NATS
 	nc, err := nats.Connect(cfg.URL)
 	if err != nil {
-		return nil, fmt.Errorf("Ошибка подключения к NATS: %v", err)
+		return nil, fmt.Errorf("ошибка подключения к NATS: %v", err)
 	}
 
 	// Создание JetStream контекста
 	js, err := nc.JetStream()
 	if err != nil {
-		return nil, fmt.Errorf("Ошибка создания JetStream контекста: %v", err)
+		return nil, fmt.Errorf("ошибка создания JetStream контекста: %v", err)
 	}
 
 	logrus.Info("соединение с NATS успешно установлено")
