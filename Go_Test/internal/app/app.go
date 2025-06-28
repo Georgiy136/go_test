@@ -30,7 +30,7 @@ func Run(cfg *config.Config) {
 
 	nats, err := nats_conn.New(cfg.Nats)
 	if err != nil {
-		logrus.Errorf("app - Run - nats.New: %v", err)
+		logrus.Errorf("app - Run - cron.New: %v", err)
 	}
 
 	// очередь Nats для сохранения логов

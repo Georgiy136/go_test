@@ -15,5 +15,5 @@ redis:
  port: 6379
 
 nats:
- host: "nats:4222" #localhost
+ host: "cron:4222" #localhost
  channelName: "logs"

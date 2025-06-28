@@ -17,7 +17,7 @@ services:
 
   nats:
     image: nats:latest
-    container_name: nats
+    container_name: cron
     ports:
       - 4222:4222  # Порт для клиента
       - 6222:6222  # Порт для кластеризации

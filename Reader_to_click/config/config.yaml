@@ -1,6 +1,3 @@
-port:
- port: 8081
-
 clickhouse:
  host: "localhost" #localhost
  port: 9000
@@ -9,6 +6,10 @@ clickhouse:
  dbname: "log_buf"
 
 nats:
- host: "nats:4222" #localhost
+ host: "cron:4222" #localhost
  channelName: "logs_to_click"
  consumerName: "logs_to_click_consumer1"
+
+cron:
+ timeSleepOnError: 60
+ timeSleepOnOk: 120

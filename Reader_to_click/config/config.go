@@ -11,7 +11,6 @@ type (
 		Clickhouse
 		Nats
 		Cron
-		Port
 	}
 
 	Clickhouse struct {
@@ -29,11 +28,8 @@ type (
 	}
 
 	Cron struct {
-		SleepPeriod string
-	}
-
-	Port struct {
-		Port int
+		TimeSleepOnError int
+		TimeSleepOnOk    int
 	}
 )
 
