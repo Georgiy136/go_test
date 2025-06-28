@@ -23,8 +23,9 @@ type (
 	}
 
 	Nats struct {
-		URL         string
-		ChannelName string
+		URL          string
+		ChannelName  string
+		ConsumerName string
 	}
 
 	Cron struct {

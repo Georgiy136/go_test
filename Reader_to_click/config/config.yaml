@@ -11,3 +11,4 @@ clickhouse:
 nats:
  host: "nats:4222" #localhost
  channelName: "logs_to_click"
+ consumerName: "logs_to_click_consumer1"

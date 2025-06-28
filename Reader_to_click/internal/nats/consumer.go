@@ -2,14 +2,19 @@ package nats
 
 import (
 	"fmt"
-	"github.com/Georgiy136/go_test/Reader_to_click/pkg/nats"
+	nats_pkg "github.com/Georgiy136/go_test/Reader_to_click/pkg/nats"
+	"github.com/nats-io/nats.go"
 )
 
 type Nats struct {
-	nats *nats.Nats
+	nats *nats_pkg.Nats
 }
 
-func NewNats(nats *nats.Nats) *Nats {
+type subjectHandler struct {
+	sub *nats.Subscription
+}
+
+func NewNats(nats *nats_pkg.Nats) *Nats {
 	return &Nats{
 		nats: nats,
 	}
