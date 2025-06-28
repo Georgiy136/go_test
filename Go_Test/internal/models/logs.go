@@ -5,10 +5,10 @@ import (
 )
 
 type Log struct {
-	Dt           time.Time `clickhouse:"dt" json:"dt"`
-	Api          string    `clickhouse:"api" json:"api"`
-	ServiceName  string    `clickhouse:"service_name" json:"service_name"`
-	Request      string    `clickhouse:"request" json:"request"`
-	Response     string    `clickhouse:"response" json:"response"`
-	ResponseCode int       `clickhouse:"response_code" json:"response_code"`
+	Dt           time.Time `json:"dt"`
+	Api          string    `json:"api"`
+	ServiceName  string    `json:"service_name"`
+	Request      string    `json:"request"`
+	Response     string    `json:"response"`
+	ResponseCode int       `json:"response_code"`
 }

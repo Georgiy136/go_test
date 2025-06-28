@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Georgiy136/go_test/Reader_to_click/config"
-	//"github.com/Georgiy136/go_test/Reader_to_click/internal/proto_models"
+	//"github.com/Georgiy136/go_test/Reader_to_click/internal/models"
 	"github.com/sirupsen/logrus"
 	"time"
 )

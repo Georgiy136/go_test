@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Georgiy136/go_test/Reader_to_click/config"
 	"github.com/Georgiy136/go_test/Reader_to_click/internal/clickhouse"
-	"github.com/Georgiy136/go_test/Reader_to_click/internal/proto_models"
+	"github.com/Georgiy136/go_test/Reader_to_click/internal/models"
 	nats_pkg "github.com/Georgiy136/go_test/Reader_to_click/pkg/nats"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -34,9 +34,9 @@ func (c *Cron) Start() {
 			continue
 		}
 
-		var logs []proto_models.Log
+		var logs []models.Log
 		for _, msg := range msgs {
-			var log proto_models.Log
+			var log models.Log
 			if err = json.Unmarshal(msg.Data, &log); err != nil {
 				logrus.Errorf("error unmarshalling log: %v", err)
 				time.Sleep(time.Duration(c.cfg.TimeSleepOnError) * time.Second)

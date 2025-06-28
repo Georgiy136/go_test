@@ -2,7 +2,7 @@ package clickhouse
 
 import (
 	"fmt"
-	"github.com/Georgiy136/go_test/Reader_to_click/internal/proto_models"
+	"github.com/Georgiy136/go_test/Reader_to_click/internal/models"
 	"github.com/Georgiy136/go_test/Reader_to_click/pkg/clickhouse"
 )
 
@@ -16,7 +16,7 @@ func NewClickhouse(click *clickhouse.Clickhouse) *Clickhouse {
 	}
 }
 
-func (c *Clickhouse) SaveLogsToClick(logs []proto_models.Log) error {
+func (c *Clickhouse) SaveLogsToClick(logs []models.Log) error {
 	const insertDataFormat = "Insert into %s values ($1)"
 
 	if _, err := c.click.Conn.Exec(fmt.Sprintf(insertDataFormat, c.click.Cfg.Dbname), logs); err != nil {
