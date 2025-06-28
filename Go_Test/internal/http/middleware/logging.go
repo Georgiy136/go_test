@@ -16,8 +16,7 @@ func NewLogger(nats *nats.NatsService) *Logger {
 }
 
 type Logger struct {
-	nats        *nats.NatsService
-	channelName string
+	nats *nats.NatsService
 }
 
 type responseWriter struct {
