@@ -17,7 +17,6 @@ var (
 type PgSpec struct {
 	storedProcedure string
 	params          *[]interface{}
-	databaseKey     string
 	useProcedure    bool
 }
 
