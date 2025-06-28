@@ -13,11 +13,11 @@ func Run(cfg *config.Config) {
 	// создаём подключения
 	clickConn, err := clickhouse.New(cfg.Clickhouse)
 	if err != nil {
-		logrus.Errorf("app - Run - clickhouse.New: %v", err)
+		logrus.Fatalf("app - Run - clickhouse.New: %v", err)
 	}
 	natsConn, err := nats_conn.New(cfg.Nats)
 	if err != nil {
-		logrus.Errorf("app - Run - cron.New: %v", err)
+		logrus.Fatalf("app - Run - cron.New: %v", err)
 	}
 	click := clickhouse_service.NewClickhouse(clickConn)
 
