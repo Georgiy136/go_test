@@ -25,9 +25,9 @@ services:
     environment:
     - REDIS_REPLICATION_MODE=master
 
-  clickhouse:
+  click:
     image: yandex/clickhouse-server:latest
-    container_name: clickhouse
+    container_name: click
     ports:
       - 8123:8123  # HTTP интерфейс
       - 9000:9000  # TCP интерфейс
@@ -40,7 +40,7 @@ services:
 
   nats:
     image: nats:latest
-    container_name: cron
+    container_name: nats
     ports:
       - 4222:4222  # Порт для клиента
       - 6222:6222  # Порт для кластеризации
@@ -56,7 +56,7 @@ services:
     build: ./
     depends_on:
       - postgres
-      - clickhouse
+      - click
       - redis
       - nats
     ports:
