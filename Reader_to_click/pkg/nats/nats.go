@@ -34,7 +34,7 @@ func New(cfg config.Nats) (*Nats, error) {
 		return nil, fmt.Errorf("[%s]: can not create subscription: %v", cfg.ChannelName, err)
 	}
 
-	sub, err := js.PullSubscribe(cfg.ChannelName, cfg.ConsumerName)
+	sub, err := js.PullSubscribe(cfg.ChannelName, cfg.ConsumerName, nats.ManualAck())
 	if err != nil {
 		return nil, fmt.Errorf("[%s]: can not create subscription: %v", cfg.ChannelName, err)
 	}
