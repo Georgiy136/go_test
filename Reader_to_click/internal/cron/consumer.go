@@ -29,7 +29,7 @@ func (c *Cron) Start() {
 		// Получаем данные из шины
 		msgs, err := c.nats.Sub.Fetch(10)
 		if err != nil {
-			logrus.Errorf("error getting msgs:  err: %v", err)
+			logrus.Errorf("error getting msgs, err: %v", err)
 			time.Sleep(time.Duration(c.cfg.TimeSleepOnError) * time.Second)
 			continue
 		}
@@ -57,7 +57,7 @@ func (c *Cron) Start() {
 
 		for i := range msgs {
 			if err = msgs[i].Ack(); err != nil {
-				logrus.Errorf("can not ack msgs: %м", err)
+				logrus.Errorf("can not ack msgs: %v", err)
 			}
 		}
 
