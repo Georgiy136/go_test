@@ -2,9 +2,9 @@ version: "3.8"
 
 services:
 
-  clickhouse:
+  click:
     image: yandex/clickhouse-server:latest
-    container_name: clickhouse
+    container_name: click
     ports:
       - 8123:8123  # HTTP интерфейс
       - 9000:9000  # TCP интерфейс
@@ -17,7 +17,7 @@ services:
 
   nats:
     image: nats:latest
-    container_name: cron
+    container_name: nats
     ports:
       - 4222:4222  # Порт для клиента
       - 6222:6222  # Порт для кластеризации
@@ -32,10 +32,10 @@ services:
   web:
     build: ./
     depends_on:
-      - clickhouse
+      - click
       - nats
     ports:
-      - 8080:8080
+      - 8081:8081
 volumes:
   clickhouse_data:
   nats_data:

@@ -1,12 +1,12 @@
 clickhouse:
- host: "localhost" #localhost
- port: 9000
+ host: "click" #localhost #click
+ port: 8123
  user: "user"
  password: "password"
- dbname: "log_buf"
+ dbname: "direct_log"
 
 nats:
- host: "cron:4222" #localhost
+ url: "nats:4222" #localhost #nats
  channelName: "logs_to_click"
  consumerName: "logs_to_click_consumer1"
 
