@@ -8,17 +8,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Service struct {
+type SendLogsToClick struct {
 	click *clickhouse.Clickhouse
 }
 
-func NewService(click *clickhouse.Clickhouse) *Service {
-	return &Service{
+func NewSendLogsToClick(click *clickhouse.Clickhouse) *SendLogsToClick {
+	return &SendLogsToClick{
 		click: click,
 	}
 }
 
-func (s *Service) Run(data [][]byte) error {
+func (s *SendLogsToClick) Run(data [][]byte) error {
 	var (
 		logs []models.Log
 		err  error
@@ -42,7 +42,7 @@ func (s *Service) Run(data [][]byte) error {
 	return nil
 }
 
-func (s *Service) SaveLogsToClick(logs []models.Log) error {
+func (s *SendLogsToClick) SaveLogsToClick(logs []models.Log) error {
 	const insertDataFormat = "Insert into %s values ($1)"
 
 	if _, err := s.click.Conn.Exec(fmt.Sprintf(insertDataFormat, s.click.Cfg.Dbname), logs); err != nil {

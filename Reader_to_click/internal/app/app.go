@@ -21,12 +21,12 @@ func Run(cfg *config.Config) {
 	}
 
 	// инициализация сервисов
-	service := service.NewService(clickConn)
+	sendLogsToClick := service.NewSendLogsToClick(clickConn)
 
 	readerService := reader.NewReaderService(cfg.Cron, natsConn)
 	readerService.Configure(
 		map[string]reader.HandleFunc{
-			"reader_to_click": service,
+			"reader_to_click": sendLogsToClick,
 		},
 	)
 

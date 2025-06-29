@@ -35,9 +35,10 @@ func (r *Reader) Start() {
 }
 
 func (r *Reader) Work(handleName string, handleFunc HandleFunc) {
+	const batchSize = 10
 	for {
 		// Получаем данные из шины
-		msgs, err := r.nats.Sub.Fetch(10)
+		msgs, err := r.nats.Sub.Fetch(batchSize)
 		if err != nil {
 			logrus.Errorf("[%s] error getting msgs, err: %v", handleName, err)
 			time.Sleep(time.Duration(r.cfg.TimeSleepOnError) * time.Second)
