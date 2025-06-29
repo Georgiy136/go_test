@@ -23,8 +23,13 @@ func Run(cfg *config.Config) {
 	// инициализация сервисов
 	service := service.NewService(clickConn)
 
-	reader := reader.NewReader(cfg.Cron, natsConn, service)
+	readerService := reader.NewReaderService(cfg.Cron, natsConn)
+	readerService.Configure(
+		map[string]reader.HandleFunc{
+			"reader_to_click": service,
+		},
+	)
 
 	// Запуск
-	reader.Start()
+	readerService.Start()
 }

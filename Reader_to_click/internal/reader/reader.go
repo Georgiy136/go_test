@@ -8,30 +8,39 @@ import (
 )
 
 type Reader struct {
-	cfg        config.Cron
-	nats       *nats_pkg.Nats
-	handleFunc handleFunc
+	cfg    config.Cron
+	nats   *nats_pkg.Nats
+	handle map[string]HandleFunc
 }
 
-type handleFunc interface {
+type HandleFunc interface {
 	Run(data [][]byte) error
 }
 
-func NewReader(cfg config.Cron, nats *nats_pkg.Nats, handleFunc handleFunc) *Reader {
+func NewReaderService(cfg config.Cron, nats *nats_pkg.Nats) *Reader {
 	return &Reader{
-		cfg:        cfg,
-		nats:       nats,
-		handleFunc: handleFunc,
+		cfg:  cfg,
+		nats: nats,
 	}
 }
 
-func (c *Reader) Start() {
+func (r *Reader) Configure(handle map[string]HandleFunc) {
+	r.handle = handle
+}
+
+func (r *Reader) Start() {
+	for name, handler := range r.handle {
+		r.Work(name, handler)
+	}
+}
+
+func (r *Reader) Work(handleName string, handleFunc HandleFunc) {
 	for {
 		// Получаем данные из шины
-		msgs, err := c.nats.Sub.Fetch(10)
+		msgs, err := r.nats.Sub.Fetch(10)
 		if err != nil {
-			logrus.Errorf("error getting msgs, err: %v", err)
-			time.Sleep(time.Duration(c.cfg.TimeSleepOnError) * time.Second)
+			logrus.Errorf("[%s] error getting msgs, err: %v", handleName, err)
+			time.Sleep(time.Duration(r.cfg.TimeSleepOnError) * time.Second)
 			continue
 		}
 
@@ -40,17 +49,17 @@ func (c *Reader) Start() {
 			data = append(data, msg.Data)
 		}
 
-		if err = c.handleFunc.Run(data); err != nil {
-			logrus.Errorf("error handling msgs, err: %v", err)
-			time.Sleep(time.Duration(c.cfg.TimeSleepOnError) * time.Second)
+		if err = handleFunc.Run(data); err != nil {
+			logrus.Errorf("[%s] error handling msgs, err: %v", handleName, err)
+			time.Sleep(time.Duration(r.cfg.TimeSleepOnError) * time.Second)
 		}
 
 		for i := range msgs {
 			if err = msgs[i].Ack(); err != nil {
-				logrus.Errorf("can not ack msgs: %v", err)
+				logrus.Errorf("[%s] can not ack msgs: %v", handleName, err)
 			}
 		}
 
-		time.Sleep(time.Duration(c.cfg.TimeSleepOnOk) * time.Second)
+		time.Sleep(time.Duration(r.cfg.TimeSleepOnOk) * time.Second)
 	}
 }
