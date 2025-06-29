@@ -28,8 +28,8 @@ type (
 	}
 
 	Reader struct {
-		NatsUrl  string
-		Handlers map[string]ReaderStreamConf
+		NatsUrl    string
+		StreamConf map[string]ReaderStreamConf
 	}
 
 	ReaderStreamConf struct {

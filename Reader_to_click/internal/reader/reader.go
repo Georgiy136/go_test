@@ -31,7 +31,12 @@ func (r *Reader) Configure(handle map[string]HandleFunc) {
 
 func (r *Reader) Start() {
 	for name, handler := range r.handle {
-		r.Work(name, handler, r.cfg.Handlers[name])
+		streamConf, ok := r.cfg.StreamConf[name]
+		if !ok {
+			logrus.Debugf("conf for handler '%s' not found", name)
+			continue
+		}
+		r.Work(name, handler, streamConf)
 	}
 }
 
