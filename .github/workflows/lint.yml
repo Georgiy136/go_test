@@ -28,7 +28,7 @@ jobs:
 
       - name: web_service golangci-lint
         run: |
-          cd Go_Test
+          cd web_service
           golangci-lint run ./...
 
   reader_to_click_lint:
