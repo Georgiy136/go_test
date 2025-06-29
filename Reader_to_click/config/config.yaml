@@ -1,14 +1,15 @@
 clickhouse:
- host: "click" #localhost #click
+ host: "localhost" #localhost #click
  port: 9000
  user: "user"
  password: "password"
  dbname: "direct_log"
 
 reader:
-  natsUrl: "nats:4222" #localhost #nats
-  reader_to_click: {
-    channelName: "logs_to_click",
-    consumerName: "logs_to_click_consumer1",
-    batchSize: 10
-  }
+  natsUrl: "localhost:4222" #localhost #nats
+  streams:
+    reader_to_click: {
+      channelName: "logs_to_click",
+      consumerName: "logs_to_click_consumer1",
+      batchSize: 10
+    }

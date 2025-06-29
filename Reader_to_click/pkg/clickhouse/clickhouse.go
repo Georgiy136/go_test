@@ -37,7 +37,7 @@ func New(cfg config.Clickhouse) (*Clickhouse, error) {
 		},
 	})
 	if err := conn.Ping(); err != nil {
-		return nil, fmt.Errorf("New - clickhouse Ping failed: %w", err)
+		return nil, fmt.Errorf("clickhouse Ping failed: %w", err)
 	}
 
 	logrus.Infof("соединение с базой данных clickhouse успешно установлено")

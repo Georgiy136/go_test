@@ -6,9 +6,18 @@ import (
 	"github.com/Georgiy136/go_test/Reader_to_click/internal/service"
 	"github.com/Georgiy136/go_test/Reader_to_click/pkg/clickhouse"
 	"github.com/sirupsen/logrus"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func Run(cfg *config.Config) {
+	// Создаем канал для получения сигналов
+	signalChan := make(chan os.Signal, 1)
+
+	// Указываем, что мы хотим получать сигнал SIGINT и SIGTERM
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+
 	// создаём подключения
 	clickConn, err := clickhouse.New(cfg.Clickhouse)
 	if err != nil {
@@ -18,7 +27,6 @@ func Run(cfg *config.Config) {
 	// инициализация сервисов
 	sendLogsToClick := service.NewSendLogsToClick(clickConn)
 
-	// инициализация reader-ов
 	readerService := reader.NewReaderService(cfg.Reader)
 	readerService.Configure(
 		map[string]reader.HandleFunc{
@@ -28,4 +36,6 @@ func Run(cfg *config.Config) {
 
 	// Запуск
 	readerService.Start()
+
+	<-signalChan
 }

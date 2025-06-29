@@ -28,11 +28,11 @@ type (
 	}
 
 	Reader struct {
-		NatsUrl    string
-		StreamConf map[string]ReaderStreamConf
+		NatsUrl string
+		Streams map[string]StreamConf
 	}
 
-	ReaderStreamConf struct {
+	StreamConf struct {
 		ChannelName  string
 		ConsumerName string
 		BatchSize    int

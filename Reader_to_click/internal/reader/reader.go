@@ -20,6 +20,7 @@ type HandleFunc interface {
 }
 
 func NewReaderService(cfg config.Reader) *Reader {
+	logrus.Infof("NewReaderService cfg - %+v", cfg)
 	return &Reader{
 		cfg: cfg,
 	}
@@ -31,12 +32,12 @@ func (r *Reader) Configure(handle map[string]HandleFunc) {
 
 func (r *Reader) Start() {
 	for name, handler := range r.handle {
-		streamConf, ok := r.cfg.StreamConf[name]
+		streamConf, ok := r.cfg.Streams[name]
 		if !ok {
-			logrus.Debugf("conf for handler '%s' not found", name)
+			logrus.Errorf("configs for handler '%s' not found", name)
 			continue
 		}
-		r.Work(name, handler, streamConf)
+		go r.Work(name, handler, streamConf)
 	}
 }
 
@@ -45,7 +46,7 @@ const (
 	timeSleepOnOk    = 60 * time.Second
 )
 
-func (r *Reader) Work(handleName string, handleFunc HandleFunc, readerCfg config.ReaderStreamConf) {
+func (r *Reader) Work(handleName string, handleFunc HandleFunc, streamCfg config.StreamConf) {
 	// подключаем к Nats
 	natsConn, err := nats_conn.New(r.cfg.NatsUrl)
 	if err != nil {
@@ -53,13 +54,13 @@ func (r *Reader) Work(handleName string, handleFunc HandleFunc, readerCfg config
 		time.Sleep(timeSleepOnError)
 	}
 
-	err = createConsumerIfNotExist(natsConn.Js, readerCfg.ChannelName, readerCfg.ConsumerName)
+	err = createConsumerIfNotExist(natsConn.Js, streamCfg.ChannelName, streamCfg.ConsumerName)
 	if err != nil {
 		logrus.Errorf("[%s]: can not create subscription: %v", handleName, err)
 		time.Sleep(timeSleepOnError)
 	}
 
-	sub, err := natsConn.Js.PullSubscribe(readerCfg.ChannelName, readerCfg.ConsumerName, nats.ManualAck())
+	sub, err := natsConn.Js.PullSubscribe(streamCfg.ChannelName, streamCfg.ConsumerName, nats.ManualAck())
 	if err != nil {
 		logrus.Errorf("[%s]: can not create subscription: %v", handleName, err)
 		time.Sleep(timeSleepOnError)
@@ -67,7 +68,7 @@ func (r *Reader) Work(handleName string, handleFunc HandleFunc, readerCfg config
 
 	for {
 		// Получаем данные из шины
-		msgs, err := sub.Fetch(readerCfg.BatchSize)
+		msgs, err := sub.Fetch(streamCfg.BatchSize)
 		if err != nil {
 			logrus.Errorf("[%s] error getting msgs, err: %v", handleName, err)
 			time.Sleep(timeSleepOnError)
