@@ -2,8 +2,8 @@ package app
 
 import (
 	"github.com/Georgiy136/go_test/Reader_to_click/config"
-	clickhouse_service "github.com/Georgiy136/go_test/Reader_to_click/internal/clickhouse"
-	"github.com/Georgiy136/go_test/Reader_to_click/internal/cron"
+	"github.com/Georgiy136/go_test/Reader_to_click/internal/reader"
+	"github.com/Georgiy136/go_test/Reader_to_click/internal/service"
 	"github.com/Georgiy136/go_test/Reader_to_click/pkg/clickhouse"
 	nats_conn "github.com/Georgiy136/go_test/Reader_to_click/pkg/nats"
 	"github.com/sirupsen/logrus"
@@ -19,11 +19,12 @@ func Run(cfg *config.Config) {
 	if err != nil {
 		logrus.Fatalf("app - Run - nats_conn.New: %v", err)
 	}
-	click := clickhouse_service.NewClickhouse(clickConn)
 
 	// инициализация сервисов
-	cron := cron.NewCron(cfg.Cron, natsConn, click)
+	service := service.NewService(clickConn)
 
-	// Запуск сервисов
-	cron.Start()
+	reader := reader.NewReader(cfg.Cron, natsConn, service)
+
+	// Запуск
+	reader.Start()
 }
