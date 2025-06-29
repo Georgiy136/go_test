@@ -61,7 +61,7 @@ services:
       - 8081:8081
 
   go_test:
-    build: ../Go_Test
+    build: ../web_service
     depends_on:
       - postgres
       - redis

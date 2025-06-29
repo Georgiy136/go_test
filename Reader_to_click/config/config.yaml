@@ -7,9 +7,11 @@ clickhouse:
 
 nats:
  url: "nats:4222" #localhost #nats
- channelName: "logs_to_click"
- consumerName: "logs_to_click_consumer1"
 
-cron:
- timeSleepOnError: 60
- timeSleepOnOk: 120
+reader:
+  reader_to_click: {
+    channelName: "logs_to_click",
+    consumerName: "logs_to_click_consumer1",
+    timeSleepOnError: 60,
+    timeSleepOnOk: 120,
+  }
