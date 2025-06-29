@@ -11,18 +11,17 @@ import (
 )
 
 type Reader struct {
-	handle map[string]HandleFunc
-	cfg    config.Reader
+	handle    map[string]HandleFunc
+	readerCfg config.Reader
 }
 
 type HandleFunc interface {
 	Run(data [][]byte) error
 }
 
-func NewReaderService(cfg config.Reader) *Reader {
-	logrus.Infof("NewReaderService cfg - %+v", cfg)
+func NewReaderService(readerCfg config.Reader) *Reader {
 	return &Reader{
-		cfg: cfg,
+		readerCfg: readerCfg,
 	}
 }
 
@@ -32,7 +31,7 @@ func (r *Reader) Configure(handle map[string]HandleFunc) {
 
 func (r *Reader) Start() {
 	for name, handler := range r.handle {
-		streamConf, ok := r.cfg.Streams[name]
+		streamConf, ok := r.readerCfg.Streams[name]
 		if !ok {
 			logrus.Errorf("configs for handler '%s' not found", name)
 			continue
@@ -48,7 +47,7 @@ const (
 
 func (r *Reader) Work(handleName string, handleFunc HandleFunc, streamCfg config.StreamConf) {
 	// подключаем к Nats
-	natsConn, err := nats_conn.New(r.cfg.NatsUrl)
+	natsConn, err := nats_conn.New(r.readerCfg.NatsUrl)
 	if err != nil {
 		logrus.Errorf("[%s]: nats_conn.New error: %v", handleName, err)
 		time.Sleep(timeSleepOnError)
