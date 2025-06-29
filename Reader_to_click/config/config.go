@@ -10,7 +10,7 @@ type (
 	Config struct {
 		Clickhouse
 		Nats
-		Cron
+		Reader
 	}
 
 	Clickhouse struct {
@@ -27,9 +27,15 @@ type (
 		ConsumerName string
 	}
 
-	Cron struct {
-		TimeSleepOnError int
-		TimeSleepOnOk    int
+	Reader struct {
+		NatsUrl  string
+		Handlers map[string]ReaderStreamConf
+	}
+
+	ReaderStreamConf struct {
+		ChannelName  string
+		ConsumerName string
+		BatchSize    int
 	}
 )
 

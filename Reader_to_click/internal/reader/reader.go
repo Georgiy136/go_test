@@ -1,26 +1,27 @@
 package reader
 
 import (
+	"errors"
+	"fmt"
 	"github.com/Georgiy136/go_test/Reader_to_click/config"
-	nats_pkg "github.com/Georgiy136/go_test/Reader_to_click/pkg/nats"
+	nats_conn "github.com/Georgiy136/go_test/Reader_to_click/pkg/nats"
+	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"time"
 )
 
 type Reader struct {
-	cfg    config.Cron
-	nats   *nats_pkg.Nats
 	handle map[string]HandleFunc
+	cfg    config.Reader
 }
 
 type HandleFunc interface {
 	Run(data [][]byte) error
 }
 
-func NewReaderService(cfg config.Cron, nats *nats_pkg.Nats) *Reader {
+func NewReaderService(cfg config.Reader) *Reader {
 	return &Reader{
-		cfg:  cfg,
-		nats: nats,
+		cfg: cfg,
 	}
 }
 
@@ -30,18 +31,41 @@ func (r *Reader) Configure(handle map[string]HandleFunc) {
 
 func (r *Reader) Start() {
 	for name, handler := range r.handle {
-		r.Work(name, handler)
+		r.Work(name, handler, r.cfg.Handlers[name])
 	}
 }
 
-func (r *Reader) Work(handleName string, handleFunc HandleFunc) {
-	const batchSize = 10
+const (
+	timeSleepOnError = 120 * time.Second
+	timeSleepOnOk    = 60 * time.Second
+)
+
+func (r *Reader) Work(handleName string, handleFunc HandleFunc, readerCfg config.ReaderStreamConf) {
+	// подключаем к Nats
+	natsConn, err := nats_conn.New(r.cfg.NatsUrl)
+	if err != nil {
+		logrus.Errorf("[%s]: nats_conn.New error: %v", handleName, err)
+		time.Sleep(timeSleepOnError)
+	}
+
+	err = createConsumerIfNotExist(natsConn.Js, readerCfg.ChannelName, readerCfg.ConsumerName)
+	if err != nil {
+		logrus.Errorf("[%s]: can not create subscription: %v", handleName, err)
+		time.Sleep(timeSleepOnError)
+	}
+
+	sub, err := natsConn.Js.PullSubscribe(readerCfg.ChannelName, readerCfg.ConsumerName, nats.ManualAck())
+	if err != nil {
+		logrus.Errorf("[%s]: can not create subscription: %v", handleName, err)
+		time.Sleep(timeSleepOnError)
+	}
+
 	for {
 		// Получаем данные из шины
-		msgs, err := r.nats.Sub.Fetch(batchSize)
+		msgs, err := sub.Fetch(readerCfg.BatchSize)
 		if err != nil {
 			logrus.Errorf("[%s] error getting msgs, err: %v", handleName, err)
-			time.Sleep(time.Duration(r.cfg.TimeSleepOnError) * time.Second)
+			time.Sleep(timeSleepOnError)
 			continue
 		}
 
@@ -52,7 +76,7 @@ func (r *Reader) Work(handleName string, handleFunc HandleFunc) {
 
 		if err = handleFunc.Run(data); err != nil {
 			logrus.Errorf("[%s] error handling msgs, err: %v", handleName, err)
-			time.Sleep(time.Duration(r.cfg.TimeSleepOnError) * time.Second)
+			time.Sleep(timeSleepOnError)
 		}
 
 		for i := range msgs {
@@ -61,6 +85,38 @@ func (r *Reader) Work(handleName string, handleFunc HandleFunc) {
 			}
 		}
 
-		time.Sleep(time.Duration(r.cfg.TimeSleepOnOk) * time.Second)
+		time.Sleep(timeSleepOnOk)
 	}
+}
+
+func createConsumerIfNotExist(js nats.JetStreamContext, streamName, consumerName string) error {
+	_, err := js.ConsumerInfo(streamName, consumerName)
+	switch {
+	case err == nil:
+		return nil
+	case errors.Is(err, nats.ErrConsumerNotFound):
+		break
+	default:
+		return fmt.Errorf("can not get consumer info: %w", err)
+	}
+
+	consumerConfig := nats.ConsumerConfig{
+		Durable:    consumerName,           // durable имя консьюмера
+		Name:       consumerName,           // имя консьюмера (должно быть равно durable)
+		AckPolicy:  nats.AckExplicitPolicy, // требуется подтверждение на все сообщения
+		MaxDeliver: -1,                     // отключаем ограничение на количество перепосылок сообщения
+		BackOff:    nil,                    // тоже что и AckWait только позволяет задать промежутки между повтором
+		// FilterSubject: subject,               // subject, на который подписывается консьюмер
+		ReplayPolicy:  nats.ReplayInstantPolicy, // прокачка как можно быстрее, ReplayOriginalPolicy - в оригинальном темпе
+		MaxAckPending: 0,                        // максимальное значение сообщений ожидающих Ack
+		Replicas:      1,                        // количество реплик консьюмера
+		MemoryStorage: false,                    // заставляет сервер хранить состояние косьюмера в ОЗУ
+	}
+
+	_, err = js.AddConsumer(streamName, &consumerConfig)
+	if err != nil {
+		return fmt.Errorf("error creating consumer, stream: %s, consumer: %s, err: %w", streamName, consumerName, err)
+	}
+
+	return nil
 }
