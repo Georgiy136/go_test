@@ -3,10 +3,10 @@ http:
 
 postgres:
  host: "postgres" #localhost postgres
- port: 5432
+ port: 5434
  user: "postgres"
  password: "4650"
- dbname: "postgres"
+ dbname: "default"
  sslmode: "disable"
 
 redis:
