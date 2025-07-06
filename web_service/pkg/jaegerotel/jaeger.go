@@ -41,7 +41,7 @@ func NewJaegerTracerProvider(url string, options ...JaegerTracerProviderOption) 
 }
 
 func GetTracer() trace.Tracer {
-	return otel.Tracer("aster-bridge-event-parser")
+	return otel.Tracer("test-web-service")
 }
 
 func StartNewSpan(name string) (context.Context, trace.Span) {
