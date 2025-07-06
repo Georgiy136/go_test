@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Georgiy136/go_test/web_service/config"
+	"github.com/Georgiy136/go_test/web_service/pkg/jaegerotel"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -22,14 +23,17 @@ type Postgres struct {
 
 const connFormat = "host=%s port=%d user=%s password=%s dbname=%s sslmode=%s"
 
-func NewPostgres(cfg config.Postgres) (*Postgres, error) {
+func NewPostgres(tctx context.Context, cfg config.Postgres) (*Postgres, error) {
+	_, span := jaegerotel.StartSpan(tctx, "Postgres - connect")
+	defer span.End()
+
 	pgconn, err := pgx.Connect(context.Background(), fmt.Sprintf(connFormat, cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Dbname, cfg.Sslmode))
 	if err != nil {
-		logrus.Fatalf("unable to connect to database: %v\n", err)
+		return nil, fmt.Errorf("unable to connect to database: %v", err)
 	}
 
 	if _, err = pgconn.Exec(context.Background(), "select 1"); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ping database error: %v", err)
 	}
 
 	logrus.Infof("соединение с базой данных postgres успешно установлено")

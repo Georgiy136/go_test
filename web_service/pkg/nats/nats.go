@@ -1,9 +1,11 @@
 package nats
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/Georgiy136/go_test/web_service/config"
+	"github.com/Georgiy136/go_test/web_service/pkg/jaegerotel"
 	"github.com/sirupsen/logrus"
 
 	"github.com/nats-io/nats.go"
@@ -15,7 +17,10 @@ type Nats struct {
 	Cfg config.Nats
 }
 
-func New(cfg config.Nats) (*Nats, error) {
+func New(tctx context.Context, cfg config.Nats) (*Nats, error) {
+	_, span := jaegerotel.StartSpan(tctx, "Nats - connect")
+	defer span.End()
+
 	// Подключение к NATS
 	nc, err := nats.Connect(cfg.URL)
 	if err != nil {

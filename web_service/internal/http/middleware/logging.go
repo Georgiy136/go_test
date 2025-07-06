@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"github.com/Georgiy136/go_test/web_service/internal/models"
 	"github.com/Georgiy136/go_test/web_service/internal/nats"
@@ -11,7 +12,7 @@ import (
 	"time"
 )
 
-func NewLogger(nats *nats.NatsService) *Logger {
+func NewLogger(tctx context.Context, nats *nats.NatsService) *Logger {
 	return &Logger{nats: nats}
 }
 
