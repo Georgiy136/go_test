@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github.com/Georgiy136/go_test/web_service/internal/models"
+	"github.com/Georgiy136/go_test/auth_service/internal/models"
 )
 
 type AuthService struct {

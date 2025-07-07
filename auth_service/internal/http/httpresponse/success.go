@@ -1,7 +1,7 @@
 package httpresponse
 
 import (
-	"github.com/Georgiy136/go_test/web_service/internal/http/httpresponse/response"
+	"github.com/Georgiy136/go_test/auth_service/internal/http/httpresponse/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

@@ -1,6 +1,6 @@
 package response
 
-import "github.com/Georgiy136/go_test/web_service/internal/errors/common"
+import "github.com/Georgiy136/go_test/auth_service/internal/errors/common"
 
 type (
 	SuccessData struct {

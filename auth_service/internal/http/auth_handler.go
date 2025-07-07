@@ -1,9 +1,9 @@
 package http
 
 import (
-	"github.com/Georgiy136/go_test/web_service/internal/http/httpresponse"
-	"github.com/Georgiy136/go_test/web_service/internal/models"
-	"github.com/Georgiy136/go_test/web_service/internal/usecase"
+	"github.com/Georgiy136/go_test/auth_service/internal/http/httpresponse"
+	"github.com/Georgiy136/go_test/auth_service/internal/models"
+	"github.com/Georgiy136/go_test/auth_service/internal/usecase"
 	"net/http"
 	"time"
 

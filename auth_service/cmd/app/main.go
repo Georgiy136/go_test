@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Georgiy136/go_test/web_service/config"
-	"github.com/Georgiy136/go_test/web_service/internal/app"
+	"github.com/Georgiy136/go_test/auth_service/config"
+	"github.com/Georgiy136/go_test/auth_service/internal/app"
 	"github.com/sirupsen/logrus"
 )
 

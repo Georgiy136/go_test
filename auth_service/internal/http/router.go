@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/Georgiy136/go_test/web_service/internal/usecase"
+	"github.com/Georgiy136/go_test/auth_service/internal/usecase"
 )
 
 func NewRouter(router *gin.Engine, os usecase.GoodsUseCases) {

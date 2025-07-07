@@ -2,8 +2,8 @@ package postgres
 
 import (
 	"context"
-	"github.com/Georgiy136/go_test/web_service/internal/errors/common"
-	"github.com/Georgiy136/go_test/web_service/pkg/postgres"
+	"github.com/Georgiy136/go_test/auth_service/internal/errors/common"
+	"github.com/Georgiy136/go_test/auth_service/pkg/postgres"
 	"github.com/go-faster/errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
