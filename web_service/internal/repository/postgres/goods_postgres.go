@@ -3,10 +3,10 @@ package postgres
 import (
 	"context"
 	"fmt"
-	postgre_utils "github.com/Georgiy136/go_test/utils"
 	"github.com/Georgiy136/go_test/web_service/internal/errors/common"
 	"github.com/Georgiy136/go_test/web_service/internal/models"
 	"github.com/Georgiy136/go_test/web_service/internal/usecase"
+	"github.com/Georgiy136/go_test/web_service/pkg/postgres"
 	"github.com/jackc/pgx/v5"
 	jsoniter "github.com/json-iterator/go"
 	"strings"
@@ -35,7 +35,7 @@ func (db *GoodsRepo) CreateGoods(ctx context.Context, data models.DataFromReques
 	pg.SetParams(dataJson)
 	pg.SetUseFunction()
 
-	dbData, err := GetDataFromDBAndUnmarshal[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
+	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (db *GoodsRepo) UpdateGoods(ctx context.Context, data models.DataFromReques
 	pg.SetParams(dataJson)
 	pg.SetUseFunction()
 
-	dbData, err := GetDataFromDBAndUnmarshal[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
+	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		if strings.Contains(err.Error(), common.GoodsNotFoundDbError) {
 			return nil, &common.CustomError{Description: err.Error(), Err: &common.NotFoundError}
@@ -80,7 +80,7 @@ func (db *GoodsRepo) DeleteGoods(ctx context.Context, data models.DataFromReques
 	pg.SetParams(dataJson)
 	pg.SetUseFunction()
 
-	dbData, err := GetDataFromDBAndUnmarshal[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
+	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		if strings.Contains(err.Error(), common.GoodsNotFoundDbError) {
 			return nil, &common.CustomError{Description: err.Error(), Err: &common.NotFoundError}
@@ -99,7 +99,7 @@ func (db *GoodsRepo) ListGoods(ctx context.Context, data models.DataFromRequestG
 	pg.SetParams(data.GoodsID, data.ProjectID, data.Limit, data.Offset)
 	pg.SetUseFunction()
 
-	dbData, err := GetDataFromDBAndUnmarshal[models.GoodsListDBResponse](ctx, db.pgconn, pg)
+	dbData, err := GetDataFromDB[models.GoodsListDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (db *GoodsRepo) ReprioritizeGood(ctx context.Context, data models.DataFromR
 	pg.SetParams(dataJson)
 	pg.SetUseFunction()
 
-	dbData, err := GetDataFromDBAndUnmarshal[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
+	dbData, err := GetDataFromDB[models.GoodsUpdDBResponse](ctx, db.pgconn, pg)
 	if err != nil {
 		if strings.Contains(err.Error(), common.GoodsNotFoundDbError) {
 			return nil, &common.CustomError{Description: err.Error(), Err: &common.NotFoundError}
