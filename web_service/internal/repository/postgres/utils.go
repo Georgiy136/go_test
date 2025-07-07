@@ -31,7 +31,7 @@ func handleDBError(err error) error {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		if pgErr.Code == defaultExceptionErrorCode {
-			return &common.CustomError{Description: pgErr.Message, Err: &common.ServiceUnprocessableEntity}
+			return &common.CustomError{Description: pgErr.Message, Err: &common.ServiceUnprocessableEntity} // если ошибка вызвана намеренно, присваиваем 422 статус код
 		}
 		return err
 	}
