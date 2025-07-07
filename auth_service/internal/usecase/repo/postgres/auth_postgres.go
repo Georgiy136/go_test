@@ -16,7 +16,7 @@ type AuthRepo struct {
 	pgconn *pgx.Conn
 }
 
-func NewGoodsRepo(pg *postgres.Postgres) usecase.AuthStrore {
+func NewAuthRepo(pg *postgres.Postgres) usecase.AuthStrore {
 	return &AuthRepo{
 		pgconn: pg.Pgconn,
 	}
