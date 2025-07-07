@@ -24,17 +24,17 @@ func Run(cfg *config.Config) {
 	}
 
 	// repo
-	goodsRepository := db.NewAuthRepo(pg)
+	authRepo := db.NewAuthRepo(pg)
 
-	// Use case
-	goodsUseCases := usecase.NewAuthService(goodsRepository)
+	// Service
+	authService := usecase.NewAuthService(authRepo)
 
 	// HTTP Server
 	router := gin.Default()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	http.NewRouter(router, *goodsUseCases)
+	http.NewRouter(router, *authService)
 
 	if err = router.Run(fmt.Sprintf(":%d", cfg.Http.Port)); err != nil {
 		logrus.Fatalf("app - Run - router.Run: %v", err)

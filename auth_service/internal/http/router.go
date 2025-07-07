@@ -6,8 +6,8 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/usecase"
 )
 
-func NewRouter(router *gin.Engine, os usecase.GoodsUseCases) {
-	goodsHandlers := &GoodsHandler{
+func NewRouter(router *gin.Engine, os usecase.AuthService) {
+	authHandlers := &GoodsHandler{
 		us: os,
 	}
 
@@ -16,14 +16,14 @@ func NewRouter(router *gin.Engine, os usecase.GoodsUseCases) {
 	{
 		goods := api.Group("/goods")
 		{
-			goods.GET("/list", goodsHandlers.ListGoods)
+			goods.GET("/list", authHandlers.ListGoods)
 		}
 		good := api.Group("/good")
 		{
-			good.POST("/create", goodsHandlers.PostGoods)
-			good.PATCH("/update", goodsHandlers.UpdateGood)
-			good.PATCH("/reprioritize", goodsHandlers.ReprioritizeGood)
-			good.DELETE("/remove", goodsHandlers.DeleteGood)
+			good.POST("/create", authHandlers.PostGoods)
+			good.PATCH("/update", authHandlers.UpdateGood)
+			good.PATCH("/reprioritize", authHandlers.ReprioritizeGood)
+			good.DELETE("/remove", authHandlers.DeleteGood)
 		}
 	}
 }
