@@ -1,10 +1,9 @@
-package utils
+package postgres
 
 import (
 	"context"
-	"github.com/go-faster/errors"
+	"errors"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func GetDataFromDBAndUnmarshal[T any](ctx context.Context, pgconn *pgx.Conn, pg *PgSpec) (*T, error) {

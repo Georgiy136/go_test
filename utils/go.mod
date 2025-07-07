@@ -2,10 +2,7 @@ module github.com/Georgiy136/go_test/utils
 
 go 1.24.2
 
-require (
-	github.com/go-faster/errors v0.7.1
-	github.com/jackc/pgx/v5 v5.7.5
-)
+require github.com/jackc/pgx/v5 v5.7.5
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
