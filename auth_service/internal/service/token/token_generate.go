@@ -31,6 +31,7 @@ func (t *IssueTokenService) generateTokensPair(userID int) (*models.AuthTokens, 
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
 	}
+
 	return &models.AuthTokens{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

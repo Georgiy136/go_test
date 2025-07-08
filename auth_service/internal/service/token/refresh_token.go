@@ -39,12 +39,12 @@ func (a *RefreshToken) generateNewRefreshToken(payload string) (string, error) {
 		return "", fmt.Errorf("generateNewAccessToken token.SignedString error: %w", err)
 	}
 
-	tokenString, err := a.crypter.Encrypt(jwtToken)
+	tokenString, err := a.crypter.EncryptAndEncodeToBase64(jwtToken)
 	if err != nil {
 		return "", fmt.Errorf("a.crypter.Encrypt error: %w", err)
 	}
 
-	return string(tokenString), nil
+	return tokenString, nil
 }
 
 func (a *RefreshToken) decodeRefreshToken(accessToken, refreshToken string) (string, error) {

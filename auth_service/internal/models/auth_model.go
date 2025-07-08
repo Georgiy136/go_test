@@ -4,7 +4,7 @@ import "time"
 
 type AuthTokens struct {
 	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh _token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type DataFromRequestGetTokens struct {

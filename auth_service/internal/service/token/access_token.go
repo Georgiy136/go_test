@@ -41,18 +41,28 @@ func (a *AccessToken) generateNewAccessToken(refreshToken string, payload string
 		return "", fmt.Errorf("generateNewAccessToken token.SignedString error: %w", err)
 	}
 
-	tokenString, err := a.crypter.Encrypt(jwtToken)
+	tokenString, err := a.crypter.EncryptAndEncodeToBase64(jwtToken)
 	if err != nil {
 		return "", fmt.Errorf("a.crypter.Encrypt error: %w", err)
 	}
 
-	return string(tokenString), nil
+	return tokenString, nil
 }
 
 func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (string, error) {
-	signedString := a.getSignedString(refreshToken)
+	accessTokenDecode, err := a.crypter.DecodeFromBase64AndDecrypt(accessToken)
+	if err != nil {
+		return "", fmt.Errorf("a.crypter.Encrypt error: %w", err)
+	}
 
-	token, err := jwt.ParseWithClaims(accessToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+	refreshTokenDecode, err := a.crypter.DecodeFromBase64AndDecrypt(refreshToken)
+	if err != nil {
+		return "", fmt.Errorf("a.crypter.Encrypt error: %w", err)
+	}
+
+	signedString := a.getSignedString(refreshTokenDecode)
+
+	token, err := jwt.ParseWithClaims(accessTokenDecode, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(signedString), nil
 	}, jwt.WithLeeway(5*time.Second))
 
