@@ -2,26 +2,15 @@ package models
 
 import "time"
 
-type GoodsUpdDBResponse struct {
-	Data Goods `json:"data"`
+type AuthTokens struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh _token"`
 }
 
-type Goods struct {
-	GoodID      int        `json:"good_id"`
-	ProjectID   int        `json:"project_id"`
-	ProjectName string     `json:"project_name"`
-	Name        string     `json:"name"`
-	Description *string    `json:"description"`
-	Priority    int        `json:"priority"`
-	DeletedAt   *time.Time `json:"deleted_at"`
-	CreatedAt   time.Time  `json:"created_at"`
-}
-
-type DataFromRequestGoodsAdd struct {
-	ProjectID   int    `json:"project_id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Priority    int    `json:"priority"`
+type DataFromRequestGetTokens struct {
+	UserID    int    `json:"user_id"`
+	UserAgent string `json:"user_agent"`
+	IpAddress string `json:"ip_address"`
 }
 
 type DataFromRequestGoodsUpdate struct {
@@ -41,20 +30,6 @@ type DataFromRequestGoodsList struct {
 	ProjectID *int
 	Limit     *int
 	Offset    *int
-}
-
-type GoodsListDBResponse struct {
-	Data *GoodsList `json:"data"`
-}
-
-type GoodsList struct {
-	Meta *struct {
-		Total  int `json:"total"`
-		Remove int `json:"remove"`
-		Limit  int `json:"limit"`
-		Offset int `json:"offset"`
-	} `json:"meta,omitempty"`
-	Goods []Goods `json:"goods"`
 }
 
 type DataFromRequestReprioritizeGood struct {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/internal/errors/common"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
-	"github.com/Georgiy136/go_test/auth_service/internal/usecase"
+	"github.com/Georgiy136/go_test/auth_service/internal/service"
 	"github.com/Georgiy136/go_test/auth_service/pkg/postgres"
 	"github.com/jackc/pgx/v5"
 	jsoniter "github.com/json-iterator/go"
@@ -16,7 +16,7 @@ type AuthRepo struct {
 	pgconn *pgx.Conn
 }
 
-func NewAuthRepo(pg *postgres.Postgres) usecase.AuthStrore {
+func NewAuthRepo(pg *postgres.Postgres) service.AuthStrore {
 	return &AuthRepo{
 		pgconn: pg.Pgconn,
 	}

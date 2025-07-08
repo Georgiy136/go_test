@@ -10,6 +10,7 @@ type (
 	Config struct {
 		Http
 		Postgres
+		Tokens
 	}
 
 	Http struct {
@@ -23,6 +24,17 @@ type (
 		Password string
 		Dbname   string
 		Sslmode  string
+	}
+
+	Tokens struct {
+		AccessToken
+		RefreshToken
+	}
+	AccessToken struct {
+		SignedKey string
+	}
+	RefreshToken struct {
+		SignedKey string
 	}
 )
 

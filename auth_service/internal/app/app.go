@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/http"
-	"github.com/Georgiy136/go_test/auth_service/internal/usecase"
-	db "github.com/Georgiy136/go_test/auth_service/internal/usecase/repo/postgres"
+	"github.com/Georgiy136/go_test/auth_service/internal/service"
+	db "github.com/Georgiy136/go_test/auth_service/internal/service/repo/postgres"
 	"github.com/Georgiy136/go_test/auth_service/pkg/postgres"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -27,7 +27,7 @@ func Run(cfg *config.Config) {
 	authRepo := db.NewAuthRepo(pg)
 
 	// Service
-	authService := usecase.NewAuthService(authRepo)
+	authService := service.NewAuthService(authRepo)
 
 	// HTTP Server
 	router := gin.Default()

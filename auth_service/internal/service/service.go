@@ -1,4 +1,4 @@
-package usecase
+package service
 
 import (
 	"context"
@@ -16,7 +16,13 @@ func NewAuthService(db AuthStrore) *AuthService {
 	}
 }
 
-func (us *AuthService) AddGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error) {
+func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromRequestGetTokens) (*models.AuthTokens, error) {
+	// проверить сущ-ет ли user в БД
+
+	// Выпустить токен
+
+	// Сохранить инфо о входе в БД
+
 	createdGood, err := us.db.CreateGoods(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("GoodUseCases - AddGoods - us.db.CreateGoods: %w", err)

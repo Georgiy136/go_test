@@ -3,26 +3,21 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/Georgiy136/go_test/auth_service/internal/usecase"
+	"github.com/Georgiy136/go_test/auth_service/internal/service"
 )
 
-func NewRouter(router *gin.Engine, os usecase.AuthService) {
-	authHandlers := &GoodsHandler{
-		us: os,
+func NewRouter(router *gin.Engine, us service.AuthService) {
+	authHandlers := &AuthHandler{
+		us: us,
 	}
 
 	// Routers
 	api := router.Group("/api")
 	{
-		goods := api.Group("/goods")
+		good := api.Group("/auth")
 		{
-			goods.GET("/list", authHandlers.ListGoods)
-		}
-		good := api.Group("/good")
-		{
-			good.POST("/create", authHandlers.PostGoods)
+			good.GET("/get_tokens", authHandlers.GetTokens)
 			good.PATCH("/update", authHandlers.UpdateGood)
-			good.PATCH("/reprioritize", authHandlers.ReprioritizeGood)
 			good.DELETE("/remove", authHandlers.DeleteGood)
 		}
 	}
