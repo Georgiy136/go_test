@@ -3,6 +3,7 @@ package token
 import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
+	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -49,15 +50,15 @@ func (a *AccessToken) generateNewAccessToken(refreshToken string, payload string
 	return tokenString, nil
 }
 
-func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (string, error) {
+func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (*models.TokenInfo, error) {
 	accessTokenDecode, err := a.crypter.DecodeFromBase64AndDecrypt(accessToken)
 	if err != nil {
-		return "", fmt.Errorf("a.crypter.Encrypt error: %w", err)
+		return nil, fmt.Errorf("a.crypter.Encrypt error: %w", err)
 	}
 
 	refreshTokenDecode, err := a.crypter.DecodeFromBase64AndDecrypt(refreshToken)
 	if err != nil {
-		return "", fmt.Errorf("a.crypter.Encrypt error: %w", err)
+		return nil, fmt.Errorf("a.crypter.Encrypt error: %w", err)
 	}
 
 	signedString := a.getSignedString(refreshTokenDecode)
@@ -67,14 +68,19 @@ func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (strin
 	}, jwt.WithLeeway(5*time.Second))
 
 	if err != nil {
-		return "", fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
+		return nil, fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
 	}
 
 	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
-		return claims.Subject, nil
+		return &models.TokenInfo{
+			Issuer:    claims.Issuer,
+			Payload:   claims.Subject,
+			ExpiredAt: claims.ExpiresAt.Time,
+			IssuedAt:  claims.ExpiresAt.Time,
+		}, nil
 	}
 
-	return "", fmt.Errorf("decodeAccessToken error: %w", err)
+	return nil, fmt.Errorf("decodeAccessToken error: %w", err)
 }
 
 func (a *AccessToken) getSignedString(refreshToken string) string {
