@@ -20,34 +20,16 @@ type DataFromRequestGetTokens struct {
 	IpAddress string `json:"ip_address"`
 }
 
-type SaveLoginDataDbRequest struct {
-	UserID       int    `json:"user_id"`
+type DataFromRequestUpdateTokens struct {
+	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	UserAgent    string `json:"user_agent"`
 	IpAddress    string `json:"ip_address"`
 }
 
-type DataFromRequestGoodsUpdate struct {
-	GoodID      int     `json:"good_id"`
-	ProjectID   int     `json:"project_id"`
-	Name        string  `json:"name"`
-	Description *string `json:"description"`
-}
-
-type DataFromRequestGoodsDelete struct {
-	GoodID    int       `json:"good_id"`
-	ProjectID int       `json:"project_id"`
-	DeletedAt time.Time `json:"deleted_at"`
-}
-type DataFromRequestGoodsList struct {
-	GoodsID   *int
-	ProjectID *int
-	Limit     *int
-	Offset    *int
-}
-
-type DataFromRequestReprioritizeGood struct {
-	GoodID    int `json:"good_id"`
-	ProjectID int `json:"project_id"`
-	Priority  int `json:"priority"`
+type SaveLoginDataDbRequest struct {
+	UserID       int    `json:"user_id"`
+	RefreshToken string `json:"refresh_token"`
+	UserAgent    string `json:"user_agent"`
+	IpAddress    string `json:"ip_address"`
 }

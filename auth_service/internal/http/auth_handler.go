@@ -40,32 +40,26 @@ func (h *AuthHandler) GetTokens(c *gin.Context) {
 	httpresponse.SendSuccess(c, http.StatusOK, tokens)
 }
 
-func (h *AuthHandler) UpdateGood(c *gin.Context) {
-	type updateGoodParamsRequest struct {
-		GoodID    int `form:"good_id" binding:"required,gt=0"`
-		ProjectID int `form:"project_id" binding:"required,gt=0"`
+func (h *AuthHandler) UpdateTokens(c *gin.Context) {
+	type updateTokensRequest struct {
+		AccessToken  string `json:"access_token" binding:"required"`
+		RefreshToken string `json:"refresh_token" binding:"required"`
 	}
-	var req updateGoodParamsRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		httpresponse.SendFailBadRequest(c, err.Error(), nil)
-		return
-	}
-
-	type updateGoodsRequest struct {
-		Name        string  `json:"name" binding:"required"`
-		Description *string `json:"description" binding:"omitempty"`
-	}
-	var body updateGoodsRequest
+	var body updateTokensRequest
 	if err := c.BindJSON(&body); err != nil {
 		httpresponse.SendFailBadRequest(c, err.Error(), nil)
 		return
 	}
 
-	goods, err := h.us.UpdateGood(c.Request.Context(), models.DataFromRequestGoodsUpdate{
-		GoodID:      req.GoodID,
-		ProjectID:   req.ProjectID,
-		Name:        body.Name,
-		Description: body.Description,
+	userAgent := c.Request.UserAgent()
+	//ipAddress := c.GetHeader("X-Forwarded-For")
+	clientIp := c.ClientIP()
+
+	goods, err := h.us.UpdateTokens(c.Request.Context(), models.DataFromRequestUpdateTokens{
+		AccessToken:  body.AccessToken,
+		RefreshToken: body.RefreshToken,
+		UserAgent:    userAgent,
+		IpAddress:    clientIp,
 	})
 	if err != nil {
 		httpresponse.HandleError(c, err, nil)
