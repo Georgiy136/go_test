@@ -35,9 +35,7 @@ func (a *AccessToken) generateNewAccessToken(refreshToken string, payload string
 		Subject:   payload,
 	})
 
-	signedString := a.getSignedString(refreshToken)
-
-	jwtToken, err := token.SignedString([]byte(signedString))
+	jwtToken, err := token.SignedString([]byte(a.getSignedString(refreshToken)))
 	if err != nil {
 		return "", fmt.Errorf("generateNewAccessToken token.SignedString error: %w", err)
 	}
@@ -56,15 +54,13 @@ func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (*mode
 		return nil, fmt.Errorf("a.crypter.Encrypt error: %w", err)
 	}
 
-	refreshTokenDecode, err := a.crypter.DecodeFromBase64AndDecrypt(refreshToken)
+	/*refreshTokenDecode, err := a.crypter.DecodeFromBase64AndDecrypt(refreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("a.crypter.Encrypt error: %w", err)
-	}
-
-	signedString := a.getSignedString(refreshTokenDecode)
+	}*/
 
 	token, err := jwt.ParseWithClaims(accessTokenDecode, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(signedString), nil
+		return []byte(a.getSignedString(refreshToken)), nil
 	}, jwt.WithLeeway(5*time.Second))
 
 	if err != nil {

@@ -4,8 +4,8 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
-	"github.com/Georgiy136/go_test/auth_service/utils"
 	"io"
 )
 
@@ -69,12 +69,12 @@ func (r *crypter) EncryptAndEncodeToBase64(payload string) (string, error) {
 		return "", fmt.Errorf("r.Encrypt: %w", err)
 	}
 
-	return utils.EncodeToBase64(encodedStr), nil
+	return r.EncodeToBase64(encodedStr), nil
 }
 
 // DecodeFromBase64AndDecrypt декодировать base64 и расшифровать результат.
 func (r *crypter) DecodeFromBase64AndDecrypt(payload string) (string, error) {
-	decoded, err := utils.DecodeFromBase64(payload)
+	decoded, err := r.DecodeFromBase64(payload)
 	if err != nil {
 		return "", fmt.Errorf("convhelpers.DecodeFromBase64: %w", err)
 	}
@@ -85,4 +85,12 @@ func (r *crypter) DecodeFromBase64AndDecrypt(payload string) (string, error) {
 	}
 
 	return decrypted, nil
+}
+
+func (r *crypter) EncodeToBase64(b []byte) string {
+	return base64.StdEncoding.EncodeToString(b)
+}
+
+func (r *crypter) DecodeFromBase64(s string) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(s)
 }
