@@ -21,13 +21,13 @@ func NewIssueTokenService(cfg *config.Tokens) *IssueTokenService {
 
 func (t *IssueTokenService) generateTokensPair(userID int) (*models.AuthTokens, error) {
 	// сгенерить refresh токен
-	refreshToken, err := t.refreshToken.generateNewRefreshToken(userID)
+	refreshToken, err := t.refreshToken.generateNewRefreshToken(strconv.Itoa(userID))
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
 	}
 
 	// сгенерить access токен
-	accessToken, err := t.accessToken.generateNewAccessToken(refreshToken, userID)
+	accessToken, err := t.accessToken.generateNewAccessToken(refreshToken, strconv.Itoa(userID))
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
 	}

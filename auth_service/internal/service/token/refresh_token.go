@@ -1,27 +1,64 @@
 package service
 
 import (
+	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
-	"strconv"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/sirupsen/logrus"
+	"time"
 )
 
 type RefreshToken struct {
-	cfg     config.RefreshToken
-	crypter *crypter
+	cfg           config.RefreshToken
+	tokenLifetime time.Duration
+	crypter       *crypter
 }
 
 func NewRefreshToken(cfg config.RefreshToken) *RefreshToken {
+	tokenLifetime, err := time.ParseDuration(cfg.SignedKey)
+	if err != nil {
+		logrus.Fatalf("NewAccessToken: tokenLifetime ParseDuration err: %v", err)
+	}
+
 	return &RefreshToken{
-		cfg:     cfg,
-		crypter: NewCrypter(cfg.SignedKey),
+		cfg:           cfg,
+		tokenLifetime: tokenLifetime,
+		crypter:       NewCrypter(cfg.SignedKey),
 	}
 }
 
-func (r *RefreshToken) generateNewRefreshToken(userID int) (string, error) {
-	refrashToken, err := r.crypter.Encrypt(strconv.Itoa(userID))
+func (a *RefreshToken) generateNewRefreshToken(payload string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.tokenLifetime)),
+		Subject:   payload,
+	})
+
+	jwtToken, err := token.SignedString([]byte(a.cfg.SignedKey))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("generateNewAccessToken token.SignedString error: %w", err)
 	}
 
-	return string(refrashToken), nil
+	tokenString, err := a.crypter.Encrypt(jwtToken)
+	if err != nil {
+		return "", fmt.Errorf("a.crypter.Encrypt error: %w", err)
+	}
+
+	return string(tokenString), nil
+}
+
+func (a *RefreshToken) decodeRefreshToken(accessToken, refreshToken string) (string, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(a.cfg.SignedKey), nil
+	}, jwt.WithLeeway(5*time.Second))
+
+	if err != nil {
+		return "", fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
+	}
+
+	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
+		return claims.Subject, nil
+	}
+
+	return "", fmt.Errorf("decodeAccessToken error: %w", err)
 }

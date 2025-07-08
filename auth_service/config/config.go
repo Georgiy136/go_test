@@ -31,10 +31,12 @@ type (
 		RefreshToken
 	}
 	AccessToken struct {
-		SignedKey string
+		SignedKey     string
+		tokenLifetime string
 	}
 	RefreshToken struct {
-		SignedKey string
+		SignedKey     string
+		tokenLifetime string
 	}
 )
 
