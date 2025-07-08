@@ -4,22 +4,30 @@ import (
 	"context"
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
 )
 
 type AuthService struct {
-	db AuthStrore
+	db             AuthStrore
+	tokensGenerate token.IssueTokensStore
 }
 
-func NewAuthService(db AuthStrore) *AuthService {
+func NewAuthService(tokensGenerate token.IssueTokensStore, db AuthStrore) *AuthService {
 	return &AuthService{
-		db: db,
+		db:             db,
+		tokensGenerate: tokensGenerate,
 	}
 }
 
 func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromRequestGetTokens) (*models.AuthTokens, error) {
 	// проверить сущ-ет ли user в БД
+	// ...
 
-	// Выпустить токен
+	// Выпустить токены
+	tokens, err := us.tokensGenerate.GenerateTokensPair(data.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("GetTokens - GenerateTokensPair error: %w", err)
+	}
 
 	// Сохранить инфо о входе в БД
 

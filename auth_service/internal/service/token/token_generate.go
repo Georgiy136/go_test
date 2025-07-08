@@ -1,4 +1,4 @@
-package service
+package token
 
 import (
 	"fmt"
@@ -7,19 +7,19 @@ import (
 	"strconv"
 )
 
-type IssueTokenService struct {
+type IssueTokensService struct {
 	refreshToken *RefreshToken
 	accessToken  *AccessToken
 }
 
-func NewIssueTokenService(cfg *config.Tokens) *IssueTokenService {
-	return &IssueTokenService{
+func NewIssueTokensService(cfg *config.Tokens) IssueTokensStore {
+	return &IssueTokensService{
 		refreshToken: NewRefreshToken(cfg.RefreshToken),
 		accessToken:  NewAccessToken(cfg.AccessToken),
 	}
 }
 
-func (t *IssueTokenService) generateTokensPair(userID int) (*models.AuthTokens, error) {
+func (t *IssueTokensService) GenerateTokensPair(userID int) (*models.AuthTokens, error) {
 	// сгенерить refresh токен
 	refreshToken, err := t.refreshToken.generateNewRefreshToken(strconv.Itoa(userID))
 	if err != nil {
