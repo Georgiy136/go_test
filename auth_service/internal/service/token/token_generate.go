@@ -21,7 +21,7 @@ func NewIssueTokensService(cfg *config.Tokens) IssueTokensStore {
 
 func (t *IssueTokensService) GenerateTokensPair(userID int) (*models.AuthTokens, error) {
 	// сгенерить refresh токен
-	refreshToken, err := t.refreshToken.generateNewRefreshToken(strconv.Itoa(userID))
+	refreshToken, err := t.refreshToken.generateNewRefreshToken()
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
 	}

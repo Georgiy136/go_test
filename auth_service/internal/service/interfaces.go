@@ -6,6 +6,7 @@ import (
 )
 
 type AuthStrore interface {
+	CheckUser(ctx context.Context, userID int) error
 	CreateGoods(ctx context.Context, data models.DataFromRequestGoodsAdd) (*models.Goods, error)
 	ListGoods(ctx context.Context, data models.DataFromRequestGoodsList) (*models.GoodsList, error)
 	DeleteGoods(ctx context.Context, data models.DataFromRequestGoodsDelete) (*models.Goods, error)

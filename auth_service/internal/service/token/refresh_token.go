@@ -27,11 +27,10 @@ func NewRefreshToken(cfg config.RefreshToken) *RefreshToken {
 	}
 }
 
-func (a *RefreshToken) generateNewRefreshToken(payload string) (string, error) {
+func (a *RefreshToken) generateNewRefreshToken() (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.tokenLifetime)),
-		Subject:   payload,
 	})
 
 	jwtToken, err := token.SignedString([]byte(a.cfg.SignedKey))
@@ -47,18 +46,18 @@ func (a *RefreshToken) generateNewRefreshToken(payload string) (string, error) {
 	return tokenString, nil
 }
 
-func (a *RefreshToken) decodeRefreshToken(accessToken, refreshToken string) (string, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (a *RefreshToken) decodeRefreshToken(refreshToken string) error {
+	token, err := jwt.ParseWithClaims(refreshToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.cfg.SignedKey), nil
 	}, jwt.WithLeeway(5*time.Second))
 
 	if err != nil {
-		return "", fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
+		return fmt.Errorf("decodeRefreshToken jwt.Parse error: %w", err)
 	}
 
-	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
-		return claims.Subject, nil
+	if _, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
+		return nil
 	}
 
-	return "", fmt.Errorf("decodeAccessToken error: %w", err)
+	return fmt.Errorf("decodeAccessToken error: %w", err)
 }

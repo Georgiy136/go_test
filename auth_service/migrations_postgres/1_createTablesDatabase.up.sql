@@ -1,7 +1,9 @@
-CREATE TABLE IF NOT EXISTS projects (
-    project_id SERIAL PRIMARY KEY,
-    name character varying NOT NULL UNIQUE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS user_login (
+    user_id integer NOT NULL,
+    user_agent character varying NOT NULL,
+    refresh_token character varying NOT NULL,
+    ip_address character varying NOT NULL,
+    sign_time TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS goods (
