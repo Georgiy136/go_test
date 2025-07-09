@@ -28,7 +28,7 @@ func (t *IssueTokensService) GenerateTokensPair(data models.TokenPayload) (*mode
 	// сгенерить access токен
 	accessToken, err := t.accessToken.generateNewAccessToken(refreshToken, data)
 	if err != nil {
-		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
+		return nil, fmt.Errorf("generateTokensPair: generating new access token error: %v", err)
 	}
 
 	return &models.AuthTokens{
