@@ -115,15 +115,9 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		// ...
 	}
 
-	// Сохранить инфо о входе в БД
-	if err = us.db.SaveUserLogin(ctx, models.SaveLoginInfoDbRequest{
-		UserID:       data.UserID,
-		RefreshToken: helpers.HashSha512(tokens.RefreshToken),
-		UserAgent:    data.UserAgent,
-		IpAddress:    data.IpAddress,
-	}); err != nil {
-		return nil, fmt.Errorf("GetTokens - us.db.SaveUserLogin error: %w", err)
-	}
-
-	return tokens, nil
+	return us.GetTokens(ctx, models.DataFromRequestGetTokens{
+		UserID:    user.UserID,
+		UserAgent: data.UserAgent,
+		IpAddress: data.IpAddress,
+	})
 }
