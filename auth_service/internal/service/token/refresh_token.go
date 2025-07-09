@@ -13,7 +13,6 @@ import (
 type RefreshToken struct {
 	cfg           config.RefreshToken
 	tokenLifetime time.Duration
-	crypter       *crypter
 }
 
 func NewRefreshToken(cfg config.RefreshToken) *RefreshToken {
@@ -25,7 +24,6 @@ func NewRefreshToken(cfg config.RefreshToken) *RefreshToken {
 	return &RefreshToken{
 		cfg:           cfg,
 		tokenLifetime: tokenLifetime,
-		crypter:       NewCrypter(cfg.SignedKey),
 	}
 }
 
@@ -41,15 +39,10 @@ func (a *RefreshToken) generateNewRefreshToken(refreshTokenID int) (string, erro
 		return "", fmt.Errorf("generateNewAccessToken token.SignedString error: %w", err)
 	}
 
-	tokenString, err := a.crypter.EncryptAndEncodeToBase64(jwtToken)
-	if err != nil {
-		return "", fmt.Errorf("a.crypter.Encrypt error: %w", err)
-	}
-
-	return tokenString, nil
+	return jwtToken, nil
 }
 
-func (a *RefreshToken) decodeRefreshToken(refreshToken string) (*models.RefreshTokenInfo, error) {
+func (a *RefreshToken) parseRefreshToken(refreshToken string) (*models.RefreshTokenInfo, error) {
 	token, err := jwt.ParseWithClaims(refreshToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.cfg.SignedKey), nil
 	}, jwt.WithLeeway(5*time.Second))
@@ -59,14 +52,14 @@ func (a *RefreshToken) decodeRefreshToken(refreshToken string) (*models.RefreshT
 	}
 
 	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
-		tokenID, err := a.getAccessTokenID(claims.ID)
+		refreshTokenID, err := a.getRefreshTokenID(claims.ID)
 		if err != nil {
 			return nil, fmt.Errorf("decodeRefreshToken jwt.getAccessTokenID error: %w", err)
 		}
 
 		return &models.RefreshTokenInfo{
 			Issuer:         claims.Issuer,
-			RefreshTokenID: tokenID,
+			RefreshTokenID: refreshTokenID,
 			ExpiredAt:      claims.ExpiresAt.Time,
 			IssuedAt:       claims.IssuedAt.Time,
 		}, nil
@@ -75,6 +68,6 @@ func (a *RefreshToken) decodeRefreshToken(refreshToken string) (*models.RefreshT
 	return nil, fmt.Errorf("decodeRefreshToken error: %w", err)
 }
 
-func (a *RefreshToken) getAccessTokenID(id string) (int, error) {
+func (a *RefreshToken) getRefreshTokenID(id string) (int, error) {
 	return strconv.Atoi(id)
 }

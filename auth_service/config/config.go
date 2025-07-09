@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-
 	"github.com/spf13/viper"
 )
 
@@ -29,6 +28,7 @@ type (
 	Tokens struct {
 		AccessToken
 		RefreshToken
+		Crypter
 	}
 	AccessToken struct {
 		SignedKey     string
@@ -37,6 +37,9 @@ type (
 	RefreshToken struct {
 		SignedKey     string
 		tokenLifetime string
+	}
+	Crypter struct {
+		SignedKey string
 	}
 )
 

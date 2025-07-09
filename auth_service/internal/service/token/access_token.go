@@ -13,7 +13,6 @@ import (
 type AccessToken struct {
 	cfg           config.AccessToken
 	tokenLifetime time.Duration
-	crypter       *crypter
 }
 
 func NewAccessToken(cfg config.AccessToken) *AccessToken {
@@ -25,7 +24,6 @@ func NewAccessToken(cfg config.AccessToken) *AccessToken {
 	return &AccessToken{
 		cfg:           cfg,
 		tokenLifetime: tokenLifetime,
-		crypter:       NewCrypter(cfg.SignedKey),
 	}
 }
 
@@ -46,21 +44,11 @@ func (a *AccessToken) generateNewAccessToken(refreshToken string, accessTokenPay
 		return "", fmt.Errorf("generateNewAccessToken token.SignedString error: %w", err)
 	}
 
-	tokenString, err := a.crypter.EncryptAndEncodeToBase64(jwtToken)
-	if err != nil {
-		return "", fmt.Errorf("a.crypter.Encrypt error: %w", err)
-	}
-
-	return tokenString, nil
+	return jwtToken, nil
 }
 
-func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (*models.AccessTokenInfo, error) {
-	accessTokenDecode, err := a.crypter.DecodeFromBase64AndDecrypt(accessToken)
-	if err != nil {
-		return nil, fmt.Errorf("a.crypter.Encrypt error: %w", err)
-	}
-
-	token, err := jwt.ParseWithClaims(accessTokenDecode, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (a *AccessToken) parseAccessToken(accessToken, refreshToken string) (*models.AccessTokenInfo, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.getSignedString(refreshToken)), nil
 	}, jwt.WithLeeway(5*time.Second))
 
@@ -75,10 +63,11 @@ func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (*mode
 		}
 
 		return &models.AccessTokenInfo{
-			Issuer:    claims.Issuer,
-			Payload:   *payload,
-			ExpiredAt: claims.ExpiresAt.Time,
-			IssuedAt:  claims.IssuedAt.Time,
+			Issuer:         claims.Issuer,
+			UserID:         payload.UserID,
+			RefreshTokenID: payload.RefreshTokenID,
+			ExpiredAt:      claims.ExpiresAt.Time,
+			IssuedAt:       claims.IssuedAt.Time,
 		}, nil
 	}
 
@@ -89,11 +78,11 @@ func (a *AccessToken) getSignedString(refreshToken string) string {
 	return refreshToken + a.cfg.SignedKey
 }
 
-func (a *AccessToken) getAccessTokenPayload(payload string) (*models.TokenPayload, error) {
+func (a *AccessToken) getAccessTokenPayload(payload string) (models.TokenPayload, error) {
 	var payloadData models.TokenPayload
 	if err := jsoniter.UnmarshalFromString(payload, &payloadData); err != nil {
 		return nil, err
 	}
 
-	return &payloadData, nil
+	return payloadData, nil
 }

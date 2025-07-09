@@ -15,10 +15,11 @@ type RefreshTokenInfo struct {
 }
 
 type AccessTokenInfo struct {
-	Issuer    string       `json:"issuer"`
-	Payload   TokenPayload `json:"payload"`
-	ExpiredAt time.Time    `json:"expired_at"`
-	IssuedAt  time.Time    `json:"issued_at"`
+	Issuer         string    `json:"issuer"`
+	UserID         int       `json:"user_id"`
+	RefreshTokenID int       `json:"refresh_token_id"`
+	ExpiredAt      time.Time `json:"expired_at"`
+	IssuedAt       time.Time `json:"issued_at"`
 }
 
 type TokenPayload struct {
@@ -39,7 +40,7 @@ type DataFromRequestUpdateTokens struct {
 	IpAddress    string `json:"ip_address"`
 }
 
-type SaveLoginDataDbRequest struct {
+type LoginInfo struct {
 	UserID         int    `json:"user_id"`
 	RefreshTokenID int    `json:"refresh_token_id"`
 	RefreshToken   string `json:"refresh_token"`

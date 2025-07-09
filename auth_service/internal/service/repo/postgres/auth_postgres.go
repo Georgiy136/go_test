@@ -12,7 +12,7 @@ type AuthRepo struct {
 	pgconn *pgx.Conn
 }
 
-func NewAuthRepo(pg *postgres.Postgres) service.AuthStrore {
+func NewAuthRepo(pg *postgres.Postgres) service.AuthStore {
 	return &AuthRepo{
 		pgconn: pg.Pgconn,
 	}
@@ -22,7 +22,7 @@ func (db *AuthRepo) GetUser(ctx context.Context, userID int) (*models.User, erro
 	return nil, nil
 }
 
-func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.SaveLoginDataDbRequest) error {
+func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) error {
 
 	return nil
 }
@@ -30,4 +30,9 @@ func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.SaveLoginData
 func (db *AuthRepo) GetRefreshTokenID(ctx context.Context) (int, error) {
 
 	return 0, nil
+}
+
+func (db *AuthRepo) GetSignInByRefreshTokenID(ctx context.Context, refreshTokenID int) (*models.LoginInfo, error) {
+
+	return nil, nil
 }

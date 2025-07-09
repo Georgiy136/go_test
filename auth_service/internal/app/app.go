@@ -6,6 +6,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/http"
 	"github.com/Georgiy136/go_test/auth_service/internal/service"
 	db "github.com/Georgiy136/go_test/auth_service/internal/service/repo/postgres"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
 	"github.com/Georgiy136/go_test/auth_service/pkg/postgres"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -26,8 +27,11 @@ func Run(cfg *config.Config) {
 	// repo
 	authRepo := db.NewAuthRepo(pg)
 
+	// token generate service
+	tokenGenerator := token.NewIssueTokensService(cfg.Tokens)
+
 	// Service
-	authService := service.NewAuthService(authRepo)
+	authService := service.NewAuthService(tokenGenerator, authRepo)
 
 	// HTTP Server
 	router := gin.Default()

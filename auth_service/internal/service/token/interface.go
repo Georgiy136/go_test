@@ -1,7 +1,7 @@
 package token
 
-import "github.com/Georgiy136/go_test/auth_service/internal/models"
-
-type IssueTokensStore interface {
-	GenerateTokensPair(data models.TokenPayload) (*models.AuthTokens, error)
-}
+//type IssueTokensStore interface {
+//	GenerateTokensPair(data models.TokenPayload) (*models.AuthTokens, error)
+//	DecodeAccessToken(accessToken, refreshToken string) (*models.AccessTokenInfo, error)
+//	DecodeRefreshToken(refreshToken string) (*models.RefreshTokenInfo, error)
+//}
