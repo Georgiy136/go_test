@@ -15,13 +15,13 @@ type RefreshTokenInfo struct {
 }
 
 type AccessTokenInfo struct {
-	Issuer    string             `json:"issuer"`
-	Payload   AccessTokenPayload `json:"payload"`
-	ExpiredAt time.Time          `json:"expired_at"`
-	IssuedAt  time.Time          `json:"issued_at"`
+	Issuer    string       `json:"issuer"`
+	Payload   TokenPayload `json:"payload"`
+	ExpiredAt time.Time    `json:"expired_at"`
+	IssuedAt  time.Time    `json:"issued_at"`
 }
 
-type AccessTokenPayload struct {
+type TokenPayload struct {
 	UserID         int `json:"user_id"`
 	RefreshTokenID int `json:"refresh_token_id"`
 }

@@ -26,7 +26,7 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("GetTokens - GetUserDBReq error: %w", err)
 	}
 
-	// Получаем уник-ый refresh_token_id
+	// Получаем уникальный refresh_token_id
 	refreshTokenID, err := us.db.GetRefreshTokenID(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("GetTokens - GetRefreshTokenID error: %w", err)

@@ -29,7 +29,7 @@ func NewAccessToken(cfg config.AccessToken) *AccessToken {
 	}
 }
 
-func (a *AccessToken) generateNewAccessToken(accessTokenPayload models.AccessTokenPayload, refreshToken string) (string, error) {
+func (a *AccessToken) generateNewAccessToken(refreshToken string, accessTokenPayload models.TokenPayload) (string, error) {
 	payloadBytes, err := jsoniter.MarshalToString(accessTokenPayload)
 	if err != nil {
 		return "", fmt.Errorf("generateNewAccessToken: json marshal payload err: %v", err)
@@ -89,8 +89,8 @@ func (a *AccessToken) getSignedString(refreshToken string) string {
 	return refreshToken + a.cfg.SignedKey
 }
 
-func (a *AccessToken) getAccessTokenPayload(payload string) (*models.AccessTokenPayload, error) {
-	var payloadData models.AccessTokenPayload
+func (a *AccessToken) getAccessTokenPayload(payload string) (*models.TokenPayload, error) {
+	var payloadData models.TokenPayload
 	if err := jsoniter.UnmarshalFromString(payload, &payloadData); err != nil {
 		return nil, err
 	}

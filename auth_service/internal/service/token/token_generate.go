@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
-	"strconv"
 )
 
 type IssueTokensService struct {
@@ -19,20 +18,15 @@ func NewIssueTokensService(cfg *config.Tokens) IssueTokensStore {
 	}
 }
 
-func (t *IssueTokensService) GenerateTokensPair(refreshTokenID, userID int) (*models.AuthTokens, error) {
+func (t *IssueTokensService) GenerateTokensPair(data models.TokenPayload) (*models.AuthTokens, error) {
 	// сгенерить refresh токен
-	refreshToken, err := t.refreshToken.generateNewRefreshToken(refreshTokenID)
+	refreshToken, err := t.refreshToken.generateNewRefreshToken(data.RefreshTokenID)
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
 	}
 
-	payload := models.AccessTokenPayload{
-		UserID:         userID,
-		RefreshTokenID: refreshTokenID,
-	}
-
 	// сгенерить access токен
-	accessToken, err := t.accessToken.generateNewAccessToken(refreshTokenID, refreshToken, strconv.Itoa(userID))
+	accessToken, err := t.accessToken.generateNewAccessToken(refreshToken, data)
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
 	}
