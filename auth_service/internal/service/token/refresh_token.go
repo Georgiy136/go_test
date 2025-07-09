@@ -6,6 +6,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
+	"strconv"
 	"time"
 )
 
@@ -58,12 +59,22 @@ func (a *RefreshToken) decodeRefreshToken(refreshToken string) (*models.RefreshT
 	}
 
 	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
+		tokenID, err := a.getAccessTokenID(claims.ID)
+		if err != nil {
+			return nil, fmt.Errorf("decodeRefreshToken jwt.getAccessTokenID error: %w", err)
+		}
+
 		return &models.RefreshTokenInfo{
-			Issuer:    claims.Issuer,
-			ExpiredAt: claims.ExpiresAt.Time,
-			IssuedAt:  claims.IssuedAt.Time,
+			Issuer:         claims.Issuer,
+			RefreshTokenID: tokenID,
+			ExpiredAt:      claims.ExpiresAt.Time,
+			IssuedAt:       claims.IssuedAt.Time,
 		}, nil
 	}
 
 	return nil, fmt.Errorf("decodeRefreshToken error: %w", err)
+}
+
+func (a *RefreshToken) getAccessTokenID(id string) (int, error) {
+	return strconv.Atoi(id)
 }

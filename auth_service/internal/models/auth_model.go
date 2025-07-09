@@ -8,9 +8,10 @@ type AuthTokens struct {
 }
 
 type RefreshTokenInfo struct {
-	Issuer    string    `json:"issuer"`
-	ExpiredAt time.Time `json:"expired_at"`
-	IssuedAt  time.Time `json:"issued_at"`
+	Issuer         string    `json:"issuer"`
+	RefreshTokenID int       `json:"refresh_token_id"`
+	ExpiredAt      time.Time `json:"expired_at"`
+	IssuedAt       time.Time `json:"issued_at"`
 }
 
 type AccessTokenInfo struct {
