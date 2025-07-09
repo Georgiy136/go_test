@@ -43,10 +43,11 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 
 	// Сохранить инфо о входе в БД
 	if err = us.db.SaveUserLogin(ctx, models.SaveLoginDataDbRequest{
-		UserID:       data.UserID,
-		RefreshToken: helpers.HashSha512(tokens.RefreshToken),
-		UserAgent:    data.UserAgent,
-		IpAddress:    data.IpAddress,
+		UserID:         data.UserID,
+		RefreshTokenID: refreshTokenID,
+		RefreshToken:   helpers.HashSha512(tokens.RefreshToken),
+		UserAgent:      data.UserAgent,
+		IpAddress:      data.IpAddress,
 	}); err != nil {
 		return nil, fmt.Errorf("GetTokens - us.db.SaveUserLogin error: %w", err)
 	}

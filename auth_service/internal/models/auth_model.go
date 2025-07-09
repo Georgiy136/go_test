@@ -40,8 +40,9 @@ type DataFromRequestUpdateTokens struct {
 }
 
 type SaveLoginDataDbRequest struct {
-	UserID       int    `json:"user_id"`
-	RefreshToken string `json:"refresh_token"`
-	UserAgent    string `json:"user_agent"`
-	IpAddress    string `json:"ip_address"`
+	UserID         int    `json:"user_id"`
+	RefreshTokenID int    `json:"refresh_token_id"`
+	RefreshToken   string `json:"refresh_token"`
+	UserAgent      string `json:"user_agent"`
+	IpAddress      string `json:"ip_address"`
 }
