@@ -22,8 +22,12 @@ func NewAuthService(tokensGenerate token.IssueTokensStore, db AuthStrore) *AuthS
 
 func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromRequestGetTokens) (*models.AuthTokens, error) {
 	// Проверяем есть ли пользователь в БД
-	if err := us.GetUserDBReq(ctx, data.UserID); err != nil {
-		return nil, fmt.Errorf("GetTokens - GetUserDBReq error: %w", err)
+	user, err := us.db.GetUser(ctx, data.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("GetTokens - us.db.GetUser error: %w", err)
+	}
+	if user == nil {
+		return nil, fmt.Errorf("GetTokens - GetUser - user info is nil")
 	}
 
 	// Получаем уникальный refresh_token_id из БД (сдвигаем сиквенс)
@@ -74,15 +78,4 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	return tokens, nil
-}
-
-func (us *AuthService) GetUserDBReq(ctx context.Context, userID int) error {
-	user, err := us.db.GetUser(ctx, userID)
-	if err != nil {
-		return fmt.Errorf("GetUserDBReq - us.db.GetUser error: %w", err)
-	}
-	if user == nil {
-		return fmt.Errorf("GetUserDBReq - user info is nil")
-	}
-	return nil
 }
