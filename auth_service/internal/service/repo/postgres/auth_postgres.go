@@ -26,3 +26,8 @@ func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.SaveLoginData
 
 	return nil
 }
+
+func (db *AuthRepo) GetRefreshTokenID(ctx context.Context) (int, error) {
+
+	return 0, nil
+}

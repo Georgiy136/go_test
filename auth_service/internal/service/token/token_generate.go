@@ -19,15 +19,20 @@ func NewIssueTokensService(cfg *config.Tokens) IssueTokensStore {
 	}
 }
 
-func (t *IssueTokensService) GenerateTokensPair(userID int) (*models.AuthTokens, error) {
+func (t *IssueTokensService) GenerateTokensPair(refreshTokenID, userID int) (*models.AuthTokens, error) {
 	// сгенерить refresh токен
-	refreshToken, err := t.refreshToken.generateNewRefreshToken()
+	refreshToken, err := t.refreshToken.generateNewRefreshToken(refreshTokenID)
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
 	}
 
+	payload := models.AccessTokenPayload{
+		UserID:         userID,
+		RefreshTokenID: refreshTokenID,
+	}
+
 	// сгенерить access токен
-	accessToken, err := t.accessToken.generateNewAccessToken(refreshToken, strconv.Itoa(userID))
+	accessToken, err := t.accessToken.generateNewAccessToken(refreshTokenID, refreshToken, strconv.Itoa(userID))
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
 	}

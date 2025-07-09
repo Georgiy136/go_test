@@ -7,11 +7,22 @@ type AuthTokens struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-type TokenInfo struct {
+type RefreshTokenInfo struct {
 	Issuer    string    `json:"issuer"`
-	Payload   string    `json:"payload"`
 	ExpiredAt time.Time `json:"expired_at"`
 	IssuedAt  time.Time `json:"issued_at"`
+}
+
+type AccessTokenInfo struct {
+	Issuer    string             `json:"issuer"`
+	Payload   AccessTokenPayload `json:"payload"`
+	ExpiredAt time.Time          `json:"expired_at"`
+	IssuedAt  time.Time          `json:"issued_at"`
+}
+
+type AccessTokenPayload struct {
+	UserID         int `json:"user_id"`
+	RefreshTokenID int `json:"refresh_token_id"`
 }
 
 type DataFromRequestGetTokens struct {

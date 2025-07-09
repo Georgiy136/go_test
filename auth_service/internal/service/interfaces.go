@@ -7,5 +7,6 @@ import (
 
 type AuthStrore interface {
 	GetUser(ctx context.Context, userID int) (*models.User, error)
+	GetRefreshTokenID(ctx context.Context) (int, error)
 	SaveUserLogin(ctx context.Context, data models.SaveLoginDataDbRequest) error
 }

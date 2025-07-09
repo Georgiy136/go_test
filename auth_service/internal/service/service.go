@@ -26,8 +26,14 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("GetTokens - GetUserDBReq error: %w", err)
 	}
 
+	// Получаем уник-ый refresh_token_id
+	refreshTokenID, err := us.db.GetRefreshTokenID(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("GetTokens - GetRefreshTokenID error: %w", err)
+	}
+
 	// Выпустить токены
-	tokens, err := us.tokensGenerate.GenerateTokensPair(data.UserID)
+	tokens, err := us.tokensGenerate.GenerateTokensPair(refreshTokenID, data.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("GetTokens - GenerateTokensPair error: %w", err)
 	}

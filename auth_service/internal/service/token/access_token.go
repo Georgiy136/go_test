@@ -5,6 +5,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/golang-jwt/jwt/v5"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -28,11 +29,16 @@ func NewAccessToken(cfg config.AccessToken) *AccessToken {
 	}
 }
 
-func (a *AccessToken) generateNewAccessToken(refreshToken string, payload string) (string, error) {
+func (a *AccessToken) generateNewAccessToken(accessTokenPayload models.AccessTokenPayload, refreshToken string) (string, error) {
+	payloadBytes, err := jsoniter.MarshalToString(accessTokenPayload)
+	if err != nil {
+		return "", fmt.Errorf("generateNewAccessToken: json marshal payload err: %v", err)
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.RegisteredClaims{
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.tokenLifetime)),
-		Subject:   payload,
+		Subject:   payloadBytes,
 	})
 
 	jwtToken, err := token.SignedString([]byte(a.getSignedString(refreshToken)))
@@ -48,16 +54,11 @@ func (a *AccessToken) generateNewAccessToken(refreshToken string, payload string
 	return tokenString, nil
 }
 
-func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (*models.TokenInfo, error) {
+func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (*models.AccessTokenInfo, error) {
 	accessTokenDecode, err := a.crypter.DecodeFromBase64AndDecrypt(accessToken)
 	if err != nil {
 		return nil, fmt.Errorf("a.crypter.Encrypt error: %w", err)
 	}
-
-	/*refreshTokenDecode, err := a.crypter.DecodeFromBase64AndDecrypt(refreshToken)
-	if err != nil {
-		return nil, fmt.Errorf("a.crypter.Encrypt error: %w", err)
-	}*/
 
 	token, err := jwt.ParseWithClaims(accessTokenDecode, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.getSignedString(refreshToken)), nil
@@ -68,11 +69,16 @@ func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (*mode
 	}
 
 	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
-		return &models.TokenInfo{
+		payload, err := a.getAccessTokenPayload(claims.Subject)
+		if err != nil {
+			return nil, fmt.Errorf("decodeAccessTokenv getAccessTokenPayload error: %w", err)
+		}
+
+		return &models.AccessTokenInfo{
 			Issuer:    claims.Issuer,
-			Payload:   claims.Subject,
+			Payload:   *payload,
 			ExpiredAt: claims.ExpiresAt.Time,
-			IssuedAt:  claims.ExpiresAt.Time,
+			IssuedAt:  claims.IssuedAt.Time,
 		}, nil
 	}
 
@@ -81,4 +87,13 @@ func (a *AccessToken) decodeAccessToken(accessToken, refreshToken string) (*mode
 
 func (a *AccessToken) getSignedString(refreshToken string) string {
 	return refreshToken + a.cfg.SignedKey
+}
+
+func (a *AccessToken) getAccessTokenPayload(payload string) (*models.AccessTokenPayload, error) {
+	var payloadData models.AccessTokenPayload
+	if err := jsoniter.UnmarshalFromString(payload, &payloadData); err != nil {
+		return nil, err
+	}
+
+	return &payloadData, nil
 }
