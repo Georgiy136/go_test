@@ -19,13 +19,11 @@ func NewIssueTokensService(cfg config.Tokens) *IssueTokensService {
 }
 
 func (t *IssueTokensService) GenerateTokensPair(data models.TokenPayload) (*models.AuthTokens, error) {
-	// генерим refresh токен
 	refreshToken, err := t.refreshToken.generateNewRefreshToken(data.RefreshTokenID)
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
 	}
 
-	// генерим access токен
 	accessToken, err := t.accessToken.generateNewAccessToken(refreshToken, data)
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new access token error: %v", err)
