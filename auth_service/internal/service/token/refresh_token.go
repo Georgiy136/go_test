@@ -40,8 +40,6 @@ func (a *RefreshToken) generateNewRefreshToken() (string, error) {
 }
 
 func (a *RefreshToken) parseRefreshToken(refreshToken string) error {
-	logrus.Infof("a.cfg.SignedKey - %v", a.cfg.SignedKey)
-
 	token, err := jwt.ParseWithClaims(refreshToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.cfg.SignedKey), nil
 	}, jwt.WithLeeway(5*time.Second))
