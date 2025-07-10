@@ -1,7 +1,3 @@
 ### STATUS 200
-POST localhost:8080/api/good/create?project_id=1
+GET localhost:8083/api/auth/issue_tokens?user_id=1
 Content-Type: application/json
-
-{
-  "name": "принтер5"
-}

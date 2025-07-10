@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/Georgiy136/go_test/auth_service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/helpers"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
 	"strings"
 )

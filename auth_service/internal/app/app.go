@@ -3,9 +3,9 @@ package app
 import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
-	"github.com/Georgiy136/go_test/auth_service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/http"
 	"github.com/Georgiy136/go_test/auth_service/internal/service"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	db "github.com/Georgiy136/go_test/auth_service/internal/service/repo/postgres"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
 	"github.com/Georgiy136/go_test/auth_service/pkg/postgres"
