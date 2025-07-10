@@ -1,4 +1,4 @@
-package token
+package crypter
 
 import (
 	"crypto/aes"
@@ -6,21 +6,22 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
 	"io"
 )
 
-type crypter struct {
+type Crypter struct {
 	key []byte
 }
 
-func NewCrypter(key string) *crypter {
-	return &crypter{
+func NewCrypter(key string) *Crypter {
+	return &Crypter{
 		key: []byte(key),
 	}
 }
 
 // Encrypt зашифровать строку.
-func (r *crypter) Encrypt(payload string) ([]byte, error) {
+func (r *Crypter) Encrypt(payload string) ([]byte, error) {
 	block, err := aes.NewCipher(r.key)
 	if err != nil {
 		return nil, fmt.Errorf("aes.NewCipher: %w", err)
@@ -41,7 +42,7 @@ func (r *crypter) Encrypt(payload string) ([]byte, error) {
 }
 
 // Decrypt расшифровать строку.
-func (r *crypter) Decrypt(payload []byte) (string, error) {
+func (r *Crypter) Decrypt(payload []byte) (string, error) {
 	block, err := aes.NewCipher(r.key)
 	if err != nil {
 		return "", fmt.Errorf("aes.NewCipher: %w", err)
@@ -50,7 +51,7 @@ func (r *crypter) Decrypt(payload []byte) (string, error) {
 	cipherText := payload[:]
 
 	if len(cipherText) < aes.BlockSize {
-		return "", ErrCipherTextIsTooShort
+		return "", token.ErrCipherTextIsTooShort
 	}
 
 	iv := cipherText[:aes.BlockSize]
@@ -63,7 +64,7 @@ func (r *crypter) Decrypt(payload []byte) (string, error) {
 }
 
 // EncryptAndEncodeToBase64 зашифровать и закодировать результат в base64.
-func (r *crypter) EncryptAndEncodeToBase64(payload string) (string, error) {
+func (r *Crypter) EncryptAndEncodeToBase64(payload string) (string, error) {
 	encodedStr, err := r.Encrypt(payload)
 	if err != nil {
 		return "", fmt.Errorf("r.Encrypt: %w", err)
@@ -73,7 +74,7 @@ func (r *crypter) EncryptAndEncodeToBase64(payload string) (string, error) {
 }
 
 // DecodeFromBase64AndDecrypt декодировать base64 и расшифровать результат.
-func (r *crypter) DecodeFromBase64AndDecrypt(payload string) (string, error) {
+func (r *Crypter) DecodeFromBase64AndDecrypt(payload string) (string, error) {
 	decoded, err := r.DecodeFromBase64(payload)
 	if err != nil {
 		return "", fmt.Errorf("convhelpers.DecodeFromBase64: %w", err)
@@ -87,10 +88,10 @@ func (r *crypter) DecodeFromBase64AndDecrypt(payload string) (string, error) {
 	return decrypted, nil
 }
 
-func (r *crypter) EncodeToBase64(b []byte) string {
+func (r *Crypter) EncodeToBase64(b []byte) string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
-func (r *crypter) DecodeFromBase64(s string) ([]byte, error) {
+func (r *Crypter) DecodeFromBase64(s string) ([]byte, error) {
 	return base64.StdEncoding.DecodeString(s)
 }

@@ -78,11 +78,11 @@ func (a *AccessToken) getSignedString(refreshToken string) string {
 	return refreshToken + a.cfg.SignedKey
 }
 
-func (a *AccessToken) getAccessTokenPayload(payload string) (models.TokenPayload, error) {
+func (a *AccessToken) getAccessTokenPayload(payload string) (*models.TokenPayload, error) {
 	var payloadData models.TokenPayload
 	if err := jsoniter.UnmarshalFromString(payload, &payloadData); err != nil {
 		return nil, err
 	}
 
-	return payloadData, nil
+	return &payloadData, nil
 }

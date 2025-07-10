@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/Georgiy136/go_test/auth_service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/helpers"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
@@ -12,12 +13,14 @@ import (
 type AuthService struct {
 	db             AuthStore
 	tokensGenerate token.IssueTokensService
+	crypter        crypter.Crypter
 }
 
-func NewAuthService(tokensGenerate token.IssueTokensService, db AuthStore) *AuthService {
+func NewAuthService(tokensGenerate token.IssueTokensService, crypter crypter.Crypter, db AuthStore) *AuthService {
 	return &AuthService{
 		db:             db,
 		tokensGenerate: tokensGenerate,
+		crypter:        crypter,
 	}
 }
 
@@ -46,35 +49,54 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("GetTokens - GenerateTokensPair error: %w", err)
 	}
 
+	// закодировать токены
+	refreshTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.RefreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("a.crypter.Encrypt refreshToken error: %w", err)
+	}
+	accessTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.AccessToken)
+	if err != nil {
+		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
+	}
+
 	// Сохранить инфо о входе в БД
 	if err = us.db.SaveUserLogin(ctx, models.LoginInfo{
 		UserID:         data.UserID,
 		RefreshTokenID: refreshTokenID,
-		RefreshToken:   helpers.HashSha512(tokens.RefreshToken),
+		RefreshToken:   helpers.HashSha512(refreshTokenEncrypted),
 		UserAgent:      data.UserAgent,
 		IpAddress:      data.IpAddress,
 	}); err != nil {
 		return nil, fmt.Errorf("GetTokens - us.db.SaveUserLogin error: %w", err)
 	}
 
-	return tokens, nil
+	return &models.AuthTokens{
+		AccessToken:  accessTokenEncrypted,
+		RefreshToken: refreshTokenEncrypted,
+	}, nil
 }
 
 func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromRequestUpdateTokens) (*models.AuthTokens, error) {
-	refreshToken, err := us.tokensGenerate.DecodeFromBase64AndDecrypt(data.RefreshToken)
+	refreshToken, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error: %w", err)
 	}
-	accessToken, err := us.tokensGenerate.DecodeFromBase64AndDecrypt(data.AccessToken)
+	accessToken, err := us.crypter.DecodeFromBase64AndDecrypt(data.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt accessToken error: %w", err)
 	}
 
+	// парсим refresh токен
 	refreshTokenInfo, err := us.tokensGenerate.ParseRefreshToken(refreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
 	}
-	accessTokenInfo, err := us.tokensGenerate.ParseAccessToken(accessToken, refreshToken)
+
+	// парсим access токен
+	accessTokenInfo, err := us.tokensGenerate.ParseAccessToken(models.AuthTokens{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
 	}
