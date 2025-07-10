@@ -59,11 +59,14 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
 	}
 
+	//шифруем токен пред сохранением в БД
+	hashRefreshToken := helpers.HashSha512(refreshTokenEncrypted)
+
 	// Сохранить инфо о входе в БД
 	if err = us.db.SaveUserLogin(ctx, models.LoginInfo{
 		UserID:         data.UserID,
 		RefreshTokenID: refreshTokenID,
-		RefreshToken:   helpers.HashSha512(refreshTokenEncrypted),
+		RefreshToken:   hashRefreshToken,
 		UserAgent:      data.UserAgent,
 		IpAddress:      data.IpAddress,
 	}); err != nil {
