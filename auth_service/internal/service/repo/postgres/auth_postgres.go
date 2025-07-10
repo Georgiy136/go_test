@@ -34,5 +34,10 @@ func (db *AuthRepo) GetRefreshTokenID(ctx context.Context) (int, error) {
 
 func (db *AuthRepo) GetSignInByRefreshTokenID(ctx context.Context, refreshTokenID int) (*models.LoginInfo, error) {
 
-	return nil, nil
+	return &models.LoginInfo{
+		UserID:         1,
+		RefreshTokenID: refreshTokenID,
+		UserAgent:      "IntelliJ HTTP Client/GoLand 2025.2.3",
+		IpAddress:      "127.0.0.1",
+	}, nil
 }

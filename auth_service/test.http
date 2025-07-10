@@ -1,3 +1,12 @@
 ### STATUS 200
 GET localhost:8083/api/auth/issue_tokens?user_id=1
 Content-Type: application/json
+
+### STATUS 200
+PUT localhost:8083/api/auth/update_tokens
+Content-Type: application/json
+
+{
+  "access_token": "ZGV4uIDHhUQDCnDsjoCLPc6GWO43sptSJSs8quLkygr5bp3HYh4QNLNQRkovfsTJpG5ey0/65eb5qIBJMlrmzyXDRd9a8pXFxVSGiUa38cQKQyZ4t9ZDCv/bksOetO4Bj1EcQLayuKVmHisGFqP518JpgYJWYAlGwkhD3Mq9zDzcAb9kKcRhiXBJzysRLWjBVzD5FwPX8efQMpMApPD59LgMGZJ4YgvXHbmE+iJUZmonxs4b6TMs2c3QrqYCQwh/WqKApv7U81EzMBp4ca+3kHgXywAJteLTQVldJHxSbNLLrp4Y9U2DsEZRb31eKEqG4Km17hdAPwIFGw==",
+  "refresh_token": "TYb1nrVFrrp2cUuUG8EVP+ymWXW1ZyiqmMceO0W9ZIyt/WLyhsrYh1mkmbjP4TXNbClvRMemjxyBq8aqIOl6Nn3tEjxgPk+ddJFtnU5qVrJ3inyRELs2GXqSkQgJlWabOY713UTvRmbxNOXSVVJmsWYtpyF+PeqcbYCektIbHl7KhN5l2rJZSlE6+rCXPKGDFCH9Fv1cSmM4n8gGPA=="
+}
