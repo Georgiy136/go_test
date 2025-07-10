@@ -48,26 +48,27 @@ func (a *AccessToken) generateNewAccessToken(refreshToken string, accessTokenPay
 }
 
 func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.AccessTokenInfo, error) {
-	token, err := jwt.ParseWithClaims(tokens.AccessToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+	parsedAccessToken, err := jwt.Parse(tokens.AccessToken, func(t *jwt.Token) (interface{}, error) {
 		return []byte(a.getSignedString(tokens.RefreshToken)), nil
-	}, jwt.WithLeeway(5*time.Second))
-
+	})
 	if err != nil {
 		return nil, fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
 	}
 
-	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
-		payload, err := a.getAccessTokenPayload(claims.Subject)
+	if parsedAccessToken.Valid {
+		payloadString, err := parsedAccessToken.Claims.GetSubject()
 		if err != nil {
-			return nil, fmt.Errorf("decodeAccessTokenv getAccessTokenPayload error: %w", err)
+			return nil, fmt.Errorf("decodeAccessToken claims.GetSubject error: %w", err)
+		}
+
+		payload, err := a.getAccessTokenPayload(payloadString)
+		if err != nil {
+			return nil, fmt.Errorf("decodeAccessToken a.getAccessTokenPayload error: %w", err)
 		}
 
 		return &models.AccessTokenInfo{
-			Issuer:         claims.Issuer,
 			UserID:         payload.UserID,
 			RefreshTokenID: payload.RefreshTokenID,
-			ExpiredAt:      claims.ExpiresAt.Time,
-			IssuedAt:       claims.IssuedAt.Time,
 		}, nil
 	}
 

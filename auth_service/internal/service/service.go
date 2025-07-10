@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/client"
-	"github.com/Georgiy136/go_test/auth_service/constant"
 	"github.com/Georgiy136/go_test/auth_service/helpers"
 	"github.com/Georgiy136/go_test/auth_service/internal/common"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
@@ -14,7 +13,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
 	"strings"
-	"time"
 )
 
 type AuthService struct {
@@ -104,8 +102,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	)
 
 	// парсим refresh токен
-	refreshTokenInfo, err := us.tokensGenerate.ParseRefreshToken(refreshToken)
-	if err != nil {
+	if err := us.tokensGenerate.ParseRefreshToken(refreshToken); err != nil {
 		switch {
 		case errors.Is(err, jwt.ErrTokenExpired):
 			refreshTokenIsExpired = true
@@ -127,6 +124,8 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 			return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
 		}
 	}
+
+	logrus.Infof("UpdateTokens - accessTokenInfo: %+v", accessTokenInfo)
 
 	// Проверяем есть ли пользователь в БД
 	user, err := us.db.GetUser(ctx, accessTokenInfo.UserID)
@@ -163,14 +162,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		}()
 	}
 
-	if refreshTokenInfo.ExpiredAt.Sub(time.Now()) < (constant.MinRefreshTokenExpTime) {
-		refreshTokenIsExpired = true
-	}
-	if accessTokenInfo.ExpiredAt.Sub(time.Now()) < (constant.MinAccessTokenExpTime) {
-		refreshTokenIsExpired = true
-	}
-
-	if refreshTokenIsExpired && accessTokenIsExpired {
+	if refreshTokenIsExpired {
 		// удаляем старую сессию в БД
 		// ...
 

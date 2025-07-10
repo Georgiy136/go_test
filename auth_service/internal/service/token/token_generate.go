@@ -43,7 +43,7 @@ func (t *IssueTokensService) GenerateNewAccessToken(refreshToken string, data mo
 	return accessToken, nil
 }
 
-func (t *IssueTokensService) ParseRefreshToken(refreshToken string) (*models.RefreshTokenInfo, error) {
+func (t *IssueTokensService) ParseRefreshToken(refreshToken string) error {
 	return t.refreshToken.parseRefreshToken(refreshToken)
 }
 

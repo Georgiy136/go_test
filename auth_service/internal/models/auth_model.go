@@ -7,12 +7,6 @@ type AuthTokens struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-type RefreshTokenInfo struct {
-	Issuer    string    `json:"issuer"`
-	ExpiredAt time.Time `json:"expired_at"`
-	IssuedAt  time.Time `json:"issued_at"`
-}
-
 type AccessTokenInfo struct {
 	Issuer         string    `json:"issuer"`
 	UserID         int       `json:"user_id"`

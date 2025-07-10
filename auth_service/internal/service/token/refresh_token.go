@@ -3,10 +3,8 @@ package token
 import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
-	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
-	"strconv"
 	"time"
 )
 
@@ -41,26 +39,20 @@ func (a *RefreshToken) generateNewRefreshToken() (string, error) {
 	return jwtToken, nil
 }
 
-func (a *RefreshToken) parseRefreshToken(refreshToken string) (*models.RefreshTokenInfo, error) {
+func (a *RefreshToken) parseRefreshToken(refreshToken string) error {
+	logrus.Infof("a.cfg.SignedKey - %v", a.cfg.SignedKey)
+
 	token, err := jwt.ParseWithClaims(refreshToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(a.cfg.SignedKey), nil
 	}, jwt.WithLeeway(5*time.Second))
 
 	if err != nil {
-		return nil, fmt.Errorf("decodeRefreshToken jwt.Parse error: %w", err)
+		return fmt.Errorf("decodeRefreshToken jwt.Parse error: %w", err)
 	}
 
-	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
-		return &models.RefreshTokenInfo{
-			Issuer:    claims.Issuer,
-			ExpiredAt: claims.ExpiresAt.Time,
-			IssuedAt:  claims.IssuedAt.Time,
-		}, nil
+	if _, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
+		return nil
 	}
 
-	return nil, fmt.Errorf("decodeRefreshToken error: %w", err)
-}
-
-func (a *RefreshToken) getRefreshTokenID(id string) (int, error) {
-	return strconv.Atoi(id)
+	return fmt.Errorf("decodeRefreshToken error: %w", err)
 }
