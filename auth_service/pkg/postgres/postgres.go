@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
-	"github.com/Georgiy136/go_test/auth_service/pkg/jaegerotel"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"

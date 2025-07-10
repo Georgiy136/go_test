@@ -4,10 +4,8 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/http/httpresponse"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service"
-	"net/http"
-	"time"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type AuthHandler struct {
@@ -60,29 +58,6 @@ func (h *AuthHandler) UpdateTokens(c *gin.Context) {
 		RefreshToken: body.RefreshToken,
 		UserAgent:    userAgent,
 		IpAddress:    clientIp,
-	})
-	if err != nil {
-		httpresponse.HandleError(c, err, nil)
-		return
-	}
-	httpresponse.SendSuccessOK(c, goods)
-}
-
-func (h *AuthHandler) DeleteGood(c *gin.Context) {
-	type deleteGoodParamsRequest struct {
-		GoodsID   int `form:"goods_id" binding:"required,gt=0"`
-		ProjectID int `form:"project_id" binding:"required,gt=0"`
-	}
-	var req deleteGoodParamsRequest
-	if err := c.ShouldBindQuery(&req); err != nil {
-		httpresponse.SendFailBadRequest(c, err.Error(), nil)
-		return
-	}
-
-	goods, err := h.us.DeleteGood(c.Request.Context(), models.DataFromRequestGoodsDelete{
-		GoodID:    req.GoodsID,
-		ProjectID: req.ProjectID,
-		DeletedAt: time.Now(),
 	})
 	if err != nil {
 		httpresponse.HandleError(c, err, nil)

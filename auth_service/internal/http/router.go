@@ -16,9 +16,8 @@ func NewRouter(router *gin.Engine, us service.AuthService) {
 	{
 		good := api.Group("/auth")
 		{
-			good.GET("/get_tokens", authHandlers.GetTokens)
-			good.PATCH("/update", authHandlers.UpdateTokens)
-			good.DELETE("/remove", authHandlers.DeleteGood)
+			good.GET("/issue_tokens", authHandlers.GetTokens)
+			good.PATCH("/update_tokens", authHandlers.UpdateTokens)
 		}
 	}
 }
