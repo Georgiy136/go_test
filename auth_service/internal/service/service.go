@@ -141,9 +141,9 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	// Сверяем совпадают ли refresh токен с захешированным в БД
-	//if !strings.EqualFold(helpers.HashSha512(data.RefreshToken), loginInfo.RefreshToken) {
-	//	return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
-	//}
+	if !strings.EqualFold(helpers.HashSha512(data.RefreshToken), loginInfo.RefreshToken) {
+		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
+	}
 
 	// Сверяем совпадают ли User-Agent
 	if !strings.EqualFold(data.UserAgent, loginInfo.UserAgent) {
