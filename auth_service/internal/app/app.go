@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
+	"github.com/Georgiy136/go_test/auth_service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/http"
 	"github.com/Georgiy136/go_test/auth_service/internal/service"
 	db "github.com/Georgiy136/go_test/auth_service/internal/service/repo/postgres"
@@ -30,8 +31,11 @@ func Run(cfg *config.Config) {
 	// token generate service
 	tokenGenerator := token.NewIssueTokensService(cfg.Tokens)
 
+	// crypter
+	crypt := crypter.NewCrypter(cfg.Crypter.SignedKey)
+
 	// Service
-	authService := service.NewAuthService(tokenGenerator, authRepo)
+	authService := service.NewAuthService(tokenGenerator, crypt, authRepo)
 
 	// HTTP Server
 	router := gin.Default()

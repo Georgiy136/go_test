@@ -12,11 +12,11 @@ import (
 
 type AuthService struct {
 	db             AuthStore
-	tokensGenerate token.IssueTokensService
-	crypter        crypter.Crypter
+	tokensGenerate *token.IssueTokensService
+	crypter        *crypter.Crypter
 }
 
-func NewAuthService(tokensGenerate token.IssueTokensService, crypter crypter.Crypter, db AuthStore) *AuthService {
+func NewAuthService(tokensGenerate *token.IssueTokensService, crypter *crypter.Crypter, db AuthStore) *AuthService {
 	return &AuthService{
 		db:             db,
 		tokensGenerate: tokensGenerate,
