@@ -19,7 +19,7 @@ func NewAuthRepo(pg *postgres.Postgres) service.AuthStore {
 }
 func (db *AuthRepo) GetUser(ctx context.Context, userID int) (*models.User, error) {
 
-	return nil, nil
+	return &models.User{UserID: 1}, nil
 }
 
 func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) error {

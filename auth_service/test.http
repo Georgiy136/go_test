@@ -5,28 +5,3 @@ Content-Type: application/json
 {
   "name": "принтер5"
 }
-
-### STATUS 200
-PATCH localhost:8080/api/good/update?project_id=1&good_id=1
-Content-Type: application/json
-
-{
-  "name": "Цветок22"
-}
-
-### STATUS 200
-DELETE localhost:8080/api/good/remove?project_id=1&goods_id=1
-Content-Type: application/json
-
-
-### STATUS 200
-GET localhost:8080/api/goods/list?limit=10&offset=0
-Content-Type: application/json
-
-### STATUS 200
-PATCH localhost:8080/api/good/reprioritize?project_id=1&good_id=5
-Content-Type: application/json
-
-{
-  "NewPriority": 8
-}

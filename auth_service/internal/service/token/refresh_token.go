@@ -16,7 +16,7 @@ type RefreshToken struct {
 }
 
 func NewRefreshToken(cfg config.RefreshToken) *RefreshToken {
-	tokenLifetime, err := time.ParseDuration(cfg.SignedKey)
+	tokenLifetime, err := time.ParseDuration(cfg.TokenLifetime)
 	if err != nil {
 		logrus.Fatalf("NewAccessToken: tokenLifetime ParseDuration err: %v", err)
 	}

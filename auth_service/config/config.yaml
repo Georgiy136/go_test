@@ -2,9 +2,9 @@ http:
  port: 8083
 
 postgres:
- host: "postgres" #localhost postgres
- port: 5434
+ host: "localhost" #localhost postgres
+ port: 5432
  user: "postgres"
  password: "4650"
- dbname: "default"
+ dbname: "postgres"
  sslmode: "disable"

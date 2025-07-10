@@ -16,7 +16,7 @@ type AccessToken struct {
 }
 
 func NewAccessToken(cfg config.AccessToken) *AccessToken {
-	tokenLifetime, err := time.ParseDuration(cfg.SignedKey)
+	tokenLifetime, err := time.ParseDuration(cfg.TokenLifetime)
 	if err != nil {
 		logrus.Fatalf("NewAccessToken: tokenLifetime ParseDuration err: %v", err)
 	}

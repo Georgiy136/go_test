@@ -5,6 +5,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -25,6 +26,8 @@ func (h *AuthHandler) GetTokens(c *gin.Context) {
 	userAgent := c.Request.UserAgent()
 	//ipAddress := c.GetHeader("X-Forwarded-For")
 	clientIp := c.ClientIP()
+
+	logrus.Debugf("")
 
 	tokens, err := h.us.GetTokens(c.Request.Context(), models.DataFromRequestGetTokens{
 		UserID:    req.UserID,

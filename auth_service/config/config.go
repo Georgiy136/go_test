@@ -2,14 +2,18 @@ package config
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 type (
 	Config struct {
-		Http
-		Postgres
+		Http     `yaml:"http"`
+		Postgres `yaml:"postgres"`
 		Tokens
+		AccessToken  `yaml:"accesstoken"`
+		RefreshToken `yaml:"refreshtoken"`
+		Crypter      `yaml:"crypter"`
 	}
 
 	Http struct {
@@ -17,29 +21,29 @@ type (
 	}
 
 	Postgres struct {
-		Host     string
-		Port     int
-		User     string
-		Password string
-		Dbname   string
-		Sslmode  string
+		Host     string `yaml:"host"`
+		Port     int    `yaml:"port"`
+		User     string `yaml:"user"`
+		Password string `yaml:"password"`
+		Dbname   string `yaml:"dbname"`
+		Sslmode  string `yaml:"sslmode"`
 	}
 
+	AccessToken struct {
+		SignedKey     string `yaml:"signed_key"`
+		TokenLifetime string `yaml:"token_lifetime"`
+	}
+	RefreshToken struct {
+		SignedKey     string `yaml:"signed_key"`
+		TokenLifetime string `yaml:"token_lifetime"`
+	}
+	Crypter struct {
+		SignedKey string `yaml:"signed_key"`
+	}
 	Tokens struct {
 		AccessToken
 		RefreshToken
 		Crypter
-	}
-	AccessToken struct {
-		SignedKey     string
-		tokenLifetime string
-	}
-	RefreshToken struct {
-		SignedKey     string
-		tokenLifetime string
-	}
-	Crypter struct {
-		SignedKey string
 	}
 )
 
@@ -59,5 +63,22 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal error: %w", err)
 	}
+
+	logrus.Infof("config: %+v", cfg)
+
+	cfg.Tokens = Tokens{
+		AccessToken: AccessToken{
+			SignedKey:     "abcdabcd",
+			TokenLifetime: "2h",
+		},
+		RefreshToken: RefreshToken{
+			SignedKey:     "abcdabcd",
+			TokenLifetime: "2h",
+		},
+		Crypter: Crypter{
+			SignedKey: "abcdabcd",
+		},
+	}
+
 	return cfg, nil
 }
