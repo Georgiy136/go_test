@@ -35,6 +35,14 @@ func (t *IssueTokensService) GenerateTokensPair(data models.TokenPayload) (*mode
 	}, nil
 }
 
+func (t *IssueTokensService) GenerateNewAccessToken(refreshToken string, data models.TokenPayload) (string, error) {
+	accessToken, err := t.accessToken.generateNewAccessToken(refreshToken, data)
+	if err != nil {
+		return "", fmt.Errorf("generateTokensPair: generating new access token error: %v", err)
+	}
+	return accessToken, nil
+}
+
 func (t *IssueTokensService) ParseRefreshToken(refreshToken string) (*models.RefreshTokenInfo, error) {
 	return t.refreshToken.parseRefreshToken(refreshToken)
 }
