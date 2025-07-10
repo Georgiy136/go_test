@@ -3,24 +3,29 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/Georgiy136/go_test/auth_service/client"
 	"github.com/Georgiy136/go_test/auth_service/helpers"
+	"github.com/Georgiy136/go_test/auth_service/internal/common"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
+	"github.com/sirupsen/logrus"
 	"strings"
 )
 
 type AuthService struct {
-	db             AuthStore
-	tokensGenerate *token.IssueTokensService
-	crypter        *crypter.Crypter
+	db                 AuthStore
+	notificationClient *client.NotificationClient
+	tokensGenerate     *token.IssueTokensService
+	crypter            *crypter.Crypter
 }
 
-func NewAuthService(tokensGenerate *token.IssueTokensService, crypter *crypter.Crypter, db AuthStore) *AuthService {
+func NewAuthService(tokensGenerate *token.IssueTokensService, crypter *crypter.Crypter, notificationClient *client.NotificationClient, db AuthStore) *AuthService {
 	return &AuthService{
-		db:             db,
-		tokensGenerate: tokensGenerate,
-		crypter:        crypter,
+		db:                 db,
+		tokensGenerate:     tokensGenerate,
+		crypter:            crypter,
+		notificationClient: notificationClient,
 	}
 }
 
@@ -90,7 +95,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	// парсим refresh токен
-	refreshTokenInfo, err := us.tokensGenerate.ParseRefreshToken(refreshToken)
+	_, err = us.tokensGenerate.ParseRefreshToken(refreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
 	}
@@ -102,11 +107,6 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	})
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
-	}
-
-	// сверяем RefreshTokenID
-	if refreshTokenInfo.RefreshTokenID != accessTokenInfo.RefreshTokenID {
-		return nil, fmt.Errorf("UpdateTokens - RefreshTokenID does not match")
 	}
 
 	// Проверяем есть ли пользователь в БД
@@ -137,7 +137,11 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	// Сверяем совпадает ли ip-адрес
 	if !strings.EqualFold(data.IpAddress, loginInfo.IpAddress) {
 		// уведомляем пользователя о входе с нового ip адреса
-		// ...
+		go func() {
+			if err = us.notificationClient.SendNewSignInNotification(accessTokenInfo.UserID, fmt.Sprintf(common.NewSignInNotificationCommonMsg, data.IpAddress, data.UserAgent)); err != nil {
+				logrus.Errorf("UpdateTokens - SendNewSignInNotification error: %v", err)
+			}
+		}()
 	}
 
 	return us.GetTokens(ctx, models.DataFromRequestGetTokens{

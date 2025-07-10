@@ -19,7 +19,7 @@ func NewIssueTokensService(cfg config.Tokens) *IssueTokensService {
 }
 
 func (t *IssueTokensService) GenerateTokensPair(data models.TokenPayload) (*models.AuthTokens, error) {
-	refreshToken, err := t.refreshToken.generateNewRefreshToken(data.RefreshTokenID)
+	refreshToken, err := t.refreshToken.generateNewRefreshToken()
 	if err != nil {
 		return nil, fmt.Errorf("generateTokensPair: generating new refresh token error: %v", err)
 	}
@@ -40,5 +40,5 @@ func (t *IssueTokensService) ParseRefreshToken(refreshToken string) (*models.Ref
 }
 
 func (t *IssueTokensService) ParseAccessToken(tokens models.AuthTokens) (*models.AccessTokenInfo, error) {
-	return t.accessToken.parseAccessToken(tokens.AccessToken, tokens.RefreshToken)
+	return t.accessToken.parseAccessToken(tokens)
 }

@@ -8,8 +8,9 @@ import (
 
 type (
 	Config struct {
-		Http     `yaml:"http"`
-		Postgres `yaml:"postgres"`
+		Http               `yaml:"http"`
+		Postgres           `yaml:"postgres"`
+		NotificationClient `yaml:"notification_client"`
 		Tokens
 		AccessToken  `yaml:"accesstoken"`
 		RefreshToken `yaml:"refreshtoken"`
@@ -44,6 +45,10 @@ type (
 		AccessToken
 		RefreshToken
 	}
+
+	NotificationClient struct {
+		Url string
+	}
 )
 
 func NewConfig() (*Config, error) {
@@ -72,7 +77,7 @@ func NewConfig() (*Config, error) {
 		},
 		RefreshToken: RefreshToken{
 			SignedKey:     "abcdabcd",
-			TokenLifetime: "2h",
+			TokenLifetime: "1s",
 		},
 	}
 	cfg.Crypter = Crypter{

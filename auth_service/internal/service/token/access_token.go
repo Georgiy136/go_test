@@ -47,9 +47,9 @@ func (a *AccessToken) generateNewAccessToken(refreshToken string, accessTokenPay
 	return jwtToken, nil
 }
 
-func (a *AccessToken) parseAccessToken(accessToken, refreshToken string) (*models.AccessTokenInfo, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(a.getSignedString(refreshToken)), nil
+func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.AccessTokenInfo, error) {
+	token, err := jwt.ParseWithClaims(tokens.AccessToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(a.getSignedString(tokens.RefreshToken)), nil
 	}, jwt.WithLeeway(5*time.Second))
 
 	if err != nil {

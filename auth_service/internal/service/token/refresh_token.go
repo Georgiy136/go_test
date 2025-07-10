@@ -27,11 +27,10 @@ func NewRefreshToken(cfg config.RefreshToken) *RefreshToken {
 	}
 }
 
-func (a *RefreshToken) generateNewRefreshToken(refreshTokenID int) (string, error) {
+func (a *RefreshToken) generateNewRefreshToken() (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.tokenLifetime)),
-		ID:        fmt.Sprintf("%d", refreshTokenID),
 	})
 
 	jwtToken, err := token.SignedString([]byte(a.cfg.SignedKey))
@@ -52,16 +51,10 @@ func (a *RefreshToken) parseRefreshToken(refreshToken string) (*models.RefreshTo
 	}
 
 	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
-		refreshTokenID, err := a.getRefreshTokenID(claims.ID)
-		if err != nil {
-			return nil, fmt.Errorf("decodeRefreshToken jwt.getAccessTokenID error: %w", err)
-		}
-
 		return &models.RefreshTokenInfo{
-			Issuer:         claims.Issuer,
-			RefreshTokenID: refreshTokenID,
-			ExpiredAt:      claims.ExpiresAt.Time,
-			IssuedAt:       claims.IssuedAt.Time,
+			Issuer:    claims.Issuer,
+			ExpiredAt: claims.ExpiresAt.Time,
+			IssuedAt:  claims.IssuedAt.Time,
 		}, nil
 	}
 

@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/Georgiy136/go_test/auth_service/client"
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/http"
 	"github.com/Georgiy136/go_test/auth_service/internal/service"
@@ -34,8 +35,10 @@ func Run(cfg *config.Config) {
 	// crypter
 	crypt := crypter.NewCrypter(cfg.Crypter.SignedKey)
 
+	notificationClient := client.NewNotificationClient(cfg.NotificationClient)
+
 	// Service
-	authService := service.NewAuthService(tokenGenerator, crypt, authRepo)
+	authService := service.NewAuthService(tokenGenerator, crypt, notificationClient, authRepo)
 
 	// HTTP Server
 	router := gin.Default()
