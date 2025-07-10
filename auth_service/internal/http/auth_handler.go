@@ -45,15 +45,11 @@ func (h *AuthHandler) UpdateTokens(c *gin.Context) {
 		return
 	}
 
-	userAgent := c.Request.UserAgent()
-	//ipAddress := c.GetHeader("X-Forwarded-For")
-	clientIp := c.ClientIP()
-
 	goods, err := h.us.UpdateTokens(c.Request.Context(), models.DataFromRequestUpdateTokens{
 		AccessToken:  body.AccessToken,
 		RefreshToken: body.RefreshToken,
-		UserAgent:    userAgent,
-		IpAddress:    clientIp,
+		UserAgent:    c.Request.UserAgent(),
+		IpAddress:    c.ClientIP(),
 	})
 	if err != nil {
 		httpresponse.HandleError(c, err, nil)
