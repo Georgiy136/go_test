@@ -10,7 +10,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
 	"github.com/sirupsen/logrus"
 	"strings"
 )
@@ -104,7 +104,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	// парсим refresh токен
 	if err := us.tokensGenerate.ParseRefreshToken(refreshToken); err != nil {
 		switch {
-		case errors.Is(err, jwt.ErrTokenExpired):
+		case errors.Is(err, jwt.TokenIsExpiredError):
 			refreshTokenIsExpired = true
 		default:
 			return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
@@ -118,7 +118,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	})
 	if err != nil {
 		switch {
-		case errors.Is(err, jwt.ErrTokenExpired):
+		case errors.Is(err, jwt.TokenIsExpiredError):
 			accessTokenIsExpired = true
 		default:
 			return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)

@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
@@ -32,17 +33,29 @@ func (j *JwtTokenGenerateGolangJwtV5) ParseToken(token, signedKey string) (strin
 		return []byte(signedKey), nil
 	})
 	if err != nil {
-		return "", fmt.Errorf("ParseToken - jwt.Parse error: %w", err)
+		switch {
+		case errors.Is(err, jwt.ErrTokenExpired): // если срок действия токена истёк, возвращаем subject и ошибку
+			sub, err := j.getTokenSubject(parsedToken)
+			if err != nil {
+				return "", err
+			}
+			return sub, TokenIsExpiredError
+		default:
+			return "", fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
+		}
 	}
 
 	if parsedToken.Valid {
-		payloadString, err := parsedToken.Claims.GetSubject()
-		if err != nil {
-			return "", fmt.Errorf("decodeAccessToken claims.GetSubject error: %w", err)
-		}
-
-		return payloadString, nil
+		return j.getTokenSubject(parsedToken)
 	}
 
-	return "", fmt.Errorf("ParseToken error, parsedToken not valid: %w", err)
+	return "", errors.New("token is not valid error")
+}
+
+func (j *JwtTokenGenerateGolangJwtV5) getTokenSubject(token *jwt.Token) (string, error) {
+	payloadString, err := token.Claims.GetSubject()
+	if err != nil {
+		return "", fmt.Errorf("getTokenSubject error: %w", err)
+	}
+	return payloadString, err
 }

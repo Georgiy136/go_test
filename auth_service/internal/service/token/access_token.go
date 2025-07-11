@@ -53,7 +53,10 @@ func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.Access
 		return []byte(a.getSignedString(tokens.RefreshToken)), nil
 	})
 	if err != nil {
-		if !errors.Is(err, jwt.ErrTokenExpired) {
+		switch {
+		case errors.Is(err, jwt.ErrTokenExpired):
+			err = jwt.ErrTokenExpired
+		default:
 			return nil, fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
 		}
 	}
@@ -71,7 +74,7 @@ func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.Access
 	return &models.AccessTokenInfo{
 		UserID:         payload.UserID,
 		RefreshTokenID: payload.RefreshTokenID,
-	}, nil
+	}, err
 
 }
 
