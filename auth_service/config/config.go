@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"time"
 )
 
 type (
@@ -31,12 +32,12 @@ type (
 	}
 
 	AccessToken struct {
-		SignedKey     string `yaml:"signed_key"`
-		TokenLifetime string `yaml:"token_lifetime"`
+		SignedKey     string        `yaml:"signed_key"`
+		TokenLifetime time.Duration `yaml:"token_lifetime"`
 	}
 	RefreshToken struct {
-		SignedKey     string `yaml:"signed_key"`
-		TokenLifetime string `yaml:"token_lifetime"`
+		SignedKey     string        `yaml:"signed_key"`
+		TokenLifetime time.Duration `yaml:"token_lifetime"`
 	}
 	Crypter struct {
 		SignedKey string `yaml:"signed_key"`
@@ -73,11 +74,11 @@ func NewConfig() (*Config, error) {
 	cfg.Tokens = Tokens{
 		AccessToken: AccessToken{
 			SignedKey:     "abcdabcd",
-			TokenLifetime: "2h",
+			TokenLifetime: 2 * time.Hour,
 		},
 		RefreshToken: RefreshToken{
 			SignedKey:     "abcdabcd",
-			TokenLifetime: "1s",
+			TokenLifetime: 1 * time.Hour,
 		},
 	}
 	cfg.Crypter = Crypter{

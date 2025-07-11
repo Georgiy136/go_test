@@ -19,14 +19,12 @@ type AuthService struct {
 	db                 AuthStore
 	notificationClient *client.NotificationClient
 	tokensGenerate     *token.IssueTokensService
-	crypter            *crypter.Crypter
 }
 
-func NewAuthService(tokensGenerate *token.IssueTokensService, crypter *crypter.Crypter, notificationClient *client.NotificationClient, db AuthStore) *AuthService {
+func NewAuthService(tokensGenerate *token.IssueTokensService, notificationClient *client.NotificationClient, db AuthStore) *AuthService {
 	return &AuthService{
 		db:                 db,
 		tokensGenerate:     tokensGenerate,
-		crypter:            crypter,
 		notificationClient: notificationClient,
 	}
 }
@@ -56,11 +54,6 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("GetTokens - GenerateTokensPair error: %w", err)
 	}
 
-	// закодировать токены
-	refreshTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.RefreshToken)
-	if err != nil {
-		return nil, fmt.Errorf("a.crypter.Encrypt refreshToken error: %w", err)
-	}
 	accessTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)

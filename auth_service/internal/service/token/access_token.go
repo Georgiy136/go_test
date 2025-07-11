@@ -7,36 +7,34 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
 	"github.com/go-faster/errors"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/sirupsen/logrus"
-	"time"
 )
 
 type AccessToken struct {
-	jwtToken      jwt.JwtTokenGenerate
-	cfg           config.AccessToken
-	tokenLifetime time.Duration
+	jwtToken jwt.JwtTokenGenerate
+	cfg      config.AccessToken
 }
 
 func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) *AccessToken {
-	tokenLifetime, err := time.ParseDuration(cfg.TokenLifetime)
-	if err != nil {
-		logrus.Fatalf("NewAccessToken: tokenLifetime ParseDuration err: %v", err)
-	}
-
 	return &AccessToken{
-		cfg:           cfg,
-		tokenLifetime: tokenLifetime,
-		jwtToken:      jwtToken,
+		cfg:      cfg,
+		jwtToken: jwtToken,
 	}
 }
 
-func (a *AccessToken) generateNewAccessToken(refreshToken string, accessTokenPayload models.AccessTokenPayload) (string, error) {
-	return a.jwtToken.GenerateToken(a.getSignedString(refreshToken), a.tokenLifetime, accessTokenPayload)
+func (a *AccessToken) New(refreshToken string, accessTokenPayload models.AccessTokenPayload) (string, error) {
+	return a.jwtToken.GenerateToken(a.getSignedString(refreshToken), a.cfg.TokenLifetime, accessTokenPayload)
 }
 
-func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.AccessTokenPayload, error) {
+func (a *AccessToken) Parse(tokens models.AuthTokens) (*models.AccessTokenPayload, error) {
 	sub, err := a.jwtToken.ParseToken(tokens.AccessToken, a.getSignedString(tokens.RefreshToken))
 	if err != nil {
+		switch {
+		case errors.Is(err, jwt.TokenIsExpiredError):
+			payload, err := a.getAccessTokenPayload(sub)
+			if err != nil {
+				return nil, fmt.Errorf("decodeAccessToken a.getAccessTokenPayload error: %w", err)
+			}
+		}
 		return nil, errors.Wrap(err, "parseAccessToken error")
 	}
 

@@ -9,6 +9,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	db "github.com/Georgiy136/go_test/auth_service/internal/service/repo/postgres"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
 	"github.com/Georgiy136/go_test/auth_service/pkg/postgres"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -29,16 +30,19 @@ func Run(cfg *config.Config) {
 	// repo
 	authRepo := db.NewAuthRepo(pg)
 
-	// token generate service
-	tokenGenerator := token.NewIssueTokensService(cfg.Tokens)
-
 	// crypter
 	crypt := crypter.NewCrypter(cfg.Crypter.SignedKey)
+
+	// jwt_token_gen
+	jwtGen := jwt.NewJwtTokenGenerateGolangJwtV5()
+
+	// token generate service
+	tokenGenerator := token.NewIssueTokensService(jwtGen, crypt, cfg.Tokens)
 
 	notificationClient := client.NewNotificationClient(cfg.NotificationClient)
 
 	// Service
-	authService := service.NewAuthService(tokenGenerator, crypt, notificationClient, authRepo)
+	authService := service.NewAuthService(tokenGenerator, notificationClient, authRepo)
 
 	// HTTP Server
 	router := gin.Default()
