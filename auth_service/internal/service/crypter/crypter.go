@@ -5,8 +5,8 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"fmt"
-	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
 	"io"
 )
 
@@ -51,7 +51,7 @@ func (r *Crypter) Decrypt(payload []byte) (string, error) {
 	cipherText := payload[:]
 
 	if len(cipherText) < aes.BlockSize {
-		return "", token.ErrCipherTextIsTooShort
+		return "", errors.New("cipherText too short")
 	}
 
 	iv := cipherText[:aes.BlockSize]
