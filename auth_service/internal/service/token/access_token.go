@@ -1,7 +1,6 @@
 package token
 
 import (
-	"errors"
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
@@ -31,12 +30,12 @@ func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) *Acce
 }
 
 func (a *AccessToken) generateNewAccessToken(refreshToken string, accessTokenPayload models.TokenPayload) (string, error) {
-	payloadBytes, err := jsoniter.MarshalToString(accessTokenPayload)
+	payloadString, err := a.generateAccessTokenPayload(accessTokenPayload)
 	if err != nil {
 		return "", fmt.Errorf("generateNewAccessToken: json marshal payload err: %v", err)
 	}
 
-	return a.jwtToken.GenerateToken(a.getSignedString(refreshToken), a.tokenLifetime, payloadBytes)
+	return a.jwtToken.GenerateToken(a.getSignedString(refreshToken), a.tokenLifetime, payloadString)
 }
 
 func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.AccessTokenInfo, error) {
@@ -61,11 +60,18 @@ func (a *AccessToken) getSignedString(refreshToken string) string {
 	return refreshToken + a.cfg.SignedKey
 }
 
+func (a *AccessToken) generateAccessTokenPayload(accessTokenPayload models.TokenPayload) (string, error) {
+	payloadString, err := jsoniter.MarshalToString(accessTokenPayload)
+	if err != nil {
+		return "", fmt.Errorf("generateNewAccessToken: json marshal payload err: %v", err)
+	}
+	return payloadString, nil
+}
+
 func (a *AccessToken) getAccessTokenPayload(payload string) (*models.TokenPayload, error) {
 	var payloadData models.TokenPayload
 	if err := jsoniter.UnmarshalFromString(payload, &payloadData); err != nil {
 		return nil, err
 	}
-
 	return &payloadData, nil
 }
