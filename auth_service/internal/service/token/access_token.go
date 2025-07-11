@@ -1,6 +1,7 @@
 package token
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
@@ -52,27 +53,26 @@ func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.Access
 		return []byte(a.getSignedString(tokens.RefreshToken)), nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
+		if !errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
+		}
 	}
 
-	if parsedAccessToken.Valid {
-		payloadString, err := parsedAccessToken.Claims.GetSubject()
-		if err != nil {
-			return nil, fmt.Errorf("decodeAccessToken claims.GetSubject error: %w", err)
-		}
-
-		payload, err := a.getAccessTokenPayload(payloadString)
-		if err != nil {
-			return nil, fmt.Errorf("decodeAccessToken a.getAccessTokenPayload error: %w", err)
-		}
-
-		return &models.AccessTokenInfo{
-			UserID:         payload.UserID,
-			RefreshTokenID: payload.RefreshTokenID,
-		}, nil
+	payloadString, err := parsedAccessToken.Claims.GetSubject()
+	if err != nil {
+		return nil, fmt.Errorf("decodeAccessToken claims.GetSubject error: %w", err)
 	}
 
-	return nil, fmt.Errorf("decodeAccessToken error: %w", err)
+	payload, err := a.getAccessTokenPayload(payloadString)
+	if err != nil {
+		return nil, fmt.Errorf("decodeAccessToken a.getAccessTokenPayload error: %w", err)
+	}
+
+	return &models.AccessTokenInfo{
+		UserID:         payload.UserID,
+		RefreshTokenID: payload.RefreshTokenID,
+	}, nil
+
 }
 
 func (a *AccessToken) getSignedString(refreshToken string) string {

@@ -1,18 +1,13 @@
 package models
 
-import "time"
-
 type AuthTokens struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
 
 type AccessTokenInfo struct {
-	Issuer         string    `json:"issuer"`
-	UserID         int       `json:"user_id"`
-	RefreshTokenID int       `json:"refresh_token_id"`
-	ExpiredAt      time.Time `json:"expired_at"`
-	IssuedAt       time.Time `json:"issued_at"`
+	UserID         int `json:"user_id"`
+	RefreshTokenID int `json:"refresh_token_id"`
 }
 
 type TokenPayload struct {
