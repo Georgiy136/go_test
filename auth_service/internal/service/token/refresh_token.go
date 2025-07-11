@@ -17,7 +17,7 @@ type RefreshToken struct {
 func NewRefreshToken(jwtToken jwt.JwtTokenGenerate, cfg config.RefreshToken) *RefreshToken {
 	tokenLifetime, err := time.ParseDuration(cfg.TokenLifetime)
 	if err != nil {
-		logrus.Fatalf("NewAccessToken: tokenLifetime ParseDuration err: %v", err)
+		logrus.Fatalf("NewRefreshToken: tokenLifetime ParseDuration err: %v", err)
 	}
 
 	return &RefreshToken{
@@ -30,9 +30,9 @@ func (a *RefreshToken) generateNewRefreshToken() (string, error) {
 	return a.jwtToken.GenerateToken(a.getSignedString(), a.tokenLifetime, nil)
 }
 
-func (a *RefreshToken) parseRefreshToken(accessToken string) error {
-	if _, err := a.jwtToken.ParseToken(accessToken, a.getSignedString()); err != nil {
-		return errors.Wrap(err, "parseAccessToken error")
+func (a *RefreshToken) parseRefreshToken(refreshToken string) error {
+	if _, err := a.jwtToken.ParseToken(refreshToken, a.getSignedString()); err != nil {
+		return errors.Wrap(err, "parseRefreshToken error")
 	}
 	return nil
 }
