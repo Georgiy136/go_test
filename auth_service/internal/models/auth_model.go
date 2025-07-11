@@ -5,12 +5,7 @@ type AuthTokens struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-type AccessTokenInfo struct {
-	UserID         int `json:"user_id"`
-	RefreshTokenID int `json:"refresh_token_id"`
-}
-
-type TokenPayload struct {
+type AccessTokenPayload struct {
 	UserID         int `json:"user_id"`
 	RefreshTokenID int `json:"refresh_token_id"`
 }

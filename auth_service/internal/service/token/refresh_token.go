@@ -1,9 +1,9 @@
 package token
 
 import (
-	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
+	"github.com/go-faster/errors"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -23,35 +23,20 @@ func NewRefreshToken(jwtToken jwt.JwtTokenGenerate, cfg config.RefreshToken) *Re
 	return &RefreshToken{
 		cfg:           cfg,
 		tokenLifetime: tokenLifetime,
+		jwtToken:      jwtToken,
 	}
 }
-
 func (a *RefreshToken) generateNewRefreshToken() (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.tokenLifetime)),
-	})
-
-	jwtToken, err := token.SignedString([]byte(a.cfg.SignedKey))
-	if err != nil {
-		return "", fmt.Errorf("generateNewAccessToken token.SignedString error: %w", err)
-	}
-
-	return jwtToken, nil
+	return a.jwtToken.GenerateToken(a.getSignedString(), a.tokenLifetime, nil)
 }
 
-func (a *RefreshToken) parseRefreshToken(refreshToken string) error {
-	token, err := jwt.ParseWithClaims(refreshToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(a.cfg.SignedKey), nil
-	}, jwt.WithLeeway(5*time.Second))
-
-	if err != nil {
-		return fmt.Errorf("decodeRefreshToken jwt.Parse error: %w", err)
+func (a *RefreshToken) parseRefreshToken(accessToken string) error {
+	if _, err := a.jwtToken.ParseToken(accessToken, a.getSignedString()); err != nil {
+		return errors.Wrap(err, "parseAccessToken error")
 	}
+	return nil
+}
 
-	if _, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
-		return nil
-	}
-
-	return fmt.Errorf("decodeRefreshToken error: %w", err)
+func (a *RefreshToken) getSignedString() string {
+	return a.cfg.SignedKey
 }

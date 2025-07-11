@@ -5,6 +5,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
+	"github.com/go-faster/errors"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -29,19 +30,14 @@ func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) *Acce
 	}
 }
 
-func (a *AccessToken) generateNewAccessToken(refreshToken string, accessTokenPayload models.TokenPayload) (string, error) {
-	payloadString, err := a.generateAccessTokenPayload(accessTokenPayload)
-	if err != nil {
-		return "", fmt.Errorf("generateNewAccessToken: json marshal payload err: %v", err)
-	}
-
-	return a.jwtToken.GenerateToken(a.getSignedString(refreshToken), a.tokenLifetime, payloadString)
+func (a *AccessToken) generateNewAccessToken(refreshToken string, accessTokenPayload models.AccessTokenPayload) (string, error) {
+	return a.jwtToken.GenerateToken(a.getSignedString(refreshToken), a.tokenLifetime, accessTokenPayload)
 }
 
-func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.AccessTokenInfo, error) {
+func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.AccessTokenPayload, error) {
 	sub, err := a.jwtToken.ParseToken(tokens.AccessToken, a.getSignedString(tokens.RefreshToken))
 	if err != nil {
-		return nil, fmt.Errorf("generateNewAccessToken: json marshal payload err: %v", err)
+		return nil, errors.Wrap(err, "parseAccessToken error")
 	}
 
 	payload, err := a.getAccessTokenPayload(sub)
@@ -49,27 +45,18 @@ func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.Access
 		return nil, fmt.Errorf("decodeAccessToken a.getAccessTokenPayload error: %w", err)
 	}
 
-	return &models.AccessTokenInfo{
+	return &models.AccessTokenPayload{
 		UserID:         payload.UserID,
 		RefreshTokenID: payload.RefreshTokenID,
-	}, err
-
+	}, nil
 }
 
 func (a *AccessToken) getSignedString(refreshToken string) string {
 	return refreshToken + a.cfg.SignedKey
 }
 
-func (a *AccessToken) generateAccessTokenPayload(accessTokenPayload models.TokenPayload) (string, error) {
-	payloadString, err := jsoniter.MarshalToString(accessTokenPayload)
-	if err != nil {
-		return "", fmt.Errorf("generateNewAccessToken: json marshal payload err: %v", err)
-	}
-	return payloadString, nil
-}
-
-func (a *AccessToken) getAccessTokenPayload(payload string) (*models.TokenPayload, error) {
-	var payloadData models.TokenPayload
+func (a *AccessToken) getAccessTokenPayload(payload string) (*models.AccessTokenPayload, error) {
+	var payloadData models.AccessTokenPayload
 	if err := jsoniter.UnmarshalFromString(payload, &payloadData); err != nil {
 		return nil, err
 	}
