@@ -5,18 +5,19 @@ import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"
 	"time"
 )
 
 type AccessToken struct {
+	jwtToken      jwt.JwtTokenGenerate
 	cfg           config.AccessToken
 	tokenLifetime time.Duration
 }
 
-func NewAccessToken(cfg config.AccessToken) *AccessToken {
+func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) *AccessToken {
 	tokenLifetime, err := time.ParseDuration(cfg.TokenLifetime)
 	if err != nil {
 		logrus.Fatalf("NewAccessToken: tokenLifetime ParseDuration err: %v", err)
@@ -25,6 +26,7 @@ func NewAccessToken(cfg config.AccessToken) *AccessToken {
 	return &AccessToken{
 		cfg:           cfg,
 		tokenLifetime: tokenLifetime,
+		jwtToken:      jwtToken,
 	}
 }
 
@@ -34,39 +36,16 @@ func (a *AccessToken) generateNewAccessToken(refreshToken string, accessTokenPay
 		return "", fmt.Errorf("generateNewAccessToken: json marshal payload err: %v", err)
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.RegisteredClaims{
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.tokenLifetime)),
-		Subject:   payloadBytes,
-	})
-
-	jwtToken, err := token.SignedString([]byte(a.getSignedString(refreshToken)))
-	if err != nil {
-		return "", fmt.Errorf("generateNewAccessToken token.SignedString error: %w", err)
-	}
-
-	return jwtToken, nil
+	return a.jwtToken.GenerateToken(a.getSignedString(refreshToken), a.tokenLifetime, payloadBytes)
 }
 
 func (a *AccessToken) parseAccessToken(tokens models.AuthTokens) (*models.AccessTokenInfo, error) {
-	parsedAccessToken, err := jwt.Parse(tokens.AccessToken, func(t *jwt.Token) (interface{}, error) {
-		return []byte(a.getSignedString(tokens.RefreshToken)), nil
-	})
+	sub, err := a.jwtToken.ParseToken(tokens.AccessToken, a.getSignedString(tokens.RefreshToken))
 	if err != nil {
-		switch {
-		case errors.Is(err, jwt.ErrTokenExpired):
-			err = jwt.ErrTokenExpired
-		default:
-			return nil, fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
-		}
+		return nil, fmt.Errorf("generateNewAccessToken: json marshal payload err: %v", err)
 	}
 
-	payloadString, err := parsedAccessToken.Claims.GetSubject()
-	if err != nil {
-		return nil, fmt.Errorf("decodeAccessToken claims.GetSubject error: %w", err)
-	}
-
-	payload, err := a.getAccessTokenPayload(payloadString)
+	payload, err := a.getAccessTokenPayload(sub)
 	if err != nil {
 		return nil, fmt.Errorf("decodeAccessToken a.getAccessTokenPayload error: %w", err)
 	}

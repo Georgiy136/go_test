@@ -3,17 +3,18 @@ package token
 import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
 	"github.com/sirupsen/logrus"
 	"time"
 )
 
 type RefreshToken struct {
+	jwtToken      jwt.JwtTokenGenerate
 	cfg           config.RefreshToken
 	tokenLifetime time.Duration
 }
 
-func NewRefreshToken(cfg config.RefreshToken) *RefreshToken {
+func NewRefreshToken(jwtToken jwt.JwtTokenGenerate, cfg config.RefreshToken) *RefreshToken {
 	tokenLifetime, err := time.ParseDuration(cfg.TokenLifetime)
 	if err != nil {
 		logrus.Fatalf("NewAccessToken: tokenLifetime ParseDuration err: %v", err)
