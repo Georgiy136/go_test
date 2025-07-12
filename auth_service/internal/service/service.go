@@ -60,7 +60,6 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("GetTokens - GenerateTokensPair error: %w", err)
 	}
 
-	// кодируем токены перед выпуском
 	accessTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
@@ -70,10 +69,9 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
 	}
 
-	//шифруем токен перед сохранением в БД
+	// шифруем токен перед сохранением в БД
 	hashRefreshToken := helpers.HashSha512(refreshTokenEncrypted)
 
-	// Сохранить инфо о входе в БД
 	if err = us.db.SaveUserLogin(ctx, models.LoginInfo{
 		UserID:         data.UserID,
 		RefreshTokenID: refreshTokenID,
@@ -91,7 +89,6 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 }
 
 func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromRequestUpdateTokens) (*models.AuthTokens, error) {
-	// декодируем токены
 	refreshTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error: %w", err)
@@ -106,7 +103,6 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		accessTokenIsExpired  bool
 	)
 
-	// парсим refresh токен
 	if err = us.issueTokensService.ParseRefreshToken(refreshTokenDecoded); err != nil {
 		switch {
 		case errors.Is(err, jwt.TokenIsExpiredError):
@@ -116,7 +112,6 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		}
 	}
 
-	// парсим access токен
 	accessTokenInfo, err := us.issueTokensService.ParseAccessToken(models.AuthTokens{
 		AccessToken:  accessTokenDecoded,
 		RefreshToken: refreshTokenDecoded,
