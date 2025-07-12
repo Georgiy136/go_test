@@ -11,6 +11,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate/jwt"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"strings"
 )
@@ -41,24 +42,20 @@ func NewAuthService(
 
 func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromRequestGetTokens) (*models.AuthTokens, error) {
 	// Проверяем сущ-ет ли пользователь
-	//if _, err = us.getUserInfoClient.GetUserInfo(ctx, accessTokenInfo.UserID); err != nil {
-	//	return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
-	//}
+	if _, err := us.getUserInfoClient.GetUserInfo(ctx, data.UserID); err != nil {
+		return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
+	}
+
+	// генерируем id сессии
+	sessionID := uuid.New().String()
 
 	refreshToken, err := us.issueTokensService.RefreshToken.New()
 	if err != nil {
 		return nil, fmt.Errorf("RefreshToken.New error: %w", err)
 	}
-
-	// сохраняем hash refresh token в БД и получаем id
-	refreshTokenID, err := us.db.SaveToken(ctx, helpers.HashSha512(refreshToken))
-	if err != nil {
-		return nil, fmt.Errorf("GetTokens - SaveRefreshToken error: %w", err)
-	}
-
 	accessToken, err := us.issueTokensService.AccessToken.New(refreshToken, models.AccessTokenPayload{
-		UserID:         data.UserID,
-		RefreshTokenID: refreshTokenID,
+		UserID:    data.UserID,
+		SessionID: sessionID,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("AccessToken.New error: %w", err)
@@ -74,10 +71,11 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 	}
 
 	if err = us.db.SaveUserLogin(ctx, models.LoginInfo{
-		UserID:         data.UserID,
-		RefreshTokenID: refreshTokenID,
-		UserAgent:      data.UserAgent,
-		IpAddress:      data.IpAddress,
+		UserID:       data.UserID,
+		SessionID:    sessionID,
+		RefreshToken: helpers.HashSha512(refreshTokenEncrypted),
+		UserAgent:    data.UserAgent,
+		IpAddress:    data.IpAddress,
 	}); err != nil {
 		return nil, fmt.Errorf("GetTokens - us.db.SaveUserLogin error: %w", err)
 	}
@@ -126,12 +124,12 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	// Проверяем сущ-ет ли пользователь
-	//if _, err = us.getUserInfoClient.GetUserInfo(ctx, accessTokenInfo.UserID); err != nil {
-	//	return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
-	//}
+	if _, err = us.getUserInfoClient.GetUserInfo(ctx, accessTokenInfo.UserID); err != nil {
+		return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
+	}
 
-	// ищем инфо о входе в БД
-	loginInfo, err := us.db.GetSignInByTokenID(ctx, accessTokenInfo.RefreshTokenID)
+	// ищем инфо о входе в БД по user_id и session_id
+	loginInfo, err := us.db.GetSignInByTokenID(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - us.db.GetSignInByRefreshTokenID error: %w", err)
 	}
@@ -170,8 +168,8 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 
 	if accessTokenIsExpired {
 		newAccessToken, err := us.issueTokensService.AccessToken.New(refreshTokenDecoded, models.AccessTokenPayload{
-			UserID:         accessTokenInfo.UserID,
-			RefreshTokenID: accessTokenInfo.RefreshTokenID,
+			UserID:    accessTokenInfo.UserID,
+			SessionID: accessTokenInfo.SessionID,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("UpdateTokens - us.tokensGenerate.GenerateNewAccessToken error: %w", err)

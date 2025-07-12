@@ -6,8 +6,8 @@ type AuthTokens struct {
 }
 
 type AccessTokenPayload struct {
-	UserID         int `json:"user_id"`
-	RefreshTokenID int `json:"refresh_token_id"`
+	UserID    int    `json:"user_id"`
+	SessionID string `json:"session_id"`
 }
 
 type DataFromRequestGetTokens struct {
@@ -24,9 +24,9 @@ type DataFromRequestUpdateTokens struct {
 }
 
 type LoginInfo struct {
-	UserID         int    `json:"user_id"`
-	RefreshTokenID int    `json:"refresh_token_id"`
-	RefreshToken   string `json:"refresh_token"`
-	UserAgent      string `json:"user_agent"`
-	IpAddress      string `json:"ip_address"`
+	UserID       int    `json:"user_id"`
+	SessionID    string `json:"session_id"`
+	RefreshToken string `json:"refresh_token"`
+	UserAgent    string `json:"user_agent"`
+	IpAddress    string `json:"ip_address"`
 }

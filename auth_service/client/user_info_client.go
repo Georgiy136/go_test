@@ -2,13 +2,9 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
-	jsoniter "github.com/json-iterator/go"
-	"io"
 	"net/http"
-	"strconv"
 )
 
 type UserInfoClient struct {
@@ -24,7 +20,7 @@ func NewUserInfoClient(cfg config.UserInfoClient) *UserInfoClient {
 }
 
 func (n *UserInfoClient) GetUserInfo(ctx context.Context, userID int) (*models.User, error) {
-	request, err := http.NewRequest(http.MethodGet, n.cfg.Url+"?"+strconv.Itoa(userID), nil)
+	/*request, err := http.NewRequest(http.MethodGet, n.cfg.Url+"?"+strconv.Itoa(userID), nil)
 	if err != nil {
 		return nil, fmt.Errorf(" http.NewRequest req error: %v", err)
 	}
@@ -48,5 +44,7 @@ func (n *UserInfoClient) GetUserInfo(ctx context.Context, userID int) (*models.U
 		return user, nil
 	}
 
-	return nil, fmt.Errorf("http status code %d", resp.StatusCode)
+	return nil, fmt.Errorf("http status code %d", resp.StatusCode)*/
+
+	return &models.User{UserID: userID}, nil
 }
