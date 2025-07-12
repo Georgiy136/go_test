@@ -8,9 +8,9 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/helpers"
 	"github.com/Georgiy136/go_test/auth_service/internal/common"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/app_errors"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate"
-	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate/jwt"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"strings"
@@ -103,7 +103,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 
 	if err = us.issueTokensService.RefreshToken.Parse(refreshTokenDecoded); err != nil {
 		switch {
-		case errors.Is(err, jwt.TokenIsExpiredError):
+		case errors.Is(err, app_errors.TokenIsExpiredError):
 			refreshTokenIsExpired = true
 		default:
 			return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
@@ -116,7 +116,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	})
 	if err != nil {
 		switch {
-		case errors.Is(err, jwt.TokenIsExpiredError):
+		case errors.Is(err, app_errors.TokenIsExpiredError):
 			accessTokenIsExpired = true
 		default:
 			return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)

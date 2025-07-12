@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/app_errors"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate/jwt"
 	"github.com/go-faster/errors"
@@ -37,7 +38,7 @@ func (a *accessToken) Parse(tokens models.AuthTokens) (*models.AccessTokenPayloa
 	payloadString, err := a.jwtToken.ParseToken(tokens.AccessToken, a.getSignedString(tokens.RefreshToken))
 	if err != nil {
 		switch {
-		case errors.Is(err, jwt.TokenIsExpiredError):
+		case errors.Is(err, app_errors.TokenIsExpiredError):
 			payload, err := a.getAccessTokenPayload(payloadString)
 			if err != nil {
 				return payload, fmt.Errorf("ParseToken - a.getAccessTokenPayload error: %w", err)
