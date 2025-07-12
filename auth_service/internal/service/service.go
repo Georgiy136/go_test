@@ -52,19 +52,23 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 	}
 
 	// Выпустить токены
-	tokens, err := us.issueTokensService.GenerateRefreshAndAccessTokens(models.AccessTokenPayload{
+	refreshToken, err := us.issueTokensService.RefreshToken.New()
+	if err != nil {
+		return nil, fmt.Errorf("RefreshToken.New error: %w", err)
+	}
+	accessToken, err := us.issueTokensService.AccessToken.New(refreshToken, models.AccessTokenPayload{
 		UserID:         data.UserID,
 		RefreshTokenID: refreshTokenID,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("GetTokens - GenerateTokensPair error: %w", err)
+		return nil, fmt.Errorf("AccessToken.New error: %w", err)
 	}
 
-	accessTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.AccessToken)
+	refreshTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(refreshToken)
 	if err != nil {
-		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
+		return nil, fmt.Errorf("a.crypter.Encrypt refreshToken error: %w", err)
 	}
-	refreshTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.RefreshToken)
+	accessTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(accessToken)
 	if err != nil {
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
 	}
@@ -103,7 +107,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		accessTokenIsExpired  bool
 	)
 
-	if err = us.issueTokensService.ParseRefreshToken(refreshTokenDecoded); err != nil {
+	if err = us.issueTokensService.RefreshToken.Parse(refreshTokenDecoded); err != nil {
 		switch {
 		case errors.Is(err, jwt.TokenIsExpiredError):
 			refreshTokenIsExpired = true
@@ -112,7 +116,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		}
 	}
 
-	accessTokenInfo, err := us.issueTokensService.ParseAccessToken(models.AuthTokens{
+	accessTokenInfo, err := us.issueTokensService.AccessToken.Parse(models.AuthTokens{
 		AccessToken:  accessTokenDecoded,
 		RefreshToken: refreshTokenDecoded,
 	})
@@ -169,7 +173,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	if accessTokenIsExpired {
-		newAccessToken, err := us.issueTokensService.NewAccessToken(refreshTokenDecoded, models.AccessTokenPayload{
+		newAccessToken, err := us.issueTokensService.AccessToken.New(refreshTokenDecoded, models.AccessTokenPayload{
 			UserID:         accessTokenInfo.UserID,
 			RefreshTokenID: accessTokenInfo.RefreshTokenID,
 		})

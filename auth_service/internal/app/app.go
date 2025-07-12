@@ -40,7 +40,7 @@ func Run(cfg *config.Config) {
 	// tokens generate service
 	tokenGenerator := token_generate.NewIssueTokensService(
 		tokens.NewRefreshToken(jwtGen, cfg.RefreshToken),
-		tokens.NewAccessToken(jwtGen, cfg.AccessToken),
+		tokens.NewAccessToken(jwtGen, crypt, cfg.AccessToken),
 		crypt,
 	)
 
