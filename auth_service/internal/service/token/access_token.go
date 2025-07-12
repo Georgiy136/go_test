@@ -26,27 +26,24 @@ func (a *AccessToken) New(refreshToken string, accessTokenPayload models.AccessT
 }
 
 func (a *AccessToken) Parse(tokens models.AuthTokens) (*models.AccessTokenPayload, error) {
-	sub, err := a.jwtToken.ParseToken(tokens.AccessToken, a.getSignedString(tokens.RefreshToken))
+	payloadString, err := a.jwtToken.ParseToken(tokens.AccessToken, a.getSignedString(tokens.RefreshToken))
 	if err != nil {
 		switch {
 		case errors.Is(err, jwt.TokenIsExpiredError):
-			payload, err := a.getAccessTokenPayload(sub)
+			payload, err := a.getAccessTokenPayload(payloadString)
 			if err != nil {
-				return nil, fmt.Errorf("decodeAccessToken a.getAccessTokenPayload error: %w", err)
+				return payload, fmt.Errorf("ParseToken - a.getAccessTokenPayload error: %w", err)
 			}
+			return payload, err
 		}
-		return nil, errors.Wrap(err, "parseAccessToken error")
+		return nil, errors.Wrap(err, "ParseToken error")
 	}
 
-	payload, err := a.getAccessTokenPayload(sub)
+	payload, err := a.getAccessTokenPayload(payloadString)
 	if err != nil {
-		return nil, fmt.Errorf("decodeAccessToken a.getAccessTokenPayload error: %w", err)
+		return nil, fmt.Errorf("ParseToken - a.getAccessTokenPayload error: %w", err)
 	}
-
-	return &models.AccessTokenPayload{
-		UserID:         payload.UserID,
-		RefreshTokenID: payload.RefreshTokenID,
-	}, nil
+	return payload, nil
 }
 
 func (a *AccessToken) getSignedString(refreshToken string) string {
