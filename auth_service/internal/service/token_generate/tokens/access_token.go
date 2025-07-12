@@ -22,7 +22,12 @@ func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) Acces
 }
 
 func (a *accessToken) New(refreshToken string, accessTokenPayload models.AccessTokenPayload) (string, error) {
-	return a.jwtToken.GenerateToken(a.getSignedString(refreshToken), a.cfg.TokenLifetime, accessTokenPayload)
+	payloadString, err := a.genTokenPayload(accessTokenPayload)
+	if err != nil {
+		return "", fmt.Errorf("accessToken genTokenPayload error: %w", err)
+	}
+
+	return a.jwtToken.GenerateToken(a.getSignedString(refreshToken), a.cfg.TokenLifetime, payloadString)
 }
 
 func (a *accessToken) Parse(tokens models.AuthTokens) (*models.AccessTokenPayload, error) {
@@ -48,6 +53,10 @@ func (a *accessToken) Parse(tokens models.AuthTokens) (*models.AccessTokenPayloa
 
 func (a *accessToken) getSignedString(refreshToken string) string {
 	return refreshToken + a.cfg.SignedKey
+}
+
+func (a *accessToken) genTokenPayload(accessTokenPayload models.AccessTokenPayload) (string, error) {
+	return jsoniter.MarshalToString(accessTokenPayload)
 }
 
 func (a *accessToken) getAccessTokenPayload(payload string) (*models.AccessTokenPayload, error) {

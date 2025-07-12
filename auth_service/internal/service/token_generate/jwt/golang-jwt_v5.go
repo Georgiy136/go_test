@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
-	jsoniter "github.com/json-iterator/go"
 	"time"
 )
 
@@ -14,16 +13,11 @@ func NewJwtTokenGenerateGolangJwtV5() JwtTokenGenerate {
 	return &JwtTokenGenerateGolangJwtV5{}
 }
 
-func (j *JwtTokenGenerateGolangJwtV5) GenerateToken(signedKey string, ttl time.Duration, payload any) (string, error) {
-	payloadString, err := j.genTokenPayload(payload)
-	if err != nil {
-		return "", fmt.Errorf("error generating token_generate payload: %w", err)
-	}
-
+func (j *JwtTokenGenerateGolangJwtV5) GenerateToken(signedKey string, ttl time.Duration, sub string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.RegisteredClaims{
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)),
-		Subject:   payloadString,
+		Subject:   sub,
 	})
 
 	jwtToken, err := token.SignedString([]byte(signedKey))
@@ -64,15 +58,4 @@ func (j *JwtTokenGenerateGolangJwtV5) getTokenSubject(token *jwt.Token) (string,
 		return "", fmt.Errorf("getTokenSubject error: %w", err)
 	}
 	return payloadString, err
-}
-
-func (a *JwtTokenGenerateGolangJwtV5) genTokenPayload(payload any) (string, error) {
-	if payload == nil {
-		return "", nil
-	}
-	payloadString, err := jsoniter.MarshalToString(payload)
-	if err != nil {
-		return "", fmt.Errorf("genTokenPayload: json marshal payload err: %v", err)
-	}
-	return payloadString, nil
 }
