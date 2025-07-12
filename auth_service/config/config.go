@@ -12,6 +12,7 @@ type (
 		Http               `yaml:"http"`
 		Postgres           `yaml:"postgres"`
 		NotificationClient `yaml:"notification_client"`
+		UserInfoClient     `yaml:"user_info_client"`
 		Tokens
 		AccessToken  `yaml:"accesstoken"`
 		RefreshToken `yaml:"refreshtoken"`
@@ -49,6 +50,10 @@ type (
 	}
 
 	NotificationClient struct {
+		Url string
+	}
+
+	UserInfoClient struct {
 		Url string
 	}
 )

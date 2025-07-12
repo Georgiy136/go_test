@@ -17,15 +17,23 @@ import (
 
 type AuthService struct {
 	notificationClient *client.NotificationClient
+	getUserInfoClient  *client.GetUserInfoClient
 	issueTokensService *token_generate.IssueTokensService
 	crypter            *crypter.Crypter
 	db                 AuthDBStore
 }
 
-func NewAuthService(issueTokensService *token_generate.IssueTokensService, crypter *crypter.Crypter, notificationClient *client.NotificationClient, db AuthDBStore) *AuthService {
+func NewAuthService(
+	issueTokensService *token_generate.IssueTokensService,
+	crypter *crypter.Crypter,
+	getUserInfoClient *client.GetUserInfoClient,
+	notificationClient *client.NotificationClient,
+	db AuthDBStore,
+) *AuthService {
 	return &AuthService{
 		issueTokensService: issueTokensService,
 		notificationClient: notificationClient,
+		getUserInfoClient:  getUserInfoClient,
 		crypter:            crypter,
 		db:                 db,
 	}
@@ -126,14 +134,10 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		}
 	}
 
-	// Проверяем есть ли пользователь в БД
-	user, err := us.db.GetUser(ctx, accessTokenInfo.UserID)
-	if err != nil {
-		return nil, fmt.Errorf("UpdateTokens - us.db.GetUser error: %w", err)
-	}
-	if user == nil {
-		return nil, fmt.Errorf("UpdateTokens - GetUser - user info is nil")
-	}
+	// Проверяем сущ-ет ли пользователь
+	//if _, err = us.getUserInfoClient.GetUserInfo(ctx, accessTokenInfo.UserID); err != nil {
+	//	return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
+	//}
 
 	// ищем инфо о входе в БД
 	loginInfo, err := us.db.GetSignInByRefreshTokenID(ctx, accessTokenInfo.RefreshTokenID)
