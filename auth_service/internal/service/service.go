@@ -9,8 +9,8 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/common"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
-	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
-	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate/jwt"
 	"github.com/sirupsen/logrus"
 	"strings"
 )
@@ -18,11 +18,11 @@ import (
 type AuthService struct {
 	db                 AuthStore
 	notificationClient *client.NotificationClient
-	issueTokensService *token.IssueTokensService
+	issueTokensService *token_generate.IssueTokensService
 	crypter            *crypter.Crypter
 }
 
-func NewAuthService(issueTokensService *token.IssueTokensService, crypter *crypter.Crypter, notificationClient *client.NotificationClient, db AuthStore) *AuthService {
+func NewAuthService(issueTokensService *token_generate.IssueTokensService, crypter *crypter.Crypter, notificationClient *client.NotificationClient, db AuthStore) *AuthService {
 	return &AuthService{
 		db:                 db,
 		issueTokensService: issueTokensService,

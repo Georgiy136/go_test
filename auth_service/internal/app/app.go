@@ -8,8 +8,9 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/service"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	db "github.com/Georgiy136/go_test/auth_service/internal/service/repo/postgres"
-	"github.com/Georgiy136/go_test/auth_service/internal/service/token"
-	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate/jwt"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate/tokens"
 	"github.com/Georgiy136/go_test/auth_service/pkg/postgres"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -36,13 +37,17 @@ func Run(cfg *config.Config) {
 	// jwt_token_gen
 	jwtGen := jwt.NewJwtTokenGenerateGolangJwtV5()
 
-	// token generate service
-	tokenGenerator := token.NewIssueTokensService(jwtGen, crypt, cfg.Tokens)
+	// tokens generate service
+	tokenGenerator := token_generate.NewIssueTokensService(
+		tokens.NewRefreshToken(jwtGen, cfg.RefreshToken),
+		tokens.NewAccessToken(jwtGen, cfg.AccessToken),
+		crypt,
+	)
 
 	notificationClient := client.NewNotificationClient(cfg.NotificationClient)
 
 	// Service
-	authService := service.NewAuthService(tokenGenerator, notificationClient, authRepo)
+	authService := service.NewAuthService(tokenGenerator, crypt, notificationClient, authRepo)
 
 	// HTTP Server
 	router := gin.Default()

@@ -17,7 +17,7 @@ func NewJwtTokenGenerateGolangJwtV5() JwtTokenGenerate {
 func (j *JwtTokenGenerateGolangJwtV5) GenerateToken(signedKey string, ttl time.Duration, payload any) (string, error) {
 	payloadString, err := j.genTokenPayload(payload)
 	if err != nil {
-		return "", fmt.Errorf("error generating token payload: %w", err)
+		return "", fmt.Errorf("error generating token_generate payload: %w", err)
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.RegisteredClaims{
@@ -28,7 +28,7 @@ func (j *JwtTokenGenerateGolangJwtV5) GenerateToken(signedKey string, ttl time.D
 
 	jwtToken, err := token.SignedString([]byte(signedKey))
 	if err != nil {
-		return "", fmt.Errorf("GenerateToken - token.SignedString error: %w", err)
+		return "", fmt.Errorf("GenerateToken - token_generate.SignedString error: %w", err)
 	}
 
 	return jwtToken, nil
@@ -55,7 +55,7 @@ func (j *JwtTokenGenerateGolangJwtV5) ParseToken(token, signedKey string) (strin
 		return j.getTokenSubject(parsedToken)
 	}
 
-	return "", errors.New("token is not valid error")
+	return "", errors.New("token_generate is not valid error")
 }
 
 func (j *JwtTokenGenerateGolangJwtV5) getTokenSubject(token *jwt.Token) (string, error) {

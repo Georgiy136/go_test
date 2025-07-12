@@ -1,26 +1,26 @@
-package token
+package token_generate
 
 import (
 	"fmt"
-	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
-	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate/tokens"
 )
 
 type IssueTokensService struct {
-	tokenGenerator jwt.JwtTokenGenerate
-	crypter        *crypter.Crypter
-	refreshToken   *refreshToken
-	accessToken    *accessToken
+	crypter      *crypter.Crypter
+	refreshToken tokens.RefreshTokenStore
+	accessToken  tokens.AccessTokenStore
 }
 
-func NewIssueTokensService(jwtTokenGenerator jwt.JwtTokenGenerate, crypter *crypter.Crypter, cfg config.Tokens) *IssueTokensService {
+func NewIssueTokensService(
+	refreshToken tokens.RefreshTokenStore,
+	accessToken tokens.AccessTokenStore,
+	crypter *crypter.Crypter) *IssueTokensService {
 	return &IssueTokensService{
-		tokenGenerator: jwtTokenGenerator,
-		refreshToken:   NewRefreshToken(jwtTokenGenerator, cfg.RefreshToken),
-		accessToken:    NewAccessToken(jwtTokenGenerator, cfg.AccessToken),
-		crypter:        crypter,
+		refreshToken: refreshToken,
+		accessToken:  accessToken,
+		crypter:      crypter,
 	}
 }
 

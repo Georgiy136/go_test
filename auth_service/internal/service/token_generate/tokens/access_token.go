@@ -1,10 +1,10 @@
-package token
+package tokens
 
 import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
-	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate/jwt"
 	"github.com/go-faster/errors"
 	jsoniter "github.com/json-iterator/go"
 )
@@ -14,7 +14,7 @@ type accessToken struct {
 	cfg      config.AccessToken
 }
 
-func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) *accessToken {
+func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) AccessToken {
 	return &accessToken{
 		cfg:      cfg,
 		jwtToken: jwtToken,
