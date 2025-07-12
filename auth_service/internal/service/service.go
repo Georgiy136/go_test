@@ -11,6 +11,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate/jwt"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"strings"
 )
@@ -45,17 +46,18 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 	//	return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
 	//}
 
-	// Получаем уникальный refresh_token_id из БД (сдвигаем сиквенс)
-	refreshTokenID, err := us.db.GetRefreshTokenID(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("GetTokens - GetRefreshTokenID error: %w", err)
-	}
-
 	// Выпустить токены
 	refreshToken, err := us.issueTokensService.RefreshToken.New()
 	if err != nil {
 		return nil, fmt.Errorf("RefreshToken.New error: %w", err)
 	}
+
+	// сохраняем refresh token и получаем ID
+	refreshTokenID, err := us.db.SaveRefreshToken(ctx, refreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("GetTokens - SaveRefreshToken error: %w", err)
+	}
+
 	accessToken, err := us.issueTokensService.AccessToken.New(refreshToken, models.AccessTokenPayload{
 		UserID:         data.UserID,
 		RefreshTokenID: refreshTokenID,
