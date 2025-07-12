@@ -23,12 +23,12 @@ func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) er
 	return nil
 }
 
-func (db *AuthRepo) GetRefreshTokenID(ctx context.Context) (int, error) {
+//func (db *AuthRepo) GetRefreshTokenID(ctx context.Context) (int, error) {
+//
+//	return 0, nil
+//}
 
-	return 0, nil
-}
-
-func (db *AuthRepo) GetSignInByRefreshTokenID(ctx context.Context, refreshTokenID int) (*models.LoginInfo, error) {
+func (db *AuthRepo) GetSignInByTokenID(ctx context.Context, refreshTokenID int) (*models.LoginInfo, error) {
 
 	return &models.LoginInfo{
 		UserID:         1,
@@ -36,4 +36,9 @@ func (db *AuthRepo) GetSignInByRefreshTokenID(ctx context.Context, refreshTokenI
 		UserAgent:      "IntelliJ HTTP Client/GoLand 2025.1.3",
 		IpAddress:      "127.0.0.1",
 	}, nil
+}
+
+func (db *AuthRepo) SaveToken(ctx context.Context, refreshToken string) (int, error) {
+
+	return 0, nil
 }

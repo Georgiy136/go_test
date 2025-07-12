@@ -11,7 +11,6 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate/jwt"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"strings"
 )
@@ -46,14 +45,13 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 	//	return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
 	//}
 
-	// Выпустить токены
 	refreshToken, err := us.issueTokensService.RefreshToken.New()
 	if err != nil {
 		return nil, fmt.Errorf("RefreshToken.New error: %w", err)
 	}
 
-	// сохраняем refresh token и получаем ID
-	refreshTokenID, err := us.db.SaveRefreshToken(ctx, refreshToken)
+	// сохраняем hash refresh token в БД и получаем id
+	refreshTokenID, err := us.db.SaveToken(ctx, helpers.HashSha512(refreshToken))
 	if err != nil {
 		return nil, fmt.Errorf("GetTokens - SaveRefreshToken error: %w", err)
 	}
@@ -75,13 +73,9 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
 	}
 
-	// шифруем токен перед сохранением в БД
-	hashRefreshToken := helpers.HashSha512(refreshTokenEncrypted)
-
 	if err = us.db.SaveUserLogin(ctx, models.LoginInfo{
 		UserID:         data.UserID,
 		RefreshTokenID: refreshTokenID,
-		RefreshToken:   hashRefreshToken,
 		UserAgent:      data.UserAgent,
 		IpAddress:      data.IpAddress,
 	}); err != nil {
@@ -137,13 +131,13 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	//}
 
 	// ищем инфо о входе в БД
-	loginInfo, err := us.db.GetSignInByRefreshTokenID(ctx, accessTokenInfo.RefreshTokenID)
+	loginInfo, err := us.db.GetSignInByTokenID(ctx, accessTokenInfo.RefreshTokenID)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - us.db.GetSignInByRefreshTokenID error: %w", err)
 	}
 
 	// Сверяем совпадают ли refresh токен с захешированным в БД
-	if !strings.EqualFold(helpers.HashSha512(data.RefreshToken), loginInfo.RefreshToken) {
+	if !strings.EqualFold(helpers.HashSha512(refreshTokenDecoded), loginInfo.RefreshToken) {
 		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
 	}
 

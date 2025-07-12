@@ -41,7 +41,6 @@ func Run(cfg *config.Config) {
 	tokenGenerator := token_generate.NewIssueTokensService(
 		tokens.NewRefreshToken(jwtGen, cfg.RefreshToken),
 		tokens.NewAccessToken(jwtGen, crypt, cfg.AccessToken),
-		crypt,
 	)
 
 	userInfoClient := client.NewUserInfoClient(cfg.UserInfoClient)
