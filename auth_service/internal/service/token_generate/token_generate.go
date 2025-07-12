@@ -16,7 +16,8 @@ type IssueTokensService struct {
 func NewIssueTokensService(
 	refreshToken tokens.RefreshTokenStore,
 	accessToken tokens.AccessTokenStore,
-	crypter *crypter.Crypter) *IssueTokensService {
+	crypter *crypter.Crypter,
+) *IssueTokensService {
 	return &IssueTokensService{
 		refreshToken: refreshToken,
 		accessToken:  accessToken,

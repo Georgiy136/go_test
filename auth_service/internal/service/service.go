@@ -16,18 +16,18 @@ import (
 )
 
 type AuthService struct {
-	db                 AuthDBStore
 	notificationClient *client.NotificationClient
 	issueTokensService *token_generate.IssueTokensService
 	crypter            *crypter.Crypter
+	db                 AuthDBStore
 }
 
 func NewAuthService(issueTokensService *token_generate.IssueTokensService, crypter *crypter.Crypter, notificationClient *client.NotificationClient, db AuthDBStore) *AuthService {
 	return &AuthService{
-		db:                 db,
 		issueTokensService: issueTokensService,
 		notificationClient: notificationClient,
 		crypter:            crypter,
+		db:                 db,
 	}
 }
 
@@ -103,7 +103,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	)
 
 	// парсим refresh токен
-	if err := us.issueTokensService.ParseRefreshToken(refreshToken); err != nil {
+	if err = us.issueTokensService.ParseRefreshToken(refreshToken); err != nil {
 		switch {
 		case errors.Is(err, jwt.TokenIsExpiredError):
 			refreshTokenIsExpired = true
@@ -135,7 +135,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		return nil, fmt.Errorf("UpdateTokens - GetUser - user info is nil")
 	}
 
-	// ищем инфо о входе по refresh токену в БД
+	// ищем инфо о входе в БД
 	loginInfo, err := us.db.GetSignInByRefreshTokenID(ctx, accessTokenInfo.RefreshTokenID)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - us.db.GetSignInByRefreshTokenID error: %w", err)
