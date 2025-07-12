@@ -14,7 +14,7 @@ type accessToken struct {
 	cfg      config.AccessToken
 }
 
-func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) AccessToken {
+func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) AccessTokenStore {
 	return &accessToken{
 		cfg:      cfg,
 		jwtToken: jwtToken,
