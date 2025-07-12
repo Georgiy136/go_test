@@ -9,33 +9,33 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
 )
 
 type Postgres struct {
-	Pgconn *pgx.Conn
+	Dbpool *pgxpool.Pool
 	cfg    config.Postgres
 }
 
 const connFormat = "host=%s port=%d user=%s password=%s dbname=%s sslmode=%s"
 
 func NewPostgres(cfg config.Postgres) (*Postgres, error) {
-	pgconn, err := pgx.Connect(context.Background(), fmt.Sprintf(connFormat, cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Dbname, cfg.Sslmode))
+	dbpool, err := pgxpool.Connect(context.Background(), fmt.Sprintf(connFormat, cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Dbname, cfg.Sslmode))
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to database: %v", err)
 	}
 
-	if _, err = pgconn.Exec(context.Background(), "select 1"); err != nil {
+	if _, err = dbpool.Exec(context.Background(), "select 1"); err != nil {
 		return nil, fmt.Errorf("ping database error: %v", err)
 	}
 
 	logrus.Infof("соединение с базой данных postgres успешно установлено")
 
 	return &Postgres{
-		Pgconn: pgconn,
+		Dbpool: dbpool,
 		cfg:    cfg,
 	}, nil
 }
