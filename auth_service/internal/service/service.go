@@ -18,14 +18,16 @@ import (
 type AuthService struct {
 	db                 AuthStore
 	notificationClient *client.NotificationClient
-	tokensGenerate     *token.IssueTokensService
+	issueTokensService *token.IssueTokensService
+	crypter            *crypter.Crypter
 }
 
-func NewAuthService(tokensGenerate *token.IssueTokensService, notificationClient *client.NotificationClient, db AuthStore) *AuthService {
+func NewAuthService(issueTokensService *token.IssueTokensService, crypter *crypter.Crypter, notificationClient *client.NotificationClient, db AuthStore) *AuthService {
 	return &AuthService{
 		db:                 db,
-		tokensGenerate:     tokensGenerate,
+		issueTokensService: issueTokensService,
 		notificationClient: notificationClient,
+		crypter:            crypter,
 	}
 }
 
@@ -46,7 +48,7 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 	}
 
 	// Выпустить токены
-	tokens, err := us.tokensGenerate.GenerateTokensPair(models.TokenPayload{
+	tokens, err := us.issueTokensService.GenerateRefreshAndAccessTokens(models.AccessTokenPayload{
 		UserID:         data.UserID,
 		RefreshTokenID: refreshTokenID,
 	})
@@ -54,7 +56,12 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("GetTokens - GenerateTokensPair error: %w", err)
 	}
 
+	// кодируем токены перед выпуском
 	accessTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.AccessToken)
+	if err != nil {
+		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
+	}
+	refreshTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
 	}
@@ -80,6 +87,7 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 }
 
 func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromRequestUpdateTokens) (*models.AuthTokens, error) {
+	// декодируем токены
 	refreshToken, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error: %w", err)
@@ -95,7 +103,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	)
 
 	// парсим refresh токен
-	if err := us.tokensGenerate.ParseRefreshToken(refreshToken); err != nil {
+	if err := us.issueTokensService.ParseRefreshToken(refreshToken); err != nil {
 		switch {
 		case errors.Is(err, jwt.TokenIsExpiredError):
 			refreshTokenIsExpired = true
@@ -105,7 +113,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	// парсим access токен
-	accessTokenInfo, err := us.tokensGenerate.ParseAccessToken(models.AuthTokens{
+	accessTokenInfo, err := us.issueTokensService.ParseAccessToken(models.AuthTokens{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	})
@@ -166,7 +174,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	if accessTokenIsExpired {
-		accessToken, err = us.tokensGenerate.GenerateNewAccessToken(refreshToken, models.TokenPayload{
+		accessToken, err = us.issueTokensService.NewAccessToken(refreshToken, models.AccessTokenPayload{
 			UserID:         user.UserID,
 			RefreshTokenID: accessTokenInfo.RefreshTokenID,
 		})

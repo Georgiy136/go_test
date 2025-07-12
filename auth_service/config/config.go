@@ -45,6 +45,7 @@ type (
 	Tokens struct {
 		AccessToken
 		RefreshToken
+		Crypter
 	}
 
 	NotificationClient struct {
@@ -79,6 +80,9 @@ func NewConfig() (*Config, error) {
 		RefreshToken: RefreshToken{
 			SignedKey:     "abcdabcd",
 			TokenLifetime: 1 * time.Hour,
+		},
+		Crypter: Crypter{
+			SignedKey: "abcdabcdabcdabcd",
 		},
 	}
 	cfg.Crypter = Crypter{

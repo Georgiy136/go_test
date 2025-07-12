@@ -9,23 +9,23 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type AccessToken struct {
+type accessToken struct {
 	jwtToken jwt.JwtTokenGenerate
 	cfg      config.AccessToken
 }
 
-func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) *AccessToken {
-	return &AccessToken{
+func NewAccessToken(jwtToken jwt.JwtTokenGenerate, cfg config.AccessToken) *accessToken {
+	return &accessToken{
 		cfg:      cfg,
 		jwtToken: jwtToken,
 	}
 }
 
-func (a *AccessToken) New(refreshToken string, accessTokenPayload models.AccessTokenPayload) (string, error) {
+func (a *accessToken) New(refreshToken string, accessTokenPayload models.AccessTokenPayload) (string, error) {
 	return a.jwtToken.GenerateToken(a.getSignedString(refreshToken), a.cfg.TokenLifetime, accessTokenPayload)
 }
 
-func (a *AccessToken) Parse(tokens models.AuthTokens) (*models.AccessTokenPayload, error) {
+func (a *accessToken) Parse(tokens models.AuthTokens) (*models.AccessTokenPayload, error) {
 	payloadString, err := a.jwtToken.ParseToken(tokens.AccessToken, a.getSignedString(tokens.RefreshToken))
 	if err != nil {
 		switch {
@@ -46,11 +46,11 @@ func (a *AccessToken) Parse(tokens models.AuthTokens) (*models.AccessTokenPayloa
 	return payload, nil
 }
 
-func (a *AccessToken) getSignedString(refreshToken string) string {
+func (a *accessToken) getSignedString(refreshToken string) string {
 	return refreshToken + a.cfg.SignedKey
 }
 
-func (a *AccessToken) getAccessTokenPayload(payload string) (*models.AccessTokenPayload, error) {
+func (a *accessToken) getAccessTokenPayload(payload string) (*models.AccessTokenPayload, error) {
 	var payloadData models.AccessTokenPayload
 	if err := jsoniter.UnmarshalFromString(payload, &payloadData); err != nil {
 		return nil, err

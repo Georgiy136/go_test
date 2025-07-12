@@ -3,43 +3,51 @@ package token
 import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/config"
-	"github.com/Georgiy136/go_test/auth_service/internal/constant"
+	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token/jwt"
-	"time"
 )
 
 type IssueTokensService struct {
 	tokenGenerator jwt.JwtTokenGenerate
-	cfg            config.Tokens
 	crypter        *crypter.Crypter
-	refreshToken   *RefreshToken
-	accessToken    *AccessToken
+	refreshToken   *refreshToken
+	accessToken    *accessToken
 }
 
-func NewIssueTokensService(jwtToken jwt.JwtTokenGenerate, crypter *crypter.Crypter, cfg config.Tokens) *IssueTokensService {
+func NewIssueTokensService(jwtTokenGenerator jwt.JwtTokenGenerate, crypter *crypter.Crypter, cfg config.Tokens) *IssueTokensService {
 	return &IssueTokensService{
-		refreshToken:   NewRefreshToken(jwtToken, cfg.RefreshToken),
-		accessToken:    NewAccessToken(jwtToken, cfg.AccessToken),
+		tokenGenerator: jwtTokenGenerator,
+		refreshToken:   NewRefreshToken(jwtTokenGenerator, cfg.RefreshToken),
+		accessToken:    NewAccessToken(jwtTokenGenerator, cfg.AccessToken),
 		crypter:        crypter,
-		tokenGenerator: jwtToken,
-		cfg:            cfg,
 	}
 }
 
-func (t *IssueTokensService) GenerateToken(tokenType constant.TokenType) (string, error) {
-	switch tokenType {
-	case constant.RefreshToken:
-		return t.tokenGenerator.GenerateToken(t.cfg.RefreshToken.SignedKey, 1*time.Hour, "")
-	case constant.AccessToken:
-		return t.tokenGenerator.GenerateToken(t.cfg.AccessToken.SignedKey, 1*time.Hour, "")
-	default:
-		return "", fmt.Errorf("invalid token type")
+func (t *IssueTokensService) GenerateRefreshAndAccessTokens(payload models.AccessTokenPayload) (*models.AuthTokens, error) {
+	refreshToken, err := t.refreshToken.New()
+	if err != nil {
+		return nil, fmt.Errorf("GeneratePairsRefreshAndAccessTokens - NewRefreshToken error: %w", err)
 	}
 
-	// закодировать токены
-	refreshTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.RefreshToken)
+	accessToken, err := t.accessToken.New(refreshToken, payload)
 	if err != nil {
-		return nil, fmt.Errorf("a.crypter.Encrypt refreshToken error: %w", err)
+		return nil, fmt.Errorf("GeneratePairsRefreshAndAccessTokens - NewAccessToken error: %w", err)
 	}
+	return &models.AuthTokens{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
+}
+
+func (t *IssueTokensService) ParseRefreshToken(refreshToken string) error {
+	return t.refreshToken.Parse(refreshToken)
+}
+
+func (t *IssueTokensService) ParseAccessToken(tokensPair models.AuthTokens) (*models.AccessTokenPayload, error) {
+	return t.accessToken.Parse(tokensPair)
+}
+
+func (t *IssueTokensService) NewAccessToken(refreshToken string, payload models.AccessTokenPayload) (string, error) {
+	return t.accessToken.New(refreshToken, payload)
 }

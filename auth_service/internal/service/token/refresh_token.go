@@ -6,23 +6,23 @@ import (
 	"github.com/go-faster/errors"
 )
 
-type RefreshToken struct {
+type refreshToken struct {
 	jwtToken jwt.JwtTokenGenerate
 	cfg      config.RefreshToken
 }
 
-func NewRefreshToken(jwtToken jwt.JwtTokenGenerate, cfg config.RefreshToken) *RefreshToken {
-	return &RefreshToken{
+func NewRefreshToken(jwtToken jwt.JwtTokenGenerate, cfg config.RefreshToken) *refreshToken {
+	return &refreshToken{
 		cfg:      cfg,
 		jwtToken: jwtToken,
 	}
 }
 
-func (a *RefreshToken) New() (string, error) {
+func (a *refreshToken) New() (string, error) {
 	return a.jwtToken.GenerateToken(a.cfg.SignedKey, a.cfg.TokenLifetime, nil)
 }
 
-func (a *RefreshToken) Parse(refreshToken string) error {
+func (a *refreshToken) Parse(refreshToken string) error {
 	if _, err := a.jwtToken.ParseToken(refreshToken, a.cfg.SignedKey); err != nil {
 		return errors.Wrap(err, "parseRefreshToken error")
 	}
