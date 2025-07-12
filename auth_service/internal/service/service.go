@@ -16,13 +16,13 @@ import (
 )
 
 type AuthService struct {
-	db                 AuthStore
+	db                 AuthDBStore
 	notificationClient *client.NotificationClient
 	issueTokensService *token_generate.IssueTokensService
 	crypter            *crypter.Crypter
 }
 
-func NewAuthService(issueTokensService *token_generate.IssueTokensService, crypter *crypter.Crypter, notificationClient *client.NotificationClient, db AuthStore) *AuthService {
+func NewAuthService(issueTokensService *token_generate.IssueTokensService, crypter *crypter.Crypter, notificationClient *client.NotificationClient, db AuthDBStore) *AuthService {
 	return &AuthService{
 		db:                 db,
 		issueTokensService: issueTokensService,

@@ -12,7 +12,7 @@ type AuthRepo struct {
 	pgconn *pgx.Conn
 }
 
-func NewAuthRepo(pg *postgres.Postgres) service.AuthStore {
+func NewAuthRepo(pg *postgres.Postgres) service.AuthDBStore {
 	return &AuthRepo{
 		pgconn: pg.Pgconn,
 	}
