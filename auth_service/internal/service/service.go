@@ -129,7 +129,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	// ищем инфо о входе в БД по user_id и session_id
-	loginInfo, err := us.db.GetSignInByTokenID(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
+	loginInfo, err := us.db.GetUserSignIn(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - us.db.GetSignInByRefreshTokenID error: %w", err)
 	}
