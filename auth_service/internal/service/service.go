@@ -17,7 +17,7 @@ import (
 
 type AuthService struct {
 	notificationClient *client.NotificationClient
-	getUserInfoClient  *client.GetUserInfoClient
+	getUserInfoClient  *client.UserInfoClient
 	issueTokensService *token_generate.IssueTokensService
 	crypter            *crypter.Crypter
 	db                 AuthDBStore
@@ -26,7 +26,7 @@ type AuthService struct {
 func NewAuthService(
 	issueTokensService *token_generate.IssueTokensService,
 	crypter *crypter.Crypter,
-	getUserInfoClient *client.GetUserInfoClient,
+	getUserInfoClient *client.UserInfoClient,
 	notificationClient *client.NotificationClient,
 	db AuthDBStore,
 ) *AuthService {
@@ -40,14 +40,10 @@ func NewAuthService(
 }
 
 func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromRequestGetTokens) (*models.AuthTokens, error) {
-	// Проверяем есть ли пользователь в БД
-	user, err := us.db.GetUser(ctx, data.UserID)
-	if err != nil {
-		return nil, fmt.Errorf("GetTokens - us.db.GetUser error: %w", err)
-	}
-	if user == nil {
-		return nil, fmt.Errorf("GetTokens - GetUser - user info is nil")
-	}
+	// Проверяем сущ-ет ли пользователь
+	//if _, err = us.getUserInfoClient.GetUserInfo(ctx, accessTokenInfo.UserID); err != nil {
+	//	return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
+	//}
 
 	// Получаем уникальный refresh_token_id из БД (сдвигаем сиквенс)
 	refreshTokenID, err := us.db.GetRefreshTokenID(ctx)
@@ -96,11 +92,11 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 
 func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromRequestUpdateTokens) (*models.AuthTokens, error) {
 	// декодируем токены
-	refreshToken, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
+	refreshTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error: %w", err)
 	}
-	accessToken, err := us.crypter.DecodeFromBase64AndDecrypt(data.AccessToken)
+	accessTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt accessToken error: %w", err)
 	}
@@ -111,7 +107,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	)
 
 	// парсим refresh токен
-	if err = us.issueTokensService.ParseRefreshToken(refreshToken); err != nil {
+	if err = us.issueTokensService.ParseRefreshToken(refreshTokenDecoded); err != nil {
 		switch {
 		case errors.Is(err, jwt.TokenIsExpiredError):
 			refreshTokenIsExpired = true
@@ -122,8 +118,8 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 
 	// парсим access токен
 	accessTokenInfo, err := us.issueTokensService.ParseAccessToken(models.AuthTokens{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken:  accessTokenDecoded,
+		RefreshToken: refreshTokenDecoded,
 	})
 	if err != nil {
 		switch {
@@ -171,15 +167,15 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 
 		// выпускаем новые токены
 		return us.GetTokens(ctx, models.DataFromRequestGetTokens{
-			UserID:    user.UserID,
+			UserID:    accessTokenInfo.UserID,
 			UserAgent: data.UserAgent,
 			IpAddress: data.IpAddress,
 		})
 	}
 
 	if accessTokenIsExpired {
-		accessToken, err = us.issueTokensService.NewAccessToken(refreshToken, models.AccessTokenPayload{
-			UserID:         user.UserID,
+		accessTokenDecoded, err = us.issueTokensService.NewAccessToken(refreshTokenDecoded, models.AccessTokenPayload{
+			UserID:         accessTokenInfo.UserID,
 			RefreshTokenID: accessTokenInfo.RefreshTokenID,
 		})
 		if err != nil {
