@@ -46,6 +46,7 @@ func (db *Postgres) MigrateUpPostgres() error {
 	if err != nil {
 		logrus.Fatal(err)
 	}
+	defer sqlConn.Close()
 
 	instance, err := postgres.WithInstance(sqlConn, &postgres.Config{})
 	if err != nil {

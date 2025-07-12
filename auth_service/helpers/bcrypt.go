@@ -1,9 +1,12 @@
 package helpers
 
 import (
-	"crypto/sha512"
+	"crypto/sha256"
+	"encoding/hex"
 )
 
-func HashSha512(data string) string {
-	return string(sha512.New().Sum([]byte(data)))
+func HashSha256(data string) string {
+	h := sha256.New()
+	h.Write([]byte(data))
+	return hex.EncodeToString(h.Sum(nil))
 }

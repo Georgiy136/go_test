@@ -45,13 +45,13 @@ func (db *AuthRepo) GetUserSignIn(ctx context.Context, userID int, sessionID str
 			  FROM sessions.user_login
 			  WHERE user_id = $1 AND session_id = $2;`
 
-	var result *models.LoginInfo
-	err := db.pgconn.QueryRow(ctx, query, userID, sessionID).Scan(result)
+	var result models.LoginInfo
+	err := db.pgconn.QueryRow(ctx, query, userID, sessionID).Scan(&result.UserID, &result.SessionID, &result.RefreshToken, &result.UserAgent, &result.IpAddress)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, app_errors.SessionUserNotFoundError
 		}
-		return nil, fmt.Errorf("SaveUserLogin err: %v", err)
+		return nil, fmt.Errorf("GetUserSignIn err: %v", err)
 	}
-	return result, nil
+	return &result, nil
 }

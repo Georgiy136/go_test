@@ -70,10 +70,12 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
 	}
 
+	logrus.Infof("helpers.HashSha256(refreshTokenEncrypted): %s", helpers.HashSha256(refreshTokenEncrypted))
+
 	if err = us.db.SaveUserLogin(ctx, models.LoginInfo{
 		UserID:       data.UserID,
 		SessionID:    sessionID,
-		RefreshToken: helpers.HashSha512(refreshTokenEncrypted),
+		RefreshToken: helpers.HashSha256(refreshTokenEncrypted),
 		UserAgent:    data.UserAgent,
 		IpAddress:    data.IpAddress,
 	}); err != nil {
@@ -131,11 +133,11 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	// ищем инфо о входе в БД по user_id и session_id
 	loginInfo, err := us.db.GetUserSignIn(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
 	if err != nil {
-		return nil, fmt.Errorf("UpdateTokens - us.db.GetSignInByRefreshTokenID error: %w", err)
+		return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSignIn error: %w", err)
 	}
 
 	// Сверяем совпадают ли refresh токен с захешированным в БД
-	if !strings.EqualFold(helpers.HashSha512(refreshTokenDecoded), data.RefreshToken) {
+	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.RefreshToken) {
 		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
 	}
 
