@@ -19,7 +19,7 @@ func NewRefreshToken(jwtToken jwt.JwtTokenGenerate, cfg config.RefreshToken) Ref
 }
 
 func (a *refreshToken) New() (string, error) {
-	return a.jwtToken.GenerateToken(a.cfg.SignedKey, a.cfg.TokenLifetime, nil)
+	return a.jwtToken.GenerateToken(a.cfg.SignedKey, a.cfg.TokenLifetime, "")
 }
 
 func (a *refreshToken) Parse(refreshToken string) error {
