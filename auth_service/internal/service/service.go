@@ -61,7 +61,7 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 	if err != nil {
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
 	}
-	refreshTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.AccessToken)
+	refreshTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(tokens.RefreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
 	}

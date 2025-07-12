@@ -20,7 +20,7 @@ func (j *JwtTokenGenerateGolangJwtV5) GenerateToken(signedKey string, ttl time.D
 		return "", fmt.Errorf("error generating token_generate payload: %w", err)
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS512, &jwt.RegisteredClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.RegisteredClaims{
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)),
 		Subject:   payloadString,
@@ -47,7 +47,7 @@ func (j *JwtTokenGenerateGolangJwtV5) ParseToken(token, signedKey string) (strin
 			}
 			return sub, TokenIsExpiredError
 		default:
-			return "", fmt.Errorf("decodeAccessToken jwt.Parse error: %w", err)
+			return "", fmt.Errorf("jwt.Parse error: %w", err)
 		}
 	}
 
