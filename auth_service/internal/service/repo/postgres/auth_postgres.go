@@ -23,7 +23,7 @@ func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) er
 	return nil
 }
 
-func (db *AuthRepo) GetSignInByTokenID(ctx context.Context, userID int, sessionID string) (*models.LoginInfo, error) {
+func (db *AuthRepo) GetUserSignIn(ctx context.Context, userID int, sessionID string) (*models.LoginInfo, error) {
 
 	return &models.LoginInfo{
 		UserID:    1,
