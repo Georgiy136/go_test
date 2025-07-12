@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/client"
 	"github.com/Georgiy136/go_test/auth_service/helpers"
@@ -11,6 +10,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/service/app_errors"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate"
+	"github.com/go-faster/errors"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"strings"
@@ -191,4 +191,33 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		AccessToken:  data.AccessToken,
 		RefreshToken: data.RefreshToken,
 	}, nil
+}
+
+func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestGetUser) (*models.User, error) {
+	refreshTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error: %w", err)
+	}
+	accessTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.AccessToken)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt accessToken error: %w", err)
+	}
+
+	if err = us.issueTokensService.RefreshToken.Parse(refreshTokenDecoded); err != nil {
+		return nil, errors.Wrap(err, "RefreshToken Parse error")
+	}
+	accessTokenInfo, err := us.issueTokensService.AccessToken.Parse(models.AuthTokens{
+		AccessToken:  accessTokenDecoded,
+		RefreshToken: refreshTokenDecoded,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "AccessToken Parse error")
+	}
+	/*
+		user, err := us.getUserInfoClient.GetUserInfo(ctx, accessTokenInfo.UserID)
+		if err != nil {
+			return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
+		}
+	*/
+	return &models.User{UserID: accessTokenInfo.UserID}, nil
 }

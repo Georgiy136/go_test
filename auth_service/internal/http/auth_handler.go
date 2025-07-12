@@ -4,8 +4,9 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/http/httpresponse"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/app_errors"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"github.com/go-faster/errors"
 )
 
 type AuthHandler struct {
@@ -31,7 +32,7 @@ func (h *AuthHandler) GetTokens(c *gin.Context) {
 		httpresponse.HandleError(c, err, nil)
 		return
 	}
-	httpresponse.SendSuccess(c, http.StatusOK, tokens)
+	httpresponse.SendSuccessOK(c, tokens)
 }
 
 func (h *AuthHandler) UpdateTokens(c *gin.Context) {
@@ -45,7 +46,7 @@ func (h *AuthHandler) UpdateTokens(c *gin.Context) {
 		return
 	}
 
-	goods, err := h.us.UpdateTokens(c.Request.Context(), models.DataFromRequestUpdateTokens{
+	tokens, err := h.us.UpdateTokens(c.Request.Context(), models.DataFromRequestUpdateTokens{
 		AccessToken:  body.AccessToken,
 		RefreshToken: body.RefreshToken,
 		UserAgent:    c.Request.UserAgent(),
@@ -55,5 +56,33 @@ func (h *AuthHandler) UpdateTokens(c *gin.Context) {
 		httpresponse.HandleError(c, err, nil)
 		return
 	}
-	httpresponse.SendSuccessOK(c, goods)
+	httpresponse.SendSuccessOK(c, tokens)
+}
+
+func (h *AuthHandler) GetUser(c *gin.Context) {
+	type getUserRequest struct {
+		AccessToken  string `json:"access_token" binding:"required"`
+		RefreshToken string `json:"refresh_token" binding:"required"`
+	}
+	var body getUserRequest
+	if err := c.BindJSON(&body); err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+
+	user, err := h.us.GetUser(c.Request.Context(), models.DataFromRequestGetUser{
+		AccessToken:  body.AccessToken,
+		RefreshToken: body.RefreshToken,
+	})
+	if err != nil {
+		switch {
+		case errors.Is(err, app_errors.TokenIsExpiredError):
+			httpresponse.SendFailBadRequest(c, err.Error(), nil)
+			return
+		default:
+			httpresponse.HandleError(c, err, nil)
+			return
+		}
+	}
+	httpresponse.SendSuccessOK(c, user)
 }

@@ -26,7 +26,7 @@ func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) er
 	if err != nil {
 		return fmt.Errorf("failed to acquire connection: %v", err)
 	}
-	defer conn.Release() // Освобождение соединения обратно в пул
+	defer conn.Release()
 
 	query := `INSERT INTO sessions.user_login (user_id, 
                                  			   session_id,
@@ -34,7 +34,10 @@ func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) er
                                  			   user_agent, 
                                  			   ip_address
                                  			   ) 
-				values ($1, $2, $3, $4, $5);`
+				values ($1, $2, $3, $4, $5)
+				ON CONFLICT (user_id, user_agent, ip_address) DO UPDATE
+				                         SET session_id = EXCLUDED.session_id,
+				                         hash_refresh_token = EXCLUDED.hash_refresh_token;`
 
 	_, err = conn.Query(ctx, query, data.UserID, data.SessionID, data.RefreshToken, data.UserAgent, data.IpAddress)
 	if err != nil {
@@ -48,7 +51,7 @@ func (db *AuthRepo) GetUserSignIn(ctx context.Context, userID int, sessionID str
 	if err != nil {
 		return nil, fmt.Errorf("failed to acquire connection: %v", err)
 	}
-	defer conn.Release() // Освобождение соединения обратно в пул
+	defer conn.Release()
 
 	query := `SELECT user_id,
                      session_id,

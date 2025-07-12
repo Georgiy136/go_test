@@ -1,9 +1,9 @@
 ### STATUS 200
-GET localhost:8083/api/auth/issue_tokens?user_id=1
+GET localhost:8083/api/token/issue_tokens?user_id=1
 Content-Type: application/json
 
 ### STATUS 200
-PUT localhost:8083/api/auth/update_tokens
+PUT localhost:8083/api/token/update_tokens
 Content-Type: application/json
 
 {

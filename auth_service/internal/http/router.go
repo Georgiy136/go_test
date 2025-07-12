@@ -14,10 +14,11 @@ func NewRouter(router *gin.Engine, us service.AuthService) {
 	// Routers
 	api := router.Group("/api")
 	{
-		good := api.Group("/auth")
+		good := api.Group("/token")
 		{
 			good.GET("/issue_tokens", authHandlers.GetTokens)
 			good.PUT("/update_tokens", authHandlers.UpdateTokens)
+			good.GET("/get_user", authHandlers.GetUser)
 		}
 	}
 }

@@ -23,6 +23,11 @@ type DataFromRequestUpdateTokens struct {
 	IpAddress    string `json:"ip_address"`
 }
 
+type DataFromRequestGetUser struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
 type LoginInfo struct {
 	UserID       int    `json:"user_id"`
 	SessionID    string `json:"session_id"`

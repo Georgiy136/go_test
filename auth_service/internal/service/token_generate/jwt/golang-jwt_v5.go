@@ -3,7 +3,6 @@ package jwt
 import (
 	"errors"
 	"fmt"
-	"github.com/Georgiy136/go_test/auth_service/internal/service/app_errors"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
@@ -40,7 +39,7 @@ func (j *JwtTokenGenerateGolangJwtV5) ParseToken(token, signedKey string) (strin
 			if err != nil {
 				return "", err
 			}
-			return sub, app_errors.TokenIsExpiredError
+			return sub, err
 		default:
 			return "", fmt.Errorf("jwt.Parse error: %w", err)
 		}
