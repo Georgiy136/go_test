@@ -98,6 +98,66 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt accessToken error: %w", err)
 	}
 
+	if err = us.issueTokensService.ParseRefreshToken(refreshTokenDecoded); err != nil {
+		if !errors.Is(err, jwt.TokenIsExpiredError) {
+			return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
+		}
+	}
+	accessTokenInfo, err := us.issueTokensService.ParseAccessToken(models.AuthTokens{
+		AccessToken:  accessTokenDecoded,
+		RefreshToken: refreshTokenDecoded,
+	})
+	if err != nil {
+		if !errors.Is(err, jwt.TokenIsExpiredError) {
+			return nil, fmt.Errorf("UpdateTokens - ParseAccessToken error: %w", err)
+		}
+	}
+
+	// ищем инфо о refresh токене в БД
+	loginInfo, err := us.db.GetSignInByRefreshTokenID(ctx, accessTokenInfo.RefreshTokenID)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateTokens - us.db.GetSignInByRefreshTokenID error: %w", err)
+	}
+
+	// Сверяем совпадают ли refresh токен с захешированным в БД
+	if !strings.EqualFold(helpers.HashSha512(data.RefreshToken), loginInfo.RefreshToken) {
+		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
+	}
+
+	// Сверяем совпадают ли User-Agent
+	if !strings.EqualFold(data.UserAgent, loginInfo.UserAgent) {
+		return nil, fmt.Errorf("UpdateTokens - User-Agent does not match in db")
+	}
+
+	// Сверяем совпадает ли ip-адрес
+	if !strings.EqualFold(data.IpAddress, loginInfo.IpAddress) {
+		// уведомляем пользователя о входе с нового ip адреса
+		go func() {
+			if err = us.notificationClient.SendNewSignInNotification(accessTokenInfo.UserID, fmt.Sprintf(common.NewSignInNotificationCommonMsg, data.IpAddress, data.UserAgent)); err != nil {
+				logrus.Errorf("UpdateTokens - SendNewSignInNotification error: %v", err)
+			}
+		}()
+	}
+
+	// выпускаем новые токены
+	return us.GetTokens(ctx, models.DataFromRequestGetTokens{
+		UserID:    accessTokenInfo.UserID,
+		UserAgent: data.UserAgent,
+		IpAddress: data.IpAddress,
+	})
+}
+
+/*
+func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromRequestUpdateTokens) (*models.AuthTokens, error) {
+	refreshTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error: %w", err)
+	}
+	accessTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.AccessToken)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt accessToken error: %w", err)
+	}
+
 	var (
 		refreshTokenIsExpired bool
 		accessTokenIsExpired  bool
@@ -179,4 +239,4 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	return nil, fmt.Errorf("UpdateTokens - uknown err")
-}
+}*/
