@@ -22,7 +22,6 @@ func NewAuthRepo(pg *postgres.Postgres) service.AuthDBStore {
 }
 
 func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) error {
-	// Получение соединения из пула
 	conn, err := db.Dbpool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to acquire connection: %v", err)
@@ -45,7 +44,6 @@ func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) er
 }
 
 func (db *AuthRepo) GetUserSignIn(ctx context.Context, userID int, sessionID string) (*models.LoginInfo, error) {
-	// Получение соединения из пула
 	conn, err := db.Dbpool.Acquire(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to acquire connection: %v", err)
