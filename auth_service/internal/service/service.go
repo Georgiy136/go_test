@@ -136,7 +136,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSignIn error: %w", err)
 	}
 
-	// Сверяем совпадают ли refresh токен с захешированным в БД
+	// Сверяем совпадают ли refresh токен с хешированным в БД
 	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.RefreshToken) {
 		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
 	}
@@ -212,6 +212,17 @@ func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestG
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "AccessToken Parse error")
+	}
+
+	// проверяем инфо о входе в БД по user_id и session_id
+	loginInfo, err := us.db.GetUserSignIn(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSignIn error: %w", err)
+	}
+
+	// Сверяем совпадают ли refresh токен с хешированным в БД
+	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.RefreshToken) {
+		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
 	}
 	/*
 		user, err := us.getUserInfoClient.GetUserInfo(ctx, accessTokenInfo.UserID)

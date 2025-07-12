@@ -77,7 +77,7 @@ func (h *AuthHandler) GetUser(c *gin.Context) {
 	if err != nil {
 		switch {
 		case errors.Is(err, app_errors.TokenIsExpiredError):
-			httpresponse.SendFailBadRequest(c, err.Error(), nil)
+			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
 			return
 		default:
 			httpresponse.HandleError(c, err, nil)
