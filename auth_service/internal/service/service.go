@@ -62,7 +62,7 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
 	}
 
-	if err = us.db.SaveUserLogin(ctx, models.LoginInfo{
+	if err = us.db.SaveUserSession(ctx, models.LoginInfo{
 		UserID:       data.UserID,
 		SessionID:    sessionID,
 		RefreshToken: helpers.HashSha256(refreshTokenEncrypted),
@@ -116,7 +116,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	// ищем инфо о входе в БД по user_id и session_id
-	loginInfo, err := us.db.GetUserSignIn(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
+	loginInfo, err := us.db.GetUserSession(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSignIn error: %w", err)
 	}
@@ -143,7 +143,11 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 
 	if refreshTokenIsExpired {
 		// удаляем старую сессию в БД
-		// ...
+		go func() {
+			if err = us.db.DeleteUserSession(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID); err != nil {
+				logrus.Errorf("UpdateTokens - DeleteUserSession error: %v", err)
+			}
+		}()
 
 		// выпускаем новые токены
 		return us.GetTokens(ctx, models.DataFromRequestGetTokens{
@@ -200,7 +204,7 @@ func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestG
 	}
 
 	// проверяем инфо о входе в БД по user_id и session_id
-	loginInfo, err := us.db.GetUserSignIn(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
+	loginInfo, err := us.db.GetUserSession(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
 	if err != nil {
 		return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSignIn error: %w", err)
 	}
