@@ -43,23 +43,23 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 
 	refreshToken, err := us.issueTokensService.RefreshToken.New()
 	if err != nil {
-		return nil, fmt.Errorf("RefreshToken.New error: %w", err)
+		return nil, errors.Wrap(err, "RefreshToken.New error")
 	}
 	accessToken, err := us.issueTokensService.AccessToken.New(refreshToken, models.AccessTokenPayload{
 		UserID:    data.UserID,
 		SessionID: sessionID,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("AccessToken.New error: %w", err)
+		return nil, errors.Wrap(err, "AccessToken.New error")
 	}
 
 	refreshTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(refreshToken)
 	if err != nil {
-		return nil, fmt.Errorf("a.crypter.Encrypt refreshToken error: %w", err)
+		return nil, errors.Wrap(err, "a.crypter.Encrypt refreshToken error")
 	}
 	accessTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(accessToken)
 	if err != nil {
-		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
+		return nil, errors.Wrap(err, "a.crypter.Encrypt accessToken error")
 	}
 
 	if err = us.db.SaveUserSession(ctx, models.LoginInfo{
@@ -69,7 +69,7 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		UserAgent: data.UserAgent,
 		IpAddress: data.IpAddress,
 	}); err != nil {
-		return nil, fmt.Errorf("GetTokens - us.db.SaveUserLogin error: %w", err)
+		return nil, errors.Wrap(err, "GetTokens - us.db.SaveUserLogin error")
 	}
 
 	return &models.AuthTokens{
@@ -81,24 +81,16 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromRequestUpdateTokens) (*models.AuthTokens, error) {
 	refreshTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
 	if err != nil {
-		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error: %w", err)
+		return nil, errors.Wrap(err, "UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error")
 	}
 	accessTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.AccessToken)
 	if err != nil {
-		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt accessToken error: %w", err)
+		return nil, errors.Wrap(err, "UpdateTokens - DecodeFromBase64AndDecrypt accessToken error")
 	}
 
-	var (
-		refreshTokenIsExpired bool
-		accessTokenIsExpired  bool
-	)
-
 	if err = us.issueTokensService.RefreshToken.Parse(refreshTokenDecoded); err != nil {
-		switch {
-		case errors.Is(err, app_errors.TokenIsExpiredError):
-			refreshTokenIsExpired = true
-		default:
-			return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
+		if !errors.Is(err, app_errors.TokenIsExpiredError) {
+			return nil, errors.Wrap(err, "UpdateTokens - ParseRefreshToken error")
 		}
 	}
 
@@ -107,11 +99,8 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		RefreshToken: refreshTokenDecoded,
 	})
 	if err != nil {
-		switch {
-		case errors.Is(err, app_errors.TokenIsExpiredError):
-			accessTokenIsExpired = true
-		default:
-			return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
+		if !errors.Is(err, app_errors.TokenIsExpiredError) {
+			return nil, errors.Wrap(err, "UpdateTokens - ParseAccessToken error")
 		}
 	}
 
@@ -122,13 +111,13 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		case errors.Is(err, app_errors.SessionUserNotFoundError):
 			return nil, app_errors.SessionUserNotFoundError
 		default:
-			return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSession error: %w", err)
+			return nil, errors.Wrap(err, "UpdateTokens - us.db.GetUserSession error")
 		}
 	}
 
 	// Сверяем совпадают ли refresh токен с хешированным в БД
 	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.Token) {
-		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
+		return nil, errors.Wrap(err, "UpdateTokens - RefreshToken does not match in db")
 	}
 
 	// Сверяем совпадают ли User-Agent
@@ -152,55 +141,29 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		}()
 	}
 
-	if refreshTokenIsExpired {
-		// удаляем старую сессию в БД
-		go func() {
-			if err = us.db.DeleteUserSession(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID); err != nil {
-				logrus.Errorf("UpdateTokens - DeleteUserSession error: %v", err)
-			}
-		}()
-
-		// выпускаем новые токены
-		return us.GetTokens(ctx, models.DataFromRequestGetTokens{
-			UserID:    accessTokenInfo.UserID,
-			UserAgent: data.UserAgent,
-			IpAddress: data.IpAddress,
-		})
-	}
-
-	if accessTokenIsExpired {
-		newAccessToken, err := us.issueTokensService.AccessToken.New(refreshTokenDecoded, models.AccessTokenPayload{
-			UserID:    accessTokenInfo.UserID,
-			SessionID: accessTokenInfo.SessionID,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("UpdateTokens - us.tokensGenerate.GenerateNewAccessToken error: %w", err)
+	// удаляем старую сессию в БД
+	go func() {
+		if err = us.db.DeleteUserSession(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID); err != nil {
+			logrus.Errorf("UpdateTokens - DeleteUserSession error: %v", err)
 		}
-		newAccessTokenEncrypted, err := us.crypter.EncryptAndEncodeToBase64(newAccessToken)
-		if err != nil {
-			return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
-		}
+	}()
 
-		return &models.AuthTokens{
-			AccessToken:  newAccessTokenEncrypted,
-			RefreshToken: data.RefreshToken,
-		}, nil
-	}
-
-	return &models.AuthTokens{
-		AccessToken:  data.AccessToken,
-		RefreshToken: data.RefreshToken,
-	}, nil
+	// выпускаем новые токены
+	return us.GetTokens(ctx, models.DataFromRequestGetTokens{
+		UserID:    accessTokenInfo.UserID,
+		UserAgent: data.UserAgent,
+		IpAddress: data.IpAddress,
+	})
 }
 
 func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestGetUser) (*models.User, error) {
 	refreshTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
 	if err != nil {
-		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error: %w", err)
+		return nil, errors.Wrap(err, "UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error")
 	}
 	accessTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.AccessToken)
 	if err != nil {
-		return nil, fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt accessToken error: %w", err)
+		return nil, errors.Wrap(err, "UpdateTokens - DecodeFromBase64AndDecrypt accessToken error")
 	}
 
 	if err = us.issueTokensService.RefreshToken.Parse(refreshTokenDecoded); err != nil {
@@ -232,12 +195,12 @@ func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestG
 		case errors.Is(err, app_errors.SessionUserNotFoundError):
 			return nil, app_errors.SessionUserNotFoundError
 		default:
-			return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSession error: %w", err)
+			return nil, errors.Wrap(err, "UpdateTokens - us.db.GetUserSession error")
 		}
 	}
 	// Сверяем совпадают ли refresh токен с хешированным в БД
 	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.Token) {
-		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
+		return nil, errors.Wrap(err, "UpdateTokens - RefreshToken does not match in db")
 	}
 
 	return &models.User{UserID: accessTokenInfo.UserID}, nil
@@ -246,11 +209,11 @@ func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestG
 func (us *AuthService) Logout(ctx context.Context, data models.DataFromRequestLogout) error {
 	refreshTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
 	if err != nil {
-		return fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error: %w", err)
+		return errors.Wrap(err, "UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error")
 	}
 	accessTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.AccessToken)
 	if err != nil {
-		return fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt accessToken error: %w", err)
+		return errors.Wrap(err, "UpdateTokens - DecodeFromBase64AndDecrypt accessToken error")
 	}
 
 	if err = us.issueTokensService.RefreshToken.Parse(refreshTokenDecoded); err != nil {
@@ -275,12 +238,12 @@ func (us *AuthService) Logout(ctx context.Context, data models.DataFromRequestLo
 		case errors.Is(err, app_errors.SessionUserNotFoundError):
 			return app_errors.SessionUserNotFoundError
 		default:
-			return fmt.Errorf("Logout - us.db.GetUserSession error: %w", err)
+			return errors.Wrap(err, "Logout - us.db.GetUserSession error")
 		}
 	}
 	// Сверяем совпадают ли refresh токен с хешированным в БД
 	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.Token) {
-		return fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
+		return errors.Wrap(err, "UpdateTokens - RefreshToken does not match in db")
 	}
 
 	// Сверяем совпадают ли User-Agent
