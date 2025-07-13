@@ -7,8 +7,8 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/service"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/app_errors"
 	"github.com/Georgiy136/go_test/auth_service/pkg/postgres"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/jackc/pgx/v5"
 )
 
 type AuthRepo struct {

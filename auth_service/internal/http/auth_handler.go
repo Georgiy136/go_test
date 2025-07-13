@@ -53,9 +53,16 @@ func (h *AuthHandler) UpdateTokens(c *gin.Context) {
 		IpAddress:    c.ClientIP(),
 	})
 	if err != nil {
-		httpresponse.HandleError(c, err, nil)
-		return
+		switch {
+		case errors.Is(err, app_errors.SessionUserNotFoundError):
+			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
+			return
+		default:
+			httpresponse.HandleError(c, err, nil)
+			return
+		}
 	}
+
 	httpresponse.SendSuccessOK(c, tokens)
 }
 
@@ -79,10 +86,14 @@ func (h *AuthHandler) GetUser(c *gin.Context) {
 		case errors.Is(err, app_errors.TokenIsExpiredError):
 			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
 			return
+		case errors.Is(err, app_errors.SessionUserNotFoundError):
+			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
+			return
 		default:
 			httpresponse.HandleError(c, err, nil)
 			return
 		}
 	}
+
 	httpresponse.SendSuccessOK(c, user)
 }

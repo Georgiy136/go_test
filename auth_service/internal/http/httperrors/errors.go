@@ -11,13 +11,13 @@ type CommonError struct {
 }
 
 var (
-	BadRequest                 = CommonError{Code: 1, Message: "httperrors.common.badRequest", HttpCode: http.StatusBadRequest}
-	Unauthorized               = CommonError{Code: 2, Message: "httperrors.common.unauthorized", HttpCode: http.StatusUnauthorized}
-	Forbidden                  = CommonError{Code: 3, Message: "httperrors.common.forbidden", HttpCode: http.StatusForbidden}
-	NotFoundError              = CommonError{Code: 4, Message: "httperrors.common.notFound", HttpCode: http.StatusNotFound}
-	InternalServerError        = CommonError{Code: 5, Message: "httperrors.common.internalServerError", HttpCode: http.StatusInternalServerError}
-	ServiceUnavailable         = CommonError{Code: 6, Message: "httperrors.common.serviceUnavailable", HttpCode: http.StatusServiceUnavailable}
-	ServiceUnprocessableEntity = CommonError{Code: 7, Message: "httperrors.common.unprocessableEntity", HttpCode: http.StatusUnprocessableEntity}
+	BadRequest                 = CommonError{Code: 1, Message: "errors.common.badRequest", HttpCode: http.StatusBadRequest}
+	Unauthorized               = CommonError{Code: 2, Message: "errors.common.unauthorized", HttpCode: http.StatusUnauthorized}
+	Forbidden                  = CommonError{Code: 3, Message: "errors.common.forbidden", HttpCode: http.StatusForbidden}
+	NotFoundError              = CommonError{Code: 4, Message: "errors.common.notFound", HttpCode: http.StatusNotFound}
+	InternalServerError        = CommonError{Code: 5, Message: "errors.common.internalServerError", HttpCode: http.StatusInternalServerError}
+	ServiceUnavailable         = CommonError{Code: 6, Message: "errors.common.serviceUnavailable", HttpCode: http.StatusServiceUnavailable}
+	ServiceUnprocessableEntity = CommonError{Code: 7, Message: "errors.common.unprocessableEntity", HttpCode: http.StatusUnprocessableEntity}
 )
 
 type CustomError struct {

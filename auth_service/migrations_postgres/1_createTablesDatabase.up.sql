@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS sessions.user_login (
     user_agent character varying NOT NULL,
     ip_address character varying NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT pk_user_login PRIMARY KEY (user_id, user_agent, ip_address)
+    CONSTRAINT pk_user_login PRIMARY KEY (user_id, session_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_user_login_user_id on sessions.user_login (user_id);

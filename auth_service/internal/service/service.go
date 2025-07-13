@@ -118,7 +118,12 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	// ищем инфо о входе в БД по user_id и session_id
 	loginInfo, err := us.db.GetUserSession(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
 	if err != nil {
-		return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSignIn error: %w", err)
+		switch {
+		case errors.Is(err, app_errors.SessionUserNotFoundError):
+			return nil, app_errors.SessionUserNotFoundError
+		default:
+			return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSession error: %w", err)
+		}
 	}
 
 	// Сверяем совпадают ли refresh токен с хешированным в БД
@@ -206,9 +211,13 @@ func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestG
 	// проверяем инфо о входе в БД по user_id и session_id
 	loginInfo, err := us.db.GetUserSession(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
 	if err != nil {
-		return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSignIn error: %w", err)
+		switch {
+		case errors.Is(err, app_errors.SessionUserNotFoundError):
+			return nil, app_errors.SessionUserNotFoundError
+		default:
+			return nil, fmt.Errorf("UpdateTokens - us.db.GetUserSession error: %w", err)
+		}
 	}
-
 	// Сверяем совпадают ли refresh токен с хешированным в БД
 	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.RefreshToken) {
 		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")

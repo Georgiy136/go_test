@@ -11,7 +11,6 @@ Content-Type: application/json
   "refresh_token": "E/OgfkwKDfQwbjgOa2o3JLagvefGW0I78T46p3fSNdZwFi/lwT9S31VSw3u+d+mDgUPZzz5t3Sk5Uacd2EeSdpsVtK51c9QQWCeI+mvGpoglxpHHHKmiNmO4Jr0P3jV3zkpu/JdvmJbllsYWBc9cnKBJr+06/QGwI2o802W1DbDzY4k4e+X8Isa5aTgrUi7KfpeabTwH3nuJ3zBfmXA/SH+FTVBBwe07GaK9eXNgAVnFYX8kou0Qt9E1cw=="
 }
 
-
 ### STATUS 200
 GET localhost:8083/api/token/get_user
 Content-Type: application/json
