@@ -19,6 +19,7 @@ func NewRouter(router *gin.Engine, us service.AuthService) {
 			good.GET("/issue_tokens", authHandlers.GetTokens)
 			good.PUT("/update_tokens", authHandlers.UpdateTokens)
 			good.GET("/get_user", authHandlers.GetUser)
+			good.POST("/logout", authHandlers.Logout)
 		}
 	}
 }
