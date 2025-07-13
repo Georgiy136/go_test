@@ -34,10 +34,7 @@ func (db *AuthRepo) SaveUserSession(ctx context.Context, data models.LoginInfo) 
                                  			   user_agent, 
                                  			   ip_address
                                  			   ) 
-				values ($1, $2, $3, $4, $5);
-				--ON CONFLICT (user_id, user_agent, ip_address) DO UPDATE
-				--                         SET session_id = EXCLUDED.session_id,
-				--                         hash_token = EXCLUDED.hash_token;`
+				values ($1, $2, $3, $4, $5);`
 
 	if _, err = conn.Query(ctx, query, data.UserID, data.SessionID, data.Token, data.UserAgent, data.IpAddress); err != nil {
 		return fmt.Errorf("SaveUserSession err: %v", err)
