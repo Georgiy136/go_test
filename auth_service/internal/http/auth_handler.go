@@ -54,10 +54,10 @@ func (h *AuthHandler) UpdateTokens(c *gin.Context) {
 	})
 	if err != nil {
 		switch {
-		case errors.Is(err, app_errors.SessionUserNotFoundError):
+		case errors.Is(err, app_errors.UserAgentNotMatchInDB):
 			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
 			return
-		case errors.Is(err, app_errors.UserAgentNotMatchInDB):
+		case errors.Is(err, app_errors.SessionUserNotFoundError):
 			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
 			return
 		default:
@@ -119,10 +119,10 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	})
 	if err != nil {
 		switch {
-		case errors.Is(err, app_errors.SessionUserNotFoundError):
+		case errors.Is(err, app_errors.UserAgentNotMatchInDB):
 			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
 			return
-		case errors.Is(err, app_errors.UserAgentNotMatchInDB):
+		case errors.Is(err, app_errors.SessionUserNotFoundError):
 			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
 			return
 		default:
