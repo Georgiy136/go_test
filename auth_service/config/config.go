@@ -52,10 +52,6 @@ type (
 	NotificationClient struct {
 		Url string
 	}
-
-	UserInfoClient struct {
-		Url string
-	}
 )
 
 func NewConfig() (*Config, error) {

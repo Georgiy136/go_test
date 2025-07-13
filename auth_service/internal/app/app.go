@@ -43,12 +43,10 @@ func Run(cfg *config.Config) {
 		tokens.NewAccessToken(jwtGen, crypt, cfg.AccessToken),
 	)
 
-	userInfoClient := client.NewUserInfoClient(cfg.UserInfoClient)
-
 	notificationClient := client.NewNotificationClient(cfg.NotificationClient)
 
 	// Service
-	authService := service.NewAuthService(tokenGenerator, crypt, userInfoClient, notificationClient, authRepo)
+	authService := service.NewAuthService(tokenGenerator, crypt, notificationClient, authRepo)
 
 	// HTTP Server
 	router := gin.Default()

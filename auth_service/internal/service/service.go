@@ -18,7 +18,6 @@ import (
 
 type AuthService struct {
 	notificationClient *client.NotificationClient
-	getUserInfoClient  *client.UserInfoClient
 	issueTokensService *token_generate.IssueTokensService
 	crypter            *crypter.Crypter
 	db                 AuthDBStore
@@ -27,25 +26,18 @@ type AuthService struct {
 func NewAuthService(
 	issueTokensService *token_generate.IssueTokensService,
 	crypter *crypter.Crypter,
-	getUserInfoClient *client.UserInfoClient,
 	notificationClient *client.NotificationClient,
 	db AuthDBStore,
 ) *AuthService {
 	return &AuthService{
 		issueTokensService: issueTokensService,
 		notificationClient: notificationClient,
-		getUserInfoClient:  getUserInfoClient,
 		crypter:            crypter,
 		db:                 db,
 	}
 }
 
 func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromRequestGetTokens) (*models.AuthTokens, error) {
-	// Проверяем сущ-ет ли пользователь
-	if _, err := us.getUserInfoClient.GetUserInfo(ctx, data.UserID); err != nil {
-		return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
-	}
-
 	// генерируем id сессии
 	sessionID := uuid.New().String()
 
@@ -123,11 +115,6 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 		default:
 			return nil, fmt.Errorf("UpdateTokens - ParseRefreshToken error: %w", err)
 		}
-	}
-
-	// Проверяем сущ-ет ли пользователь
-	if _, err = us.getUserInfoClient.GetUserInfo(ctx, accessTokenInfo.UserID); err != nil {
-		return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
 	}
 
 	// ищем инфо о входе в БД по user_id и session_id
@@ -224,11 +211,6 @@ func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestG
 	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.RefreshToken) {
 		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
 	}
-	/*
-		user, err := us.getUserInfoClient.GetUserInfo(ctx, accessTokenInfo.UserID)
-		if err != nil {
-			return nil, fmt.Errorf("UpdateTokens - GetUserInfo error: %w", err)
-		}
-	*/
+
 	return &models.User{UserID: accessTokenInfo.UserID}, nil
 }
