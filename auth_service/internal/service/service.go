@@ -133,6 +133,12 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 
 	// Сверяем совпадают ли User-Agent
 	if !strings.EqualFold(data.UserAgent, loginInfo.UserAgent) {
+		go func() {
+			if err = us.Logout(ctx, models.DataFromRequestLogout{AccessToken: data.AccessToken, RefreshToken: data.RefreshToken}); err != nil {
+				logrus.Errorf("UserAgent not match in db, failed to logout: %v", err)
+			}
+		}()
+
 		return nil, fmt.Errorf("UpdateTokens - User-Agent does not match in db")
 	}
 
