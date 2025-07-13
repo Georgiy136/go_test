@@ -8,6 +8,7 @@ import (
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/app_errors"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
+	"github.com/Georgiy136/go_test/auth_service/internal/service/repo"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate"
 	"github.com/Georgiy136/go_test/auth_service/internal/templates"
 	"github.com/go-faster/errors"
@@ -20,14 +21,14 @@ type AuthService struct {
 	notificationClient *client.NotificationClient
 	issueTokensService *token_generate.IssueTokensService
 	crypter            *crypter.Crypter
-	db                 AuthDBStore
+	db                 repo.AuthDBStore
 }
 
 func NewAuthService(
 	issueTokensService *token_generate.IssueTokensService,
 	crypter *crypter.Crypter,
 	notificationClient *client.NotificationClient,
-	db AuthDBStore,
+	db repo.AuthDBStore,
 ) *AuthService {
 	return &AuthService{
 		issueTokensService: issueTokensService,
