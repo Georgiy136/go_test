@@ -63,11 +63,11 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 	}
 
 	if err = us.db.SaveUserSession(ctx, models.LoginInfo{
-		UserID:       data.UserID,
-		SessionID:    sessionID,
-		RefreshToken: helpers.HashSha256(refreshTokenEncrypted),
-		UserAgent:    data.UserAgent,
-		IpAddress:    data.IpAddress,
+		UserID:    data.UserID,
+		SessionID: sessionID,
+		Token:     helpers.HashSha256(refreshTokenEncrypted),
+		UserAgent: data.UserAgent,
+		IpAddress: data.IpAddress,
 	}); err != nil {
 		return nil, fmt.Errorf("GetTokens - us.db.SaveUserLogin error: %w", err)
 	}
@@ -127,7 +127,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	}
 
 	// Сверяем совпадают ли refresh токен с хешированным в БД
-	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.RefreshToken) {
+	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.Token) {
 		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
 	}
 
@@ -219,7 +219,7 @@ func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestG
 		}
 	}
 	// Сверяем совпадают ли refresh токен с хешированным в БД
-	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.RefreshToken) {
+	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.Token) {
 		return nil, fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
 	}
 

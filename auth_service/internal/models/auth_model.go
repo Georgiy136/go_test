@@ -28,10 +28,15 @@ type DataFromRequestGetUser struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-type LoginInfo struct {
-	UserID       int    `json:"user_id"`
-	SessionID    string `json:"session_id"`
+type DataFromRequestLogout struct {
+	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
-	UserAgent    string `json:"user_agent"`
-	IpAddress    string `json:"ip_address"`
+}
+
+type LoginInfo struct {
+	UserID    int    `json:"user_id"`
+	SessionID string `json:"session_id"`
+	Token     string `json:"token"`
+	UserAgent string `json:"user_agent"`
+	IpAddress string `json:"ip_address"`
 }

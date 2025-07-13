@@ -39,7 +39,7 @@ func (db *AuthRepo) SaveUserSession(ctx context.Context, data models.LoginInfo) 
 				--                         SET session_id = EXCLUDED.session_id,
 				--                         hash_token = EXCLUDED.hash_token;`
 
-	if _, err = conn.Query(ctx, query, data.UserID, data.SessionID, data.RefreshToken, data.UserAgent, data.IpAddress); err != nil {
+	if _, err = conn.Query(ctx, query, data.UserID, data.SessionID, data.Token, data.UserAgent, data.IpAddress); err != nil {
 		return fmt.Errorf("SaveUserSession err: %v", err)
 	}
 	return nil
@@ -61,7 +61,7 @@ func (db *AuthRepo) GetUserSession(ctx context.Context, userID int, sessionID st
 			  WHERE user_id = $1 AND session_id = $2;`
 
 	var result models.LoginInfo
-	err = conn.QueryRow(ctx, query, userID, sessionID).Scan(&result.UserID, &result.SessionID, &result.RefreshToken, &result.UserAgent, &result.IpAddress)
+	err = conn.QueryRow(ctx, query, userID, sessionID).Scan(&result.UserID, &result.SessionID, &result.Token, &result.UserAgent, &result.IpAddress)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, app_errors.SessionUserNotFoundError

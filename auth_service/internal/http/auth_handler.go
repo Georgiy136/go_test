@@ -97,3 +97,35 @@ func (h *AuthHandler) GetUser(c *gin.Context) {
 
 	httpresponse.SendSuccessOK(c, user)
 }
+
+func (h *AuthHandler) Logout(c *gin.Context) {
+	type logoutRequest struct {
+		AccessToken  string `json:"access_token" binding:"required"`
+		RefreshToken string `json:"refresh_token" binding:"required"`
+	}
+	var body logoutRequest
+	if err := c.BindJSON(&body); err != nil {
+		httpresponse.SendFailBadRequest(c, err.Error(), nil)
+		return
+	}
+
+	user, err := h.us.Logout(c.Request.Context(), models.DataFromRequestLogout{
+		AccessToken:  body.AccessToken,
+		RefreshToken: body.RefreshToken,
+	})
+	if err != nil {
+		switch {
+		case errors.Is(err, app_errors.TokenIsExpiredError):
+			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
+			return
+		case errors.Is(err, app_errors.SessionUserNotFoundError):
+			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
+			return
+		default:
+			httpresponse.HandleError(c, err, nil)
+			return
+		}
+	}
+
+	httpresponse.SendSuccessOK(c, user)
+}
