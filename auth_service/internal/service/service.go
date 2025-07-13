@@ -139,7 +139,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 			}
 		}()
 
-		return nil, fmt.Errorf("UpdateTokens - User-Agent does not match in db")
+		return nil, app_errors.UserAgentNotMatchInDB
 	}
 
 	// Сверяем совпадает ли ip-адрес
@@ -281,6 +281,17 @@ func (us *AuthService) Logout(ctx context.Context, data models.DataFromRequestLo
 	// Сверяем совпадают ли refresh токен с хешированным в БД
 	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.Token) {
 		return fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
+	}
+
+	// Сверяем совпадают ли User-Agent
+	if !strings.EqualFold(data.UserAgent, loginInfo.UserAgent) {
+		go func() {
+			if err = us.Logout(ctx, models.DataFromRequestLogout{AccessToken: data.AccessToken, RefreshToken: data.RefreshToken}); err != nil {
+				logrus.Errorf("UserAgent not match in db, failed to logout: %v", err)
+			}
+		}()
+
+		return app_errors.UserAgentNotMatchInDB
 	}
 
 	// удаляем старую сессию в БД
