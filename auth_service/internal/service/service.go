@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/Georgiy136/go_test/auth_service/client"
 	"github.com/Georgiy136/go_test/auth_service/helpers"
-	"github.com/Georgiy136/go_test/auth_service/internal/common"
 	"github.com/Georgiy136/go_test/auth_service/internal/models"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/app_errors"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/crypter"
 	"github.com/Georgiy136/go_test/auth_service/internal/service/token_generate"
+	"github.com/Georgiy136/go_test/auth_service/internal/templates"
 	"github.com/go-faster/errors"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -135,7 +135,7 @@ func (us *AuthService) UpdateTokens(ctx context.Context, data models.DataFromReq
 	if !strings.EqualFold(data.IpAddress, loginInfo.IpAddress) {
 		// уведомляем пользователя о входе с нового ip адреса
 		go func() {
-			if err = us.notificationClient.SendNewSignInNotification(accessTokenInfo.UserID, fmt.Sprintf(common.NewSignInNotificationCommonMsg, data.IpAddress, data.UserAgent)); err != nil {
+			if err = us.notificationClient.SendNewSignInNotification(accessTokenInfo.UserID, fmt.Sprintf(templates.NewSignInNotificationCommonMsg, data.IpAddress, data.UserAgent)); err != nil {
 				logrus.Errorf("UpdateTokens - SendNewSignInNotification error: %v", err)
 			}
 		}()
