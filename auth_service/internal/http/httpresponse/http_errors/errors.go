@@ -1,4 +1,4 @@
-package httperrors
+package http_errors
 
 import (
 	"net/http"

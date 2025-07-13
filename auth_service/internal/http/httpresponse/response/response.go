@@ -1,7 +1,7 @@
 package response
 
 import (
-	"github.com/Georgiy136/go_test/auth_service/internal/http/httperrors"
+	"github.com/Georgiy136/go_test/auth_service/internal/http/httpresponse/http_errors"
 )
 
 type (
@@ -27,7 +27,7 @@ func NewSuccess(data any) SuccessData {
 	}
 }
 
-func NewError(err httperrors.CommonError, description string, details interface{}) ErrorData {
+func NewError(err http_errors.CommonHttpError, description string, details interface{}) ErrorData {
 	return ErrorData{
 		Error: Error{
 			Message:     err.Message,
