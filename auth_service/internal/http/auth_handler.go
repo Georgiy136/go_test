@@ -109,15 +109,12 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 		return
 	}
 
-	user, err := h.us.Logout(c.Request.Context(), models.DataFromRequestLogout{
+	err := h.us.Logout(c.Request.Context(), models.DataFromRequestLogout{
 		AccessToken:  body.AccessToken,
 		RefreshToken: body.RefreshToken,
 	})
 	if err != nil {
 		switch {
-		case errors.Is(err, app_errors.TokenIsExpiredError):
-			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
-			return
 		case errors.Is(err, app_errors.SessionUserNotFoundError):
 			httpresponse.SendFailUnauthorized(c, err.Error(), nil)
 			return
@@ -127,5 +124,5 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 		}
 	}
 
-	httpresponse.SendSuccessOK(c, user)
+	httpresponse.SendNoContent(c)
 }

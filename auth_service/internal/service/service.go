@@ -198,14 +198,25 @@ func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestG
 	}
 
 	if err = us.issueTokensService.RefreshToken.Parse(refreshTokenDecoded); err != nil {
-		return nil, errors.Wrap(err, "RefreshToken Parse error")
+		switch {
+		case errors.Is(err, app_errors.TokenIsExpiredError):
+			return nil, app_errors.TokenIsExpiredError
+		default:
+			return nil, errors.Wrap(err, "RefreshToken Parse error")
+		}
 	}
+
 	accessTokenInfo, err := us.issueTokensService.AccessToken.Parse(models.AuthTokens{
 		AccessToken:  accessTokenDecoded,
 		RefreshToken: refreshTokenDecoded,
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "AccessToken Parse error")
+		switch {
+		case errors.Is(err, app_errors.TokenIsExpiredError):
+			return nil, app_errors.TokenIsExpiredError
+		default:
+			return nil, errors.Wrap(err, "AccessToken Parse error")
+		}
 	}
 
 	// проверяем инфо о входе в БД по user_id и session_id
@@ -224,4 +235,54 @@ func (us *AuthService) GetUser(ctx context.Context, data models.DataFromRequestG
 	}
 
 	return &models.User{UserID: accessTokenInfo.UserID}, nil
+}
+
+func (us *AuthService) Logout(ctx context.Context, data models.DataFromRequestLogout) error {
+	refreshTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.RefreshToken)
+	if err != nil {
+		return fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt refreshToken error: %w", err)
+	}
+	accessTokenDecoded, err := us.crypter.DecodeFromBase64AndDecrypt(data.AccessToken)
+	if err != nil {
+		return fmt.Errorf("UpdateTokens - DecodeFromBase64AndDecrypt accessToken error: %w", err)
+	}
+
+	if err = us.issueTokensService.RefreshToken.Parse(refreshTokenDecoded); err != nil {
+		if !errors.Is(err, app_errors.TokenIsExpiredError) {
+			return errors.Wrap(err, "RefreshToken Parse error")
+		}
+	}
+	accessTokenInfo, err := us.issueTokensService.AccessToken.Parse(models.AuthTokens{
+		AccessToken:  accessTokenDecoded,
+		RefreshToken: refreshTokenDecoded,
+	})
+	if err != nil {
+		if !errors.Is(err, app_errors.TokenIsExpiredError) {
+			return errors.Wrap(err, "AccessToken Parse error")
+		}
+	}
+
+	// проверяем инфо о входе в БД по user_id и session_id
+	loginInfo, err := us.db.GetUserSession(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID)
+	if err != nil {
+		switch {
+		case errors.Is(err, app_errors.SessionUserNotFoundError):
+			return app_errors.SessionUserNotFoundError
+		default:
+			return fmt.Errorf("Logout - us.db.GetUserSession error: %w", err)
+		}
+	}
+	// Сверяем совпадают ли refresh токен с хешированным в БД
+	if !strings.EqualFold(helpers.HashSha256(data.RefreshToken), loginInfo.Token) {
+		return fmt.Errorf("UpdateTokens - RefreshToken does not match in db")
+	}
+
+	// удаляем старую сессию в БД
+	go func() {
+		if err = us.db.DeleteUserSession(ctx, accessTokenInfo.UserID, accessTokenInfo.SessionID); err != nil {
+			logrus.Errorf("UpdateTokens - DeleteUserSession error: %v", err)
+		}
+	}()
+
+	return nil
 }
