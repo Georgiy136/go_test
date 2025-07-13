@@ -6,6 +6,7 @@ import (
 )
 
 type AuthDBStore interface {
-	GetUserSignIn(ctx context.Context, userID int, sessionID string) (*models.LoginInfo, error)
-	SaveUserLogin(ctx context.Context, data models.LoginInfo) error
+	GetUserSession(ctx context.Context, userID int, sessionID string) (*models.LoginInfo, error)
+	SaveUserSession(ctx context.Context, data models.LoginInfo) error
+	DeleteUserSession(ctx context.Context, userID int, sessionID string) error
 }

@@ -21,7 +21,7 @@ func NewAuthRepo(pg *postgres.Postgres) service.AuthDBStore {
 	}
 }
 
-func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) error {
+func (db *AuthRepo) SaveUserSession(ctx context.Context, data models.LoginInfo) error {
 	conn, err := db.Dbpool.Acquire(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to acquire connection: %v", err)
@@ -30,7 +30,7 @@ func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) er
 
 	query := `INSERT INTO sessions.user_login (user_id, 
                                  			   session_id,
-                                 			   hash_refresh_token,
+                                 			   hash_token,
                                  			   user_agent, 
                                  			   ip_address
                                  			   ) 
@@ -39,14 +39,13 @@ func (db *AuthRepo) SaveUserLogin(ctx context.Context, data models.LoginInfo) er
 				--                         SET session_id = EXCLUDED.session_id,
 				--                         hash_refresh_token = EXCLUDED.hash_refresh_token;`
 
-	_, err = conn.Query(ctx, query, data.UserID, data.SessionID, data.RefreshToken, data.UserAgent, data.IpAddress)
-	if err != nil {
-		return fmt.Errorf("SaveUserLogin err: %v", err)
+	if _, err = conn.Query(ctx, query, data.UserID, data.SessionID, data.RefreshToken, data.UserAgent, data.IpAddress); err != nil {
+		return fmt.Errorf("SaveUserSession err: %v", err)
 	}
 	return nil
 }
 
-func (db *AuthRepo) GetUserSignIn(ctx context.Context, userID int, sessionID string) (*models.LoginInfo, error) {
+func (db *AuthRepo) GetUserSession(ctx context.Context, userID int, sessionID string) (*models.LoginInfo, error) {
 	conn, err := db.Dbpool.Acquire(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to acquire connection: %v", err)
@@ -55,7 +54,7 @@ func (db *AuthRepo) GetUserSignIn(ctx context.Context, userID int, sessionID str
 
 	query := `SELECT user_id,
                      session_id,
-                     hash_refresh_token,
+                     hash_token,
                      user_agent,
                      ip_address 
 			  FROM sessions.user_login
@@ -67,7 +66,22 @@ func (db *AuthRepo) GetUserSignIn(ctx context.Context, userID int, sessionID str
 		if err == pgx.ErrNoRows {
 			return nil, app_errors.SessionUserNotFoundError
 		}
-		return nil, fmt.Errorf("GetUserSignIn err: %v", err)
+		return nil, fmt.Errorf("GetUserSession err: %v", err)
 	}
 	return &result, nil
+}
+
+func (db *AuthRepo) DeleteUserSession(ctx context.Context, userID int, sessionID string) error {
+	conn, err := db.Dbpool.Acquire(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to acquire connection: %v", err)
+	}
+	defer conn.Release()
+
+	query := `DELETE FROM FROM sessions.user_login WHERE user_id = $1 AND session_id = $2;`
+
+	if _, err = conn.Query(ctx, query, userID, sessionID); err != nil {
+		return fmt.Errorf("DeleteUserSession err: %v", err)
+	}
+	return nil
 }

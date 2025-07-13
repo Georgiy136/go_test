@@ -62,8 +62,6 @@ func (us *AuthService) GetTokens(ctx context.Context, data models.DataFromReques
 		return nil, fmt.Errorf("a.crypter.Encrypt accessToken error: %w", err)
 	}
 
-	logrus.Infof("helpers.HashSha256(refreshTokenEncrypted): %s", helpers.HashSha256(refreshTokenEncrypted))
-
 	if err = us.db.SaveUserLogin(ctx, models.LoginInfo{
 		UserID:       data.UserID,
 		SessionID:    sessionID,
