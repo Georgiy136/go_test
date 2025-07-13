@@ -1,6 +1,8 @@
 package response
 
-import "github.com/Georgiy136/go_test/auth_service/internal/errors/common"
+import (
+	"github.com/Georgiy136/go_test/auth_service/internal/http/httperrors"
+)
 
 type (
 	SuccessData struct {
@@ -25,7 +27,7 @@ func NewSuccess(data any) SuccessData {
 	}
 }
 
-func NewError(err common.CommonError, description string, details interface{}) ErrorData {
+func NewError(err httperrors.CommonError, description string, details interface{}) ErrorData {
 	return ErrorData{
 		Error: Error{
 			Message:     err.Message,
